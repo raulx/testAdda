@@ -2,10 +2,10 @@
   "name": "testadda-backend",
   "version": "1.0.0",
   "description": "this is backend of testadda web application that serves the apis for testadda data and operations.",
-  "main": "./src/server.js",
+  "main": "index.js",
   "type": "module",
   "scripts": {
-    "server": "nodemon ./src/server.js",
+    "server": "nodemon ./src/index.js",
     "format": "prettier --write ."
   },
   "keywords": [
@@ -16,9 +16,14 @@
   "author": "Rahul Sinha",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "mongoose": "^8.5.3"
+    "express-async-handler": "^1.2.0",
+    "mongoose": "^8.5.3",
+    "nodemailer": "^6.9.14"
   },
   "devDependencies": {
     "nodemon": "^3.1.4",
