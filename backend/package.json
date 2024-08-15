@@ -1,0 +1,27 @@
+{
+  "name": "testadda-backend",
+  "version": "1.0.0",
+  "description": "this is backend of testadda web application that serves the apis for testadda data and operations.",
+  "main": "./src/server.js",
+  "type": "module",
+  "scripts": {
+    "server": "nodemon ./src/server.js",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "backend",
+    "testadda",
+    "api's"
+  ],
+  "author": "Rahul Sinha",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4",
+    "prettier": "^3.3.3"
+  }
+}
