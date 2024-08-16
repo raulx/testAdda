@@ -1,10 +1,11 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
 
-const otpSchema = mongoose.Schema(
+const otpSchema = new Schema(
   {
     clientId: { type: String, index: true },
     otp: { type: String },
+    isVerified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
@@ -20,6 +21,6 @@ otpSchema.methods.matchOtp = async function (enteredOtp) {
   return await bcrypt.compare(enteredOtp, this.otp);
 };
 
-const Onetimepassword = mongoose.model('Onetimepassword', otpSchema);
+const Otp = mongoose.model('Otp', otpSchema);
 
-export { Onetimepassword };
+export { Otp };
