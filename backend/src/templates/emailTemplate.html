@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your OTP Code</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        width: 100%;
+        padding: 20px;
+        background-color: #ffffff;
+        max-width: 600px;
+        margin: 20px auto;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        padding: 20px 0;
+      }
+      .header img {
+        width: 50px;
+      }
+      .content {
+        font-size: 16px;
+        line-height: 1.5;
+        color: #333333;
+      }
+      .otp {
+        font-size: 24px;
+        font-weight: bold;
+        color: #4caf50;
+        text-align: center;
+        margin: 20px 0;
+      }
+      .footer {
+        text-align: center;
+        font-size: 12px;
+        color: #999999;
+        padding-top: 20px;
+        border-top: 1px solid #dddddd;
+      }
+      .company {
+        font-size: 18px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img src="https://your-logo-url.com/logo.png" alt="Company Logo" />
+        <h2>Your OTP Code</h2>
+      </div>
+      <div class="content">
+        <p>Hello,</p>
+        <p>
+          We received a request to access your account. Please use the following
+          One-Time Password (OTP) to complete your login:
+        </p>
+        <div class="otp">{{OTP_CODE}}</div>
+        <p>
+          This OTP is valid for the next 10 minutes. Please do not share this
+          code with anyone.
+        </p>
+        <p>If you did not request this, please ignore this email.</p>
+        <p>
+          Thank you, <br />
+          The <span class="company">TestAdda</span> Team
+        </p>
+      </div>
+      <div class="footer">
+        <p>If you have any questions, feel free to contact our support team.</p>
+      </div>
+    </div>
+  </body>
+</html>

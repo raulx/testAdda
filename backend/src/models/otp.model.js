@@ -1,10 +1,13 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
-const otpSchema = mongoose.Schema({
-  clientId: { type: String, index: true },
-  otp: { type: String },
-});
+const otpSchema = mongoose.Schema(
+  {
+    clientId: { type: String, index: true },
+    otp: { type: String },
+  },
+  { timestamps: true }
+);
 
 otpSchema.pre('save', async function (next) {
   if (!this.isModified('otp')) return next();
