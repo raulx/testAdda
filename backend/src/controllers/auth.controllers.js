@@ -1,10 +1,11 @@
 import asynHandler from 'express-async-handler';
-import { sendMail } from '../services/sendMail.js';
+import { sendMail } from '../services/send.mail.js';
 import { ApiError } from '../utils/ApiError.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 import getTemplate from '../utils/getTemplate.js';
 import { Otp } from '../models/otp.model.js';
 
-const sendEmailOtp = asynHandler(async (req, res) => {
+const sendEmailOtp = asynHandler(async (req, res, next) => {
   // an otp is send to the email and saved with a ttl Index in Otp collection that expires after 10min.
   const { email } = req.body;
 
@@ -14,27 +15,23 @@ const sendEmailOtp = asynHandler(async (req, res) => {
   const htmlTemplate = getTemplate('emailTemplate');
   const htmlContent = htmlTemplate.replace('{{OTP_CODE}}', otpCode);
 
-  try {
-    const mailInfo = await sendMail({
-      to: email,
-      subject: 'Your Otp Code',
-      html: htmlContent,
-    });
+  // Mail Sent to the email with new optCode.
+  await sendMail({
+    to: email,
+    subject: 'Your Otp Code',
+    html: htmlContent,
+  });
 
-    const newOtp = await Otp.create({
-      clientId: email,
-      otp: otpCode,
-    });
+  // new otpCode saved in otp collection, see otp.model.js
 
-    res.json({
-      status: 200,
-      mailInfo: mailInfo,
-      data: newOtp,
-      message: 'New Otp Created Successfully !!',
-    });
-  } catch (err) {
-    throw new ApiError(500, `Mail Error Occured : ${err}`);
-  }
+  const newOtp = await Otp.create({
+    clientId: email,
+    otp: otpCode,
+  });
+
+  //note*:otp model has a ttl index referring updatedAt field i.e: it gets expired after 10 min from the last update.
+
+  res.json(new ApiResponse(200, newOtp, 'Otp Send Successfully'));
 });
 
 const verifyEmailOtp = asynHandler(async (req, res) => {
@@ -48,9 +45,9 @@ const verifyEmailOtp = asynHandler(async (req, res) => {
 
   if (existingOtp && (await existingOtp.matchOtp(otp))) {
     await existingOtp.updateOne({ isVerified: true });
-    res.json({ status: 200, message: 'Otp matched' });
+    res.json({ status: 200, message: 'verified successfully.' });
   } else {
-    res.json({ status: 400, message: 'Otp not matched.' });
+    res.json({ status: 400, message: 'Invalid Otp' });
   }
 });
 
