@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import errorHandler from './middlewares/error.middleware.js';
 
 const app = express();
 
@@ -16,11 +15,17 @@ app.use(express.urlencoded({ extended: true, limit: '16kb' }));
 
 app.use(cookieParser());
 
+// middleware imports
+import errorHandler from './middlewares/error.middleware.js';
+import verifyJwt from './middlewares/auth.middleware.js';
+
 // route imports
 import authRouter from './routes/auth.routes.js';
+import userRouter from './routes/user.routes.js';
 
 // route declarations
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/user', verifyJwt, userRouter);
 
 app.use(errorHandler);
 
