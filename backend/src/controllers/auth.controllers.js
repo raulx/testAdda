@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { sendMail } from '../services/send.mail.js';
+import { sendMail } from '../services/nodeMailer.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import getTemplate from '../utils/getTemplate.js';
@@ -28,7 +28,8 @@ const generateAccessAndRefereshTokens = async (userId) => {
 };
 
 // route controllers
-const sendEmailOtp = asyncHandler(async (req, res, next) => {
+
+const sendEmailOtp = asyncHandler(async (req, res) => {
     // an otp is send to the email and saved with a ttl Index in Otp collection that expires after 10min.
     const { email } = req.body;
 
@@ -182,10 +183,60 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 });
 
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+        throw new ApiError(400, 'Old and new password is required');
+    }
+
+    const user = await User.findById(req.user?._id);
+
+    const isPasswordCorrect = await user.isPasswordMatched(oldPassword);
+
+    if (!isPasswordCorrect) {
+        throw new ApiError(400, 'Invalid old password');
+    }
+
+    user.password = newPassword;
+    await user.save({ validateBeforeSave: false });
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, {}, 'Password changed successfully'));
+});
+
+const logoutUser = asyncHandler(async (req, res) => {
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $unset: {
+                refreshToken: 1, // this removes the field from document
+            },
+        },
+        {
+            new: true,
+        }
+    );
+
+    const options = {
+        httpOnly: true,
+        secure: true,
+    };
+
+    return res
+        .status(200)
+        .clearCookie('accessToken', options)
+        .clearCookie('refreshToken', options)
+        .json(new ApiResponse(200, {}, 'User logged Out'));
+});
+
 export {
     sendEmailOtp,
     verifyEmailOtp,
     registerUser,
     loginUser,
     refreshAccessToken,
+    changeCurrentPassword,
+    logoutUser,
 };

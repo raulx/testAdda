@@ -18,11 +18,13 @@ const userSchema = new Schema(
             type: String,
             index: true,
             default: '',
+            lowercase: true,
         },
         lastName: {
             type: String,
             index: true,
             default: '',
+            lowercase: true,
         },
         avatarUrl: {
             type: String,
@@ -60,6 +62,7 @@ userSchema.methods.generateAccessToken = function () {
             email: this.email,
             firstName: this.firstName,
             lastName: this.lastName,
+            avatarUrl: this.avatarUrl,
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
