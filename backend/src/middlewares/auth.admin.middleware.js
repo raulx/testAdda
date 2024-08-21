@@ -18,7 +18,7 @@ const verifyAdminJwt = asyncHandler(async function (req, _, next) {
         const admin = await Admin.findById(decodedToken?._id);
 
         if (!admin) {
-            throw new ApiError(401, 'Invalid Access Token');
+            throw new ApiError(409, 'Invalid Access Token');
         }
 
         req.admin = admin;

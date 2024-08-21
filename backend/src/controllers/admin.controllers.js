@@ -7,7 +7,7 @@ const registerAdmin = asyncHandler(async (req, res) => {
     const { adminId, fullName, password } = req.body;
 
     if (!adminId || !fullName || !password)
-        throw new ApiError(401, 'All fields are required !');
+        throw new ApiError(400, 'All fields are required !');
 
     const newAdmin = await Admin.create({ adminId, fullName, password });
 
@@ -18,7 +18,7 @@ const logInAdmin = asyncHandler(async (req, res) => {
     const { adminId, password } = req.body;
 
     if (!adminId || !password)
-        throw new ApiError(401, 'All fields are required');
+        throw new ApiError(400, 'All fields are required');
 
     const admin = await Admin.findOne({ adminId: adminId });
 
@@ -29,7 +29,7 @@ const logInAdmin = asyncHandler(async (req, res) => {
             new ApiResponse(200, admin, 'Admin loggedIn successfully')
         );
     } else {
-        throw new ApiError(401, 'Password not matched');
+        throw new ApiError(409, 'Password not matched');
     }
 });
 

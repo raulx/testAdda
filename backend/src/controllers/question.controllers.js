@@ -26,7 +26,7 @@ const addQuestion = asyncHandler(async (req, res) => {
         ].some((field) => field?.trim() === '') ||
         options == {}
     ) {
-        throw new ApiError(401, 'All fields are required !');
+        throw new ApiError(400, 'All fields are required !');
     }
 
     const questionExists = await Question.findOne({ question: question });
@@ -46,4 +46,33 @@ const addQuestion = asyncHandler(async (req, res) => {
     res.json(new ApiResponse(200, newQuestion, 'Question added successfully'));
 });
 
-export { addQuestion };
+const getAvailableQuestions = asyncHandler(async (req, res) => {
+    const questions = await Question.find({ quiz_id: { $exists: false } });
+    res.json(
+        new ApiResponse(
+            200,
+            questions,
+            'These are the questions that are available for quiz creation.'
+        )
+    );
+});
+
+const removeQuestion = asyncHandler(async (req, res) => {
+    const { _id } = req.body;
+
+    if (!_id) new ApiError(400, 'All fields are required');
+
+    const question = await Question.findById({ _id: _id });
+
+    if (question.quiz_id)
+        throw new ApiError(
+            409,
+            "Question is present in a quiz, can't be deleted"
+        );
+
+    await Question.findByIdAndDelete({ _id: _id });
+
+    res.json(new ApiResponse(200, {}, 'question deleted successfully'));
+});
+
+export { addQuestion, getAvailableQuestions, removeQuestion };

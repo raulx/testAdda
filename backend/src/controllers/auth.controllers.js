@@ -131,7 +131,7 @@ const loginUser = asyncHandler(async (req, res) => {
             .cookie('refreshToken', refreshToken, options)
             .json(new ApiResponse(200, 'User Logged In successfully !'));
     } else {
-        throw new ApiError(401, 'Password not matched !');
+        throw new ApiError(409, 'Password not matched !');
     }
 });
 
@@ -152,11 +152,11 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         const user = await User.findById(decodedToken?._id);
 
         if (!user) {
-            throw new ApiError(401, 'Invalid refresh token');
+            throw new ApiError(409, 'Invalid refresh token');
         }
 
         if (incomingRefreshToken !== user?.refreshToken) {
-            throw new ApiError(401, 'Refresh token is expired or used');
+            throw new ApiError(409, 'Refresh token is expired or used');
         }
 
         const options = {
@@ -195,7 +195,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     const isPasswordCorrect = await user.isPasswordMatched(oldPassword);
 
     if (!isPasswordCorrect) {
-        throw new ApiError(400, 'Invalid old password');
+        throw new ApiError(409, 'Invalid old password');
     }
 
     user.password = newPassword;
