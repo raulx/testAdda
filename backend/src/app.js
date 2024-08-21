@@ -23,11 +23,16 @@ import verifyJwt from './middlewares/auth.middleware.js';
 import authRouter from './routes/auth.routes.js';
 import userRouter from './routes/user.routes.js';
 import adminRouter from './routes/admin.routes.js';
+import questionRouter from './routes/question.routes.js';
+import quizRouter from './routes/quiz.routes.js';
 
 // route declarations
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/user', verifyJwt, userRouter);
 app.use('/api/v1/admin', adminRouter);
+
+app.use('/api/v1/question', questionRouter);
+app.use('/api/v1/quiz', quizRouter);
 
 app.use(errorHandler);
 

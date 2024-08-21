@@ -1,25 +1,38 @@
 import mongoose, { Schema } from 'mongoose';
 
-const optionSchema = new Schema({
-    a: { type: String, required: true },
-    b: { type: String, required: true },
-    c: { type: String, required: true },
-    d: { type: String, required: true },
-});
 const questionSchema = new Schema({
     question: { type: String, required: true, unique: true, lowercase: true },
-    topic: { type: string, required: true, lowercase: true },
+
+    topic: { type: String, required: true, lowercase: true },
+
+    subject: {
+        type: String,
+        required: true,
+        enum: ['mathematics', 'reasoning', 'english'],
+    },
+
     difficulty: {
         type: String,
         required: true,
         enum: ['easy', 'moderate', 'hard'],
     },
-    options: { type: optionSchema, required: true },
+    correct_option: {
+        type: String,
+        required: true,
+        enum: ['a', 'b', 'c', 'd'],
+    },
+    options: {
+        a: { type: String, required: true },
+        b: { type: String, required: true },
+        c: { type: String, required: true },
+        d: { type: String, required: true },
+    },
+
     explaination: { type: String, required: true },
+
     quiz_id: {
         type: Schema.Types.ObjectId,
         ref: 'Quiz',
-        default: '', // Default value is an empty string
     },
 });
 
