@@ -30,7 +30,11 @@ const logInAdmin = asyncHandler(async (req, res) => {
         const token = await admin.generateToken();
 
         res.cookie('adminToken', token).json(
-            new ApiResponse(200, admin, 'Admin loggedIn successfully')
+            new ApiResponse(
+                200,
+                { admin_id: admin.admin_id, full_name: admin.full_name },
+                'Admin loggedIn successfully'
+            )
         );
     } else {
         throw new ApiError(409, 'Password not matched');

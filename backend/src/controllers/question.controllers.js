@@ -51,7 +51,10 @@ const getAvailableQuestions = asyncHandler(async (req, res) => {
     res.json(
         new ApiResponse(
             200,
-            questions,
+            {
+                total_available_questions: questions.length,
+                questions: questions,
+            },
             'These are the questions that are available for quiz creation.'
         )
     );

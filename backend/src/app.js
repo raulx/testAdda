@@ -25,6 +25,7 @@ import userRouter from './routes/user.routes.js';
 import adminRouter from './routes/admin.routes.js';
 import questionRouter from './routes/question.routes.js';
 import quizRouter from './routes/quiz.routes.js';
+import attemptRouter from './routes/attempt.routes.js';
 
 // route declarations
 app.use('/api/v1/auth', authRouter);
@@ -34,6 +35,7 @@ app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/question', questionRouter);
 app.use('/api/v1/quiz', quizRouter);
 
+app.use('/api/v1/attempt', attemptRouter);
 app.use(errorHandler);
 
 export { app };
