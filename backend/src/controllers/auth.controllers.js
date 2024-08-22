@@ -16,7 +16,7 @@ const generateAccessAndRefereshTokens = async (userId) => {
         const accessToken = await user.generateAccessToken();
         const refreshToken = await user.generateRefreshToken();
 
-        user.refreshToken = refreshToken;
+        user.refresh_token = refreshToken;
         await user.save({ validateBeforeSave: false });
         return { accessToken, refreshToken };
     } catch (error) {
@@ -65,7 +65,7 @@ const verifyEmailOtp = asyncHandler(async (req, res) => {
     const existingOtp = await Otp.findOne({ clientId: email });
 
     if (!existingOtp) {
-        throw new ApiError(400, 'Session Expired !!');
+        throw new ApiError(409, 'Session Expired !!');
     }
 
     if (existingOtp && (await existingOtp.matchOtp(otp))) {
@@ -97,10 +97,10 @@ const registerUser = asyncHandler(async (req, res) => {
 
     const responseData = {
         email: newUser.email,
-        isSubscribed: newUser.isSubscribed,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName,
-        avatarUrl: newUser.avatarUrl,
+        isSubscribed: newUser.is_subscribed,
+        firstName: newUser.first_name,
+        lastName: newUser.last_name,
+        avatarUrl: newUser.avatar_name,
     };
 
     res.json(
@@ -187,12 +187,12 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     const { oldPassword, newPassword } = req.body;
 
     if (!oldPassword || !newPassword) {
-        throw new ApiError(400, 'Old and new password is required');
+        throw new ApiError(400, 'Old and New password is Required !');
     }
 
     const user = await User.findById(req.user?._id);
 
-    const isPasswordCorrect = await user.isPasswordMatched(oldPassword);
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
 
     if (!isPasswordCorrect) {
         throw new ApiError(409, 'Invalid old password');

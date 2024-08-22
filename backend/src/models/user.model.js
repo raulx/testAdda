@@ -14,28 +14,28 @@ const userSchema = new Schema(
             type: String,
             required: true,
         },
-        firstName: {
+        first_name: {
             type: String,
             index: true,
             default: '',
             lowercase: true,
         },
-        lastName: {
+        last_name: {
             type: String,
             index: true,
             default: '',
             lowercase: true,
         },
-        avatarUrl: {
+        avatar_url: {
             type: String,
 
             default: '',
         },
-        isSubscribed: {
+        is_subscribed: {
             type: Boolean,
             default: false,
         },
-        refreshToken: {
+        refresh_token: {
             type: String,
             default: '',
         },
@@ -60,9 +60,9 @@ userSchema.methods.generateAccessToken = function () {
         {
             _id: this._id,
             email: this.email,
-            firstName: this.firstName,
-            lastName: this.lastName,
-            avatarUrl: this.avatarUrl,
+            firstName: this.first_name,
+            lastName: this.last_name,
+            avatarUrl: this.avatar_url,
         },
         process.env.ACCESS_TOKEN_SECRET,
         {

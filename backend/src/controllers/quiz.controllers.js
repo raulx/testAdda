@@ -60,4 +60,5 @@ const removeQuiz = asynchandler(async (req, res) => {
 
     res.json(new ApiResponse(200, {}, 'Quiz Removed Successfully !'));
 });
+
 export { addQuiz, removeQuiz };

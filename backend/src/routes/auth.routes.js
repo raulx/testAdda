@@ -18,7 +18,7 @@ router.route('/verifyOtp/email').post(verifyEmailOtp);
 router.route('/register').post(registerUser);
 router.route('/login').post(loginUser);
 router.route('/refreshToken').patch(refreshAccessToken);
-router.route('/changePassword').patch(changeCurrentPassword);
+router.route('/changePassword').patch(verifyJwt, changeCurrentPassword);
 router.route('/logoutUser').post(verifyJwt, logoutUser);
 
 export default router;

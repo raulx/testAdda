@@ -16,7 +16,7 @@ const updateUserName = asyncHandler(async (req, res) => {
         throw new ApiError(401, 'Both FirstName and LastName are required');
     const updatedUser = await User.findOneAndUpdate(
         { _id: user._id },
-        { $set: { firstName: firstName, lastName: lastName } },
+        { $set: { first_name: firstName, last_name: lastName } },
         { new: true }
     ).select('-password -refreshToken');
 
@@ -32,14 +32,8 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
     const avatar = await uploadOnCloudinary(avatarLocalPath);
 
-    if (!avatar.url) {
-        throw new ApiError(400, 'Error while uploading on avatar');
-    }
-
-    // const currentAvatar = await User.findById(req.user?._id, 'avatar');
-
     //delete old image if there is any
-    const currentAvatar = req.user.avatarUrl;
+    const currentAvatar = req.user.avatar_url;
     if (currentAvatar != '') {
         //getPublicId takes two arguments cloudinaryUrl and folder where images are stored in cloudinary if so,else leave it empty.
         const publicId = getPublicId(currentAvatar, 'testAdda/usersAvatar');
@@ -51,7 +45,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         req.user?._id,
         {
             $set: {
-                avatarUrl: avatar.url,
+                avatar_url: avatar.url,
             },
         },
         { new: true }

@@ -3,8 +3,8 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const adminSchema = new Schema({
-    adminId: { type: String, index: true, unique: true, required: true },
-    fullName: { type: String, required: true },
+    admin_id: { type: String, index: true, unique: true, required: true },
+    full_name: { type: String, required: true },
     password: { type: String, required: true },
 });
 
@@ -31,6 +31,7 @@ adminSchema.methods.generateToken = async function () {
         }
     );
 };
+
 const Admin = mongoose.model('Admin', adminSchema);
 
 export default Admin;
