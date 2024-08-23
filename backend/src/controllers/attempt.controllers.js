@@ -1,7 +1,50 @@
 import asyncHandler from 'express-async-handler';
+import { ApiResponse } from '../utils/ApiResponse.js';
+import { ApiError } from '../utils/ApiError.js';
+import Attempt from '../models/attempt.model.js';
+import Quiz from '../models/quiz.model.js';
 
 const attemptQuiz = asyncHandler(async (req, res) => {
-    res.json({ status: 200, message: 'successfully attempted the quiz' });
+    const userId = req.user._id;
+    const { quizId, questionsAttempted } = req.body;
+
+    if (!quizId || !questionsAttempted)
+        throw new ApiError(401, 'All fields are required !');
+
+    const attemptExists = await Attempt.findOne({
+        user_id: userId,
+        quiz_id: quizId,
+    });
+
+    if (attemptExists)
+        throw new ApiError(
+            409,
+            'This Quiz is already attempted by the given user'
+        );
+
+    // check if the question attempted matches with the questions present in the quiz.
+
+    const quiz = await Quiz.findById({ _id: quizId });
+
+    const quizQuestions = quiz.questions.map((ques) => ques.toString());
+
+    const questionsAttemptedIds = questionsAttempted.map(
+        (ques) => ques.questionId
+    );
+
+    for (let i = 0; i < questionsAttemptedIds.length; i++) {
+        if (!quizQuestions.includes(questionsAttemptedIds[i]))
+            throw new ApiError(409, 'Questions did not match with quiz.');
+    }
+
+    const newAttemptData = {
+        user_id: userId,
+        quiz_id: quizId,
+        questions_attempted: questionsAttempted,
+    };
+
+    const newAttempt = await Attempt.create(newAttemptData);
+    res.json(new ApiResponse(200, newAttempt, 'Quiz attempted successfully !'));
 });
 
 export { attemptQuiz };

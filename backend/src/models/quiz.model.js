@@ -15,7 +15,7 @@ const quizSchema = new Schema({
 
 quizSchema.pre('save', function (next) {
     this.no_of_questions = this.questions.length;
-    return next();
+    next();
 });
 
 const Quiz = mongoose.model('Quiz', quizSchema);
