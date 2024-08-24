@@ -17,10 +17,7 @@ const attemptQuiz = asyncHandler(async (req, res) => {
     });
 
     if (attemptExists)
-        throw new ApiError(
-            409,
-            'This Quiz is already attempted by the given user'
-        );
+        throw new ApiError(409, 'This Quiz is already attempted by the user');
 
     // check if the question attempted matches with the questions present in the quiz.
 
@@ -34,7 +31,10 @@ const attemptQuiz = asyncHandler(async (req, res) => {
 
     for (let i = 0; i < questionsAttemptedIds.length; i++) {
         if (!quizQuestions.includes(questionsAttemptedIds[i]))
-            throw new ApiError(409, 'Questions did not match with quiz.');
+            throw new ApiError(
+                409,
+                ' ERROR:BAD REQUEST -> Questions attempted did not match with questions present in the quiz.'
+            );
     }
 
     const newAttemptData = {

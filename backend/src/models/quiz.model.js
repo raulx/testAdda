@@ -11,6 +11,7 @@ const quizSchema = new Schema({
         required: true,
         enum: ['beginner', 'intermediate', 'advanced'],
     },
+    access_type: { type: String, required: true, enum: ['free', 'paid'] },
 });
 
 quizSchema.pre('save', function (next) {
