@@ -7,7 +7,10 @@ const attemptSchema = new Schema(
         questions_attempted: [
             {
                 questionId: { type: Schema.Types.ObjectId, ref: 'Question' },
-                answerMarked: { type: String, enum: ['a', 'b', 'c', 'd'] },
+                answerMarked: {
+                    type: String,
+                    enum: ['a', 'b', 'c', 'd', 'unattempted'],
+                },
                 timeTaken: { type: Number },
             },
         ],

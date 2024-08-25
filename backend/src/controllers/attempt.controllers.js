@@ -23,6 +23,8 @@ const attemptQuiz = asyncHandler(async (req, res) => {
 
     const quiz = await Quiz.findById({ _id: quizId });
 
+    if (!quiz) throw new ApiError(404, 'Quiz not found !');
+
     const quizQuestions = quiz.questions.map((ques) => ques.toString());
 
     const questionsAttemptedIds = questionsAttempted.map(
