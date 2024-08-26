@@ -3,6 +3,7 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 import { ApiError } from '../utils/ApiError.js';
 import Attempt from '../models/attempt.model.js';
 import Quiz from '../models/quiz.model.js';
+import QuestionTime from '../models/question.time.model.js';
 
 const attemptQuiz = asyncHandler(async (req, res) => {
     const userId = req.user._id;
@@ -46,6 +47,15 @@ const attemptQuiz = asyncHandler(async (req, res) => {
     };
 
     const newAttempt = await Attempt.create(newAttemptData);
+
+    //save the time taken by user to solve each question in questionTime model.
+
+    questionsAttempted.forEach(async (value) => {
+        await QuestionTime.create({
+            question_id: value.questionId,
+            time_taken: value.timeTaken,
+        });
+    });
     res.json(new ApiResponse(200, newAttempt, 'Quiz attempted successfully !'));
 });
 
