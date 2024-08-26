@@ -13,8 +13,9 @@ const resultSchema = new Schema({
             question: { type: String },
             correct_answer: { type: String },
             answer_marked: { type: String },
-            time_taken: { type: Number },
+            user_time_taken: { type: Number },
             explaination: { type: String },
+            average_question_time: { type: Number },
         },
     ],
     report: {

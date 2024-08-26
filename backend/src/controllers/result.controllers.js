@@ -85,14 +85,16 @@ const getCurrentRank = asyncHandler(async (userId, quizId) => {
 
 const generateResult = asyncHandler(async (attemptId) => {
     // combine the quiz questions and the attempt given by the user and generate a result for each question
+
     const combinedReport = await Attempt.aggregate([
         {
             $match: {
                 _id: mongoose.Types.ObjectId.createFromHexString(attemptId),
             },
         },
-
-        { $unwind: '$questions_attempted' },
+        {
+            $unwind: '$questions_attempted',
+        },
         {
             $lookup: {
                 from: 'questions',
@@ -103,7 +105,9 @@ const generateResult = asyncHandler(async (attemptId) => {
         },
         {
             $addFields: {
-                question: { $first: '$question' },
+                question: {
+                    $first: '$question',
+                },
             },
         },
         {
@@ -117,6 +121,61 @@ const generateResult = asyncHandler(async (attemptId) => {
                         answer_marked: '$questions_attempted.answerMarked',
                         time_taken: '$questions_attempted.timeTaken',
                         explaination: '$question.explaination',
+                    },
+                },
+            },
+        },
+        {
+            $unwind: '$result',
+        },
+        {
+            $lookup: {
+                from: 'questiontimes',
+                localField: 'result.questionId',
+                foreignField: 'question_id',
+                as: 'q',
+                pipeline: [
+                    {
+                        $group: {
+                            _id: '_id',
+                            average_time: {
+                                $avg: '$time_taken',
+                            },
+                        },
+                    },
+                ],
+            },
+        },
+        {
+            $addFields: {
+                average_time: {
+                    $first: '$q',
+                },
+            },
+        },
+        {
+            $addFields: {
+                average_time_taken: '$average_time.average_time',
+            },
+        },
+        {
+            $project: {
+                q: 0,
+                average_time: 0,
+            },
+        },
+        {
+            $group: {
+                _id: '_id',
+                result: {
+                    $push: {
+                        questionId: '$result.questionId',
+                        question: '$result.question',
+                        correct_answer: '$result.correct_answer',
+                        answer_marked: '$result.answer_marked',
+                        user_time_taken: '$result.time_taken',
+                        explaination: '$result.explaination',
+                        average_question_time: '$average_time_taken',
                     },
                 },
             },
@@ -197,6 +256,7 @@ const getResult = asyncHandler(async (req, res) => {
         quizId
     );
 
+    // note->add total_attempts and current_rank to the response data.
     res.json(
         new ApiResponse(
             200,
