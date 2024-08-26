@@ -70,6 +70,83 @@ import Result from '../models/result.model.js';
 //     };
 // });
 
+const getCurrentRank = asyncHandler(async (userId, quizId) => {
+    const attempt = await Attempt.aggregate([
+        {
+            $match: {
+                quiz_id: mongoose.Types.ObjectId.createFromHexString(quizId),
+            },
+        },
+        {
+            $lookup: {
+                from: 'results',
+                localField: '_id',
+                foreignField: 'attempt_id',
+                as: 'result',
+            },
+        },
+        {
+            $addFields: {
+                result: {
+                    $first: '$result',
+                },
+            },
+        },
+        {
+            $match: {
+                result: {
+                    $exists: true,
+                },
+            },
+        },
+        {
+            $addFields: {
+                marks_obtained: '$result.report.marks_obtained',
+            },
+        },
+        {
+            $sort: {
+                marks_obtained: -1,
+            },
+        },
+        {
+            $group: {
+                _id: '_id',
+                result: {
+                    $push: {
+                        marks_obtained: '$marks_obtained',
+                        user_id: '$user_id',
+                    },
+                },
+            },
+        },
+        {
+            $addFields: {
+                total_attempts: {
+                    $size: '$result',
+                },
+                current_rank: {
+                    $indexOfArray: [
+                        '$result.user_id',
+                        mongoose.Types.ObjectId.createFromHexString(userId),
+                    ],
+                },
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                result: 0,
+            },
+        },
+    ]);
+
+    return {
+        total_attempts: attempt[0].total_attempts,
+        current_rank: attempt[0].current_rank + 1,
+    };
+});
+
 const getResult = asyncHandler(async (req, res) => {
     const { quizId, userId } = req.body;
     // const { _id } = req.user use _id from cookie as userId in production.
@@ -86,10 +163,17 @@ const getResult = asyncHandler(async (req, res) => {
         attempt_id: attempt._id.toString(),
     });
 
-    if (existingResult)
-        return res.json(
-            new ApiResponse(200, existingResult, `Result for quizId ${quizId}`)
+    if (existingResult) {
+        const { total_attempts, current_rank } = await getCurrentRank(
+            userId,
+            quizId
         );
+
+        const newData = { total_attempts, current_rank, existingResult };
+        return res.json(
+            new ApiResponse(200, newData, `Result for quizId ${quizId}`)
+        );
+    }
 
     const attemptMatch = await Attempt.aggregate([
         {
@@ -145,9 +229,15 @@ const getResult = asyncHandler(async (req, res) => {
         else wrongAnswer++;
     }
 
+    const { total_attempts, current_rank } = await getCurrentRank(
+        userId,
+        quizId
+    );
     const data = {
         attempt_id: attempt._id,
         result,
+        total_attempts,
+        current_rank,
         report: {
             correct: correctAnswer,
             wrong: wrongAnswer,
