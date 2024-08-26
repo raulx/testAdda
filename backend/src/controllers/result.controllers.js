@@ -5,71 +5,7 @@ import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import Result from '../models/result.model.js';
 
-// const generateResult = asyncHandler(async (attemptId) => {
-//     const attemptMatch = await Attempt.aggregate([
-//         {
-//             $match: {
-//                 _id: attemptId,
-//             },
-//         },
-
-//         { $unwind: '$questions_attempted' },
-//         {
-//             $lookup: {
-//                 from: 'questions',
-//                 localField: 'questions_attempted.questionId',
-//                 foreignField: '_id',
-//                 as: 'question',
-//             },
-//         },
-//         {
-//             $addFields: {
-//                 question: { $first: '$question' },
-//             },
-//         },
-//         {
-//             $group: {
-//                 _id: '_id',
-//                 result: {
-//                     $push: {
-//                         questionId: '$question._id',
-//                         question: '$question.question',
-//                         correct_answer: '$question.correct_option',
-//                         answer_marked: '$questions_attempted.answerMarked',
-//                         time_taken: '$questions_attempted.timeTaken',
-//                         explaination: '$question.explaination',
-//                     },
-//                 },
-//             },
-//         },
-//     ]);
-
-//     const result = attemptMatch[0].result;
-//     let correctAnswer = 0;
-
-//     let wrongAnswer = 0;
-
-//     let unattempted = 0;
-
-//     for (let i = 0; i < result.length; i++) {
-//         if (result[i].correct_answer === result[i].answer_marked)
-//             correctAnswer++;
-//         else if (result[i].answer_marked === 'unattempted') unattempted++;
-//         else wrongAnswer++;
-//     }
-
-//     return {
-//         result,
-//         report: {
-//             correctAnswer: correctAnswer,
-//             wrongAnswer: wrongAnswer,
-//             unattempted: unattempted,
-//             marksObtained: correctAnswer - wrongAnswer * 0.25,
-//             totalMarks: result.length,
-//         },
-//     };
-// });
-
+//helper functions
 const getCurrentRank = asyncHandler(async (userId, quizId) => {
     const attempt = await Attempt.aggregate([
         {
@@ -147,40 +83,12 @@ const getCurrentRank = asyncHandler(async (userId, quizId) => {
     };
 });
 
-const getResult = asyncHandler(async (req, res) => {
-    const { quizId, userId } = req.body;
-    // const { _id } = req.user use _id from cookie as userId in production.
-
-    const attempt = await Attempt.findOne({
-        user_id: mongoose.Types.ObjectId.createFromHexString(userId),
-        quiz_id: mongoose.Types.ObjectId.createFromHexString(quizId),
-    });
-
-    if (!attempt)
-        throw new ApiError(409, 'This Quiz is not attempted by the user !');
-
-    const existingResult = await Result.findOne({
-        attempt_id: attempt._id.toString(),
-    });
-
-    if (existingResult) {
-        const { total_attempts, current_rank } = await getCurrentRank(
-            userId,
-            quizId
-        );
-
-        const newData = { total_attempts, current_rank, existingResult };
-        return res.json(
-            new ApiResponse(200, newData, `Result for quizId ${quizId}`)
-        );
-    }
-
-    const attemptMatch = await Attempt.aggregate([
+const generateResult = asyncHandler(async (attemptId) => {
+    // combine the quiz questions and the attempt given by the user and generate a result for each question
+    const combinedReport = await Attempt.aggregate([
         {
             $match: {
-                _id: mongoose.Types.ObjectId.createFromHexString(
-                    attempt._id.toString()
-                ),
+                _id: mongoose.Types.ObjectId.createFromHexString(attemptId),
             },
         },
 
@@ -215,7 +123,7 @@ const getResult = asyncHandler(async (req, res) => {
         },
     ]);
 
-    const result = attemptMatch[0].result;
+    const result = combinedReport[0].result;
     let correctAnswer = 0;
 
     let wrongAnswer = 0;
@@ -229,15 +137,10 @@ const getResult = asyncHandler(async (req, res) => {
         else wrongAnswer++;
     }
 
-    const { total_attempts, current_rank } = await getCurrentRank(
-        userId,
-        quizId
-    );
     const data = {
-        attempt_id: attempt._id,
+        attempt_id: attemptId,
         result,
-        total_attempts,
-        current_rank,
+
         report: {
             correct: correctAnswer,
             wrong: wrongAnswer,
@@ -246,8 +149,65 @@ const getResult = asyncHandler(async (req, res) => {
         },
     };
 
-    const newResult = await Result.create(data);
-    res.json(new ApiResponse(200, newResult, 'Here is your first result !'));
+    return await Result.create(data);
+});
+
+// main controllers
+const getResult = asyncHandler(async (req, res) => {
+    const { quizId, userId } = req.body;
+    // const userId = req.user._id.toString(); use this in production
+
+    const attempt = await Attempt.findOne({
+        user_id: mongoose.Types.ObjectId.createFromHexString(userId),
+        quiz_id: mongoose.Types.ObjectId.createFromHexString(quizId),
+    });
+
+    const attemptId = attempt._id.toString();
+
+    if (!attempt)
+        throw new ApiError(409, 'This Quiz is not attempted by the user !');
+
+    // check if result is already generated for the attempt,
+
+    const resultExists = await Result.findOne({
+        attempt_id: attemptId,
+    });
+
+    if (resultExists) {
+        const { total_attempts, current_rank } = await getCurrentRank(
+            userId,
+            quizId
+        );
+
+        const newData = {
+            attempt_id: attempt._id,
+            result: resultExists.result,
+            report: { ...resultExists.report, total_attempts, current_rank },
+        };
+        return res.json(
+            new ApiResponse(200, newData, `Result for quizId ${quizId}`)
+        );
+    }
+
+    // if result does not exist for the attempt then generate the result and save to the result modlel.
+    const newResult = await generateResult(attemptId);
+
+    const { total_attempts, current_rank } = await getCurrentRank(
+        userId,
+        quizId
+    );
+
+    res.json(
+        new ApiResponse(
+            200,
+            {
+                attempt_id: attempt._id,
+                result: newResult.result,
+                report: { ...newResult.report, total_attempts, current_rank },
+            },
+            `Result for quidId ${quizId}`
+        )
+    );
 });
 
 export { getResult };
