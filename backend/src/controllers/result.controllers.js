@@ -37,7 +37,7 @@ const getCurrentRank = asyncHandler(async (userId, quizId) => {
         },
         {
             $addFields: {
-                marks_obtained: '$result.report.marks_obtained',
+                marks_obtained: '$result.result.marks_obtained',
             },
         },
         {
@@ -113,7 +113,7 @@ const generateResult = asyncHandler(async (attemptId) => {
         {
             $group: {
                 _id: '_id',
-                result: {
+                report: {
                     $push: {
                         questionId: '$question._id',
                         question: '$question.question',
@@ -126,12 +126,12 @@ const generateResult = asyncHandler(async (attemptId) => {
             },
         },
         {
-            $unwind: '$result',
+            $unwind: '$report',
         },
         {
             $lookup: {
                 from: 'questiontimes',
-                localField: 'result.questionId',
+                localField: 'report.questionId',
                 foreignField: 'question_id',
                 as: 'q',
                 pipeline: [
@@ -167,14 +167,14 @@ const generateResult = asyncHandler(async (attemptId) => {
         {
             $group: {
                 _id: '_id',
-                result: {
+                report: {
                     $push: {
-                        questionId: '$result.questionId',
-                        question: '$result.question',
-                        correct_answer: '$result.correct_answer',
-                        answer_marked: '$result.answer_marked',
-                        user_time_taken: '$result.time_taken',
-                        explaination: '$result.explaination',
+                        questionId: '$report.questionId',
+                        question: '$report.question',
+                        correct_answer: '$report.correct_answer',
+                        answer_marked: '$report.answer_marked',
+                        user_time_taken: '$report.time_taken',
+                        explaination: '$report.explaination',
                         average_question_time: '$average_time_taken',
                     },
                 },
@@ -182,25 +182,25 @@ const generateResult = asyncHandler(async (attemptId) => {
         },
     ]);
 
-    const result = combinedReport[0].result;
+    const report = combinedReport[0].report;
     let correctAnswer = 0;
 
     let wrongAnswer = 0;
 
     let unattempted = 0;
 
-    for (let i = 0; i < result.length; i++) {
-        if (result[i].correct_answer === result[i].answer_marked)
+    for (let i = 0; i < report.length; i++) {
+        if (report[i].correct_answer === report[i].answer_marked)
             correctAnswer++;
-        else if (result[i].answer_marked === 'unattempted') unattempted++;
+        else if (report[i].answer_marked === 'unattempted') unattempted++;
         else wrongAnswer++;
     }
 
     const data = {
         attempt_id: attemptId,
-        result,
+        report,
 
-        report: {
+        result: {
             correct: correctAnswer,
             wrong: wrongAnswer,
             unattempted: unattempted,
@@ -240,8 +240,11 @@ const getResult = asyncHandler(async (req, res) => {
 
         const newData = {
             attempt_id: attempt._id,
+            report: resultExists.report,
             result: resultExists.result,
-            report: { ...resultExists.report, total_attempts, current_rank },
+            standing: { current_rank, out_of: total_attempts },
+            percentile_obtained:
+                ((total_attempts - current_rank) / total_attempts) * 100,
         };
         return res.json(
             new ApiResponse(200, newData, `Result for quizId ${quizId}`)
@@ -262,8 +265,11 @@ const getResult = asyncHandler(async (req, res) => {
             200,
             {
                 attempt_id: attempt._id,
-                result: newResult.result,
-                report: { ...newResult.report, total_attempts, current_rank },
+                report: newResult.report,
+                result: newResult.report,
+                standing: { current_rank, out_of: total_attempts },
+                percentile_obtained:
+                    ((total_attempts - current_rank) / total_attempts) * 100,
             },
             `Result for quidId ${quizId}`
         )

@@ -7,7 +7,7 @@ const resultSchema = new Schema({
         required: true,
         unique: true,
     },
-    result: [
+    report: [
         {
             questionId: { type: Schema.Types.ObjectId, ref: 'Question' },
             question: { type: String },
@@ -18,7 +18,7 @@ const resultSchema = new Schema({
             average_question_time: { type: Number },
         },
     ],
-    report: {
+    result: {
         correct: { type: Number },
         wrong: { type: Number },
         unattempted: { type: Number },
