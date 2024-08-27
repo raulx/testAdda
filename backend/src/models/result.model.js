@@ -11,6 +11,7 @@ const resultSchema = new Schema({
         {
             questionId: { type: Schema.Types.ObjectId, ref: 'Question' },
             question: { type: String },
+            topic: { type: String },
             correct_answer: { type: String },
             answer_marked: { type: String },
             user_time_taken: { type: Number },

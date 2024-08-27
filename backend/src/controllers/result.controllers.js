@@ -117,6 +117,7 @@ const generateResult = asyncHandler(async (attemptId) => {
                     $push: {
                         questionId: '$question._id',
                         question: '$question.question',
+                        topic: '$question.topic',
                         correct_answer: '$question.correct_option',
                         answer_marked: '$questions_attempted.answerMarked',
                         time_taken: '$questions_attempted.timeTaken',
@@ -171,6 +172,7 @@ const generateResult = asyncHandler(async (attemptId) => {
                     $push: {
                         questionId: '$report.questionId',
                         question: '$report.question',
+                        topic: '$report.topic',
                         correct_answer: '$report.correct_answer',
                         answer_marked: '$report.answer_marked',
                         user_time_taken: '$report.time_taken',
