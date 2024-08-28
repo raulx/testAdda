@@ -66,7 +66,6 @@ const attemptQuiz = asyncHandler(async (req, res) => {
 
     const newResult = {
         attempt_id: attemptId,
-        quiz_id: quizId,
         result: resultGenerated,
     };
     await Result.create(newResult);

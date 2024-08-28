@@ -7,11 +7,6 @@ const resultSchema = new Schema({
         required: true,
         unique: true,
     },
-    quiz_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'Quiz',
-        required: true,
-    },
     result: {
         correct: { type: Number, required: true },
         wrong: { type: Number, required: true },

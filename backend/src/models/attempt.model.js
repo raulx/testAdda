@@ -31,7 +31,7 @@ attemptSchema.pre('save', async function (next) {
     next();
 });
 // Create a compound unique index on user and project
-// attemptSchema.index({ user_id: 1, quiz_id: 1 }, { unique: true });
+attemptSchema.index({ quiz_id: 1, user_id: 1 }, { unique: true });
 
 const Attempt = mongoose.model('Attempt', attemptSchema);
 

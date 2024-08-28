@@ -29,13 +29,6 @@ const getCurrentRank = asyncHandler(async (userId, quizId) => {
             },
         },
         {
-            $match: {
-                result: {
-                    $exists: true,
-                },
-            },
-        },
-        {
             $addFields: {
                 marks_obtained: '$result.result.marks_obtained',
             },
@@ -58,10 +51,8 @@ const getCurrentRank = asyncHandler(async (userId, quizId) => {
         },
         {
             $addFields: {
-                total_attempts: {
-                    $size: '$result',
-                },
-                current_rank: {
+                total_attempts: { $size: '$result' },
+                index: {
                     $indexOfArray: [
                         '$result.user_id',
                         mongoose.Types.ObjectId.createFromHexString(userId),
@@ -79,7 +70,7 @@ const getCurrentRank = asyncHandler(async (userId, quizId) => {
 
     return {
         total_attempts: attempt[0].total_attempts,
-        current_rank: attempt[0].current_rank + 1,
+        current_rank: attempt[0].index + 1,
     };
 });
 
@@ -133,48 +124,6 @@ const generateReport = asyncHandler(async (attemptId) => {
 const generateResult = asyncHandler(async (attemptId) => {
     // combine the quiz questions and the attempt given by the user and generate a result for each question
 
-    // const combinedReport = await Attempt.aggregate([
-    //     {
-    //         $match: {
-    //             _id: mongoose.Types.ObjectId.createFromHexString(attemptId),
-    //         },
-    //     },
-    //     {
-    //         $unwind: '$questions_attempted',
-    //     },
-    //     {
-    //         $lookup: {
-    //             from: 'questions',
-    //             localField: 'questions_attempted.questionId',
-    //             foreignField: '_id',
-    //             as: 'question',
-    //         },
-    //     },
-    //     {
-    //         $addFields: {
-    //             question: {
-    //                 $first: '$question',
-    //             },
-    //         },
-    //     },
-    //     {
-    //         $group: {
-    //             _id: '_id',
-    //             report: {
-    //                 $push: {
-    //                     questionId: '$question._id',
-    //                     question: '$question.question',
-    //                     topic: '$question.topic',
-    //                     average_question_time: '$question.avg_solving_time',
-    //                     correct_answer: '$question.correct_option',
-    //                     answer_marked: '$questions_attempted.answerMarked',
-    //                     time_taken: '$questions_attempted.timeTaken',
-    //                     explaination: '$question.explaination',
-    //                 },
-    //             },
-    //         },
-    //     },
-    // ]);
     const combinedReport = await generateReport(attemptId);
 
     let correctAnswer = 0;
@@ -208,8 +157,8 @@ const getResult = asyncHandler(async (req, res) => {
     // const userId = req.user._id.toString(); use this in production
 
     const attempt = await Attempt.findOne({
-        user_id: mongoose.Types.ObjectId.createFromHexString(userId),
         quiz_id: mongoose.Types.ObjectId.createFromHexString(quizId),
+        user_id: mongoose.Types.ObjectId.createFromHexString(userId),
     });
 
     const attemptId = attempt._id.toString();
@@ -217,51 +166,31 @@ const getResult = asyncHandler(async (req, res) => {
     if (!attempt)
         throw new ApiError(409, 'This Quiz is not attempted by the user !');
 
-    const resultExists = await Result.findOne({
+    let resultExists = await Result.findOne({
         attempt_id: attemptId,
-    });
+    }).select('result');
 
-    if (resultExists) {
-        const { total_attempts, current_rank } = await getCurrentRank(
-            userId,
-            quizId
-        );
+    if (!resultExists) resultExists = await generateResult(attemptId);
 
-        const newData = {
-            attempt_id: attempt._id,
-            report: resultExists.report,
-            result: resultExists.result,
-            standing: { current_rank, out_of: total_attempts },
-            percentile_obtained:
-                ((total_attempts - current_rank) / total_attempts) * 100,
-        };
-        return res.json(
-            new ApiResponse(200, newData, `Result for quizId ${quizId}`)
-        );
-    }
-
-    // if result does not exist for the attempt then generate the result and save to the result modlel.
-    const newResult = await generateResult(attemptId);
+    const report = await generateReport(attemptId);
 
     const { total_attempts, current_rank } = await getCurrentRank(
         userId,
         quizId
     );
 
-    // note->add total_attempts and current_rank to the response data.
     res.json(
-        new ApiResponse(
-            200,
-            {
-                attempt_id: attempt._id,
-                report: newResult.report,
-                result: newResult.result,
-                standing: { current_rank, out_of: total_attempts },
-                percentile_obtained:
-                    ((total_attempts - current_rank) / total_attempts) * 100,
-            },
-            `Result for quidId ${quizId}`
-        )
+        new ApiResponse(200, {
+            report: report,
+            result: resultExists.result,
+            standing: { current_rank, out_of: total_attempts },
+            percentile_obtained:
+                Math.ceil(
+                    ((total_attempts - current_rank) / total_attempts) *
+                        100 *
+                        100
+                ) / 100,
+        })
     );
 });
 
