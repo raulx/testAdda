@@ -4,7 +4,6 @@ import mongoose from 'mongoose';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import Result from '../models/result.model.js';
-import QuestionTime from '../models/question.time.model.js';
 
 //helper functions
 const getCurrentRank = asyncHandler(async (userId, quizId) => {
@@ -173,8 +172,6 @@ const getResult = asyncHandler(async (req, res) => {
 
     if (!attempt)
         throw new ApiError(409, 'This Quiz is not attempted by the user !');
-
-    // check if result is already generated for the attempt,
 
     const resultExists = await Result.findOne({
         attempt_id: attemptId,
