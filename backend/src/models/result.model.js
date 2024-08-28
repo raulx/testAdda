@@ -7,30 +7,17 @@ const resultSchema = new Schema({
         required: true,
         unique: true,
     },
-    report: [
-        {
-            questionId: { type: Schema.Types.ObjectId, ref: 'Question' },
-            question: { type: String },
-            topic: { type: String },
-            correct_answer: { type: String },
-            average_question_time: { type: Number },
-            answer_marked: { type: String },
-            user_time_taken: { type: Number },
-            explaination: { type: String },
-        },
-    ],
-    result: {
-        correct: { type: Number },
-        wrong: { type: Number },
-        unattempted: { type: Number },
-        marks_obtained: { type: Number },
+    quiz_id: {
+        type: Schema.Types.ObjectId,
+        ref: 'Quiz',
+        required: true,
     },
-    total_marks: { type: Number },
-});
-
-resultSchema.pre('save', function (next) {
-    this.total_marks = this.result.length;
-    next();
+    result: {
+        correct: { type: Number, required: true },
+        wrong: { type: Number, required: true },
+        unattempted: { type: Number, required: true },
+        marks_obtained: { type: Number, required: true },
+    },
 });
 
 const Result = mongoose.model('Result', resultSchema);

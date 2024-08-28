@@ -4,6 +4,8 @@ import { ApiError } from '../utils/ApiError.js';
 import Attempt from '../models/attempt.model.js';
 import Quiz from '../models/quiz.model.js';
 import QuestionTime from '../models/question.time.model.js';
+import { generateResult } from './result.controllers.js';
+import Result from '../models/result.model.js';
 
 const attemptQuiz = asyncHandler(async (req, res) => {
     const userId = req.user._id;
@@ -56,6 +58,19 @@ const attemptQuiz = asyncHandler(async (req, res) => {
             time_taken: value.timeTaken,
         });
     });
+
+    //generate the result and save it to result collection.
+
+    const attemptId = newAttempt._id.toString();
+    const resultGenerated = await generateResult(attemptId);
+
+    const newResult = {
+        attempt_id: attemptId,
+        quiz_id: quizId,
+        result: resultGenerated,
+    };
+    await Result.create(newResult);
+
     res.json(new ApiResponse(200, newAttempt, 'Quiz attempted successfully !'));
 });
 

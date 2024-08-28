@@ -83,10 +83,8 @@ const getCurrentRank = asyncHandler(async (userId, quizId) => {
     };
 });
 
-const generateResult = asyncHandler(async (attemptId) => {
-    // combine the quiz questions and the attempt given by the user and generate a result for each question
-
-    const combinedReport = await Attempt.aggregate([
+const generateReport = asyncHandler(async (attemptId) => {
+    const report = await Attempt.aggregate([
         {
             $match: {
                 _id: mongoose.Types.ObjectId.createFromHexString(attemptId),
@@ -129,33 +127,79 @@ const generateResult = asyncHandler(async (attemptId) => {
         },
     ]);
 
-    const report = combinedReport[0].report;
+    return report[0].report;
+});
+
+const generateResult = asyncHandler(async (attemptId) => {
+    // combine the quiz questions and the attempt given by the user and generate a result for each question
+
+    // const combinedReport = await Attempt.aggregate([
+    //     {
+    //         $match: {
+    //             _id: mongoose.Types.ObjectId.createFromHexString(attemptId),
+    //         },
+    //     },
+    //     {
+    //         $unwind: '$questions_attempted',
+    //     },
+    //     {
+    //         $lookup: {
+    //             from: 'questions',
+    //             localField: 'questions_attempted.questionId',
+    //             foreignField: '_id',
+    //             as: 'question',
+    //         },
+    //     },
+    //     {
+    //         $addFields: {
+    //             question: {
+    //                 $first: '$question',
+    //             },
+    //         },
+    //     },
+    //     {
+    //         $group: {
+    //             _id: '_id',
+    //             report: {
+    //                 $push: {
+    //                     questionId: '$question._id',
+    //                     question: '$question.question',
+    //                     topic: '$question.topic',
+    //                     average_question_time: '$question.avg_solving_time',
+    //                     correct_answer: '$question.correct_option',
+    //                     answer_marked: '$questions_attempted.answerMarked',
+    //                     time_taken: '$questions_attempted.timeTaken',
+    //                     explaination: '$question.explaination',
+    //                 },
+    //             },
+    //         },
+    //     },
+    // ]);
+    const combinedReport = await generateReport(attemptId);
+
     let correctAnswer = 0;
 
     let wrongAnswer = 0;
 
     let unattempted = 0;
 
-    for (let i = 0; i < report.length; i++) {
-        if (report[i].correct_answer === report[i].answer_marked)
+    for (let i = 0; i < combinedReport.length; i++) {
+        if (
+            combinedReport[i].correct_answer === combinedReport[i].answer_marked
+        )
             correctAnswer++;
-        else if (report[i].answer_marked === 'unattempted') unattempted++;
+        else if (combinedReport[i].answer_marked === 'unattempted')
+            unattempted++;
         else wrongAnswer++;
     }
 
     const data = {
-        attempt_id: attemptId,
-        report,
-
-        result: {
-            correct: correctAnswer,
-            wrong: wrongAnswer,
-            unattempted: unattempted,
-            marks_obtained: correctAnswer - wrongAnswer * 0.25,
-        },
+        correct: correctAnswer,
+        wrong: wrongAnswer,
+        unattempted: unattempted,
+        marks_obtained: correctAnswer - wrongAnswer * 0.25,
     };
-
-    return await Result.create(data);
+    return data;
 });
 
 // main controllers
@@ -221,4 +265,4 @@ const getResult = asyncHandler(async (req, res) => {
     );
 });
 
-export { getResult };
+export { getResult, generateResult };
