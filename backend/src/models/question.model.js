@@ -34,6 +34,7 @@ const questionSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Quiz',
     },
+    avg_solving_time: { type: Number, default: 60 },
 });
 
 const Question = mongoose.model('Question', questionSchema);

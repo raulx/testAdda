@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import Result from '../models/result.model.js';
+import QuestionTime from '../models/question.time.model.js';
 
 //helper functions
 const getCurrentRank = asyncHandler(async (userId, quizId) => {
@@ -118,66 +119,11 @@ const generateResult = asyncHandler(async (attemptId) => {
                         questionId: '$question._id',
                         question: '$question.question',
                         topic: '$question.topic',
+                        average_question_time: '$question.avg_solving_time',
                         correct_answer: '$question.correct_option',
                         answer_marked: '$questions_attempted.answerMarked',
                         time_taken: '$questions_attempted.timeTaken',
                         explaination: '$question.explaination',
-                    },
-                },
-            },
-        },
-        {
-            $unwind: '$report',
-        },
-        {
-            $lookup: {
-                from: 'questiontimes',
-                localField: 'report.questionId',
-                foreignField: 'question_id',
-                as: 'q',
-                pipeline: [
-                    {
-                        $group: {
-                            _id: '_id',
-                            average_time: {
-                                $avg: '$time_taken',
-                            },
-                        },
-                    },
-                ],
-            },
-        },
-        {
-            $addFields: {
-                average_time: {
-                    $first: '$q',
-                },
-            },
-        },
-        {
-            $addFields: {
-                average_time_taken: '$average_time.average_time',
-            },
-        },
-        {
-            $project: {
-                q: 0,
-                average_time: 0,
-            },
-        },
-        {
-            $group: {
-                _id: '_id',
-                report: {
-                    $push: {
-                        questionId: '$report.questionId',
-                        question: '$report.question',
-                        topic: '$report.topic',
-                        correct_answer: '$report.correct_answer',
-                        answer_marked: '$report.answer_marked',
-                        user_time_taken: '$report.time_taken',
-                        explaination: '$report.explaination',
-                        average_question_time: '$average_time_taken',
                     },
                 },
             },
@@ -268,7 +214,7 @@ const getResult = asyncHandler(async (req, res) => {
             {
                 attempt_id: attempt._id,
                 report: newResult.report,
-                result: newResult.report,
+                result: newResult.result,
                 standing: { current_rank, out_of: total_attempts },
                 percentile_obtained:
                     ((total_attempts - current_rank) / total_attempts) * 100,
