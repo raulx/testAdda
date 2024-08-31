@@ -14,7 +14,9 @@ import {
   Form,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useLoginInUserMutation } from "@/store/store";
+import { setAuthenticated, useLoginInUserMutation } from "@/store/store";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 const loginFormSchema = z.object({
   email: z.string().email({
@@ -27,6 +29,8 @@ const loginFormSchema = z.object({
 
 function LoginPage() {
   const [logInUser, results] = useLoginInUserMutation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -35,19 +39,20 @@ function LoginPage() {
     },
   });
 
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof loginFormSchema>) {
-    console.log(values);
     try {
-      const res = await logInUser({
+      await logInUser({
         email: values.email,
         password: values.password,
       });
-      console.log(res);
+
+      dispatch(setAuthenticated());
+      navigate("/home");
     } catch (err) {
       console.log(err);
     }
   }
+
   return (
     <div className="flex flex-col py-6 min-h-screen bg-zinc-100">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">

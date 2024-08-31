@@ -1,6 +1,6 @@
 interface TypographyProps {
   children: React.ReactNode;
-  className: string;
+  className?: string;
 }
 
 const TypographyH1 = ({ children, className }: TypographyProps) => {
