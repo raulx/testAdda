@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
-import userAuthApi from './apis/userauthapis'
+import userAuthApi from "./apis/userAuthApis";
 
 
 const store = configureStore({
@@ -15,5 +15,5 @@ const store = configureStore({
 setupListeners(store.dispatch)
 
 
-export * from "./apis/userauthapis"
+export * from "./apis/userAuthApis"
 export default store

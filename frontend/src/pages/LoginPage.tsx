@@ -14,6 +14,7 @@ import {
   Form,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useLoginInUserMutation } from "@/store/store";
 
 const loginFormSchema = z.object({
   email: z.string().email({
@@ -25,6 +26,7 @@ const loginFormSchema = z.object({
 });
 
 function LoginPage() {
+  const [logInUser, results] = useLoginInUserMutation();
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -34,8 +36,17 @@ function LoginPage() {
   });
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof loginFormSchema>) {
+  async function onSubmit(values: z.infer<typeof loginFormSchema>) {
     console.log(values);
+    try {
+      const res = await logInUser({
+        email: values.email,
+        password: values.password,
+      });
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
   }
   return (
     <div className="flex flex-col py-6 min-h-screen bg-zinc-100">
@@ -60,7 +71,11 @@ function LoginPage() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="shadcn" {...field} type="email" />
+                    <Input
+                      placeholder="Enter your email address"
+                      {...field}
+                      type="email"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -73,14 +88,18 @@ function LoginPage() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="shadcn" {...field} type="password" />
+                    <Input
+                      placeholder="Enter your password"
+                      {...field}
+                      type="password"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <Button type="submit" className="w-full">
-              Submit
+              {results.isLoading ? <>Loading data</> : <>Submit</>}
             </Button>
           </form>
         </Form>
