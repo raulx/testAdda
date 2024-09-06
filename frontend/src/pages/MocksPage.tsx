@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 
-function LandingPage() {
+function MocksPage() {
   return (
     <>
       <Navbar />
@@ -8,4 +8,4 @@ function LandingPage() {
   );
 }
 
-export default LandingPage;
+export default MocksPage;

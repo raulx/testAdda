@@ -12,6 +12,9 @@ import LandingPage from "./pages/LandingPage.tsx";
 import HomePage from "./pages/HomePage.tsx";
 import NotFoundPage from "./pages/NotFoundPage.tsx";
 import ProtectedRoute from "./hooks/ProtectedRoute.tsx";
+import MocksPage from "./pages/MocksPage.tsx";
+import NewsPage from "./pages/NewsPage.tsx";
+import AboutUsPage from "./pages/AboutUsPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +27,9 @@ const router = createBrowserRouter([
       },
       { path: "/login", element: <LoginPage /> },
       { path: "/signup", element: <SignUpPage /> },
+      { path: "/mocks", element: <MocksPage /> },
+      { path: "/news", element: <NewsPage /> },
+      { path: "/about-us", element: <AboutUsPage /> },
       {
         path: "/home",
         element: <ProtectedRoute />,
