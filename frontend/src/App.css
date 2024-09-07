@@ -5,3 +5,32 @@ html{
 body{
     background-color: #F6F6F6;
 }
+
+/* src/components/MobileNavbar.css */
+.bm-burger-button {
+    position: fixed;
+    width: 36px;
+    height: 30px;
+    left: 36px;
+    top: 36px;
+  }
+  
+  .bm-burger-bars {
+    background: #fff;
+  }
+  
+  .bm-menu {
+    background: #1f2937; /* Tailwind color (gray-800) */
+    padding: 2.5em 1.5em 0;
+    font-size: 1.15em;
+  }
+  
+  .bm-item-list a {
+    color: #fff;
+    text-decoration: none;
+  }
+  
+  .bm-item-list a:hover {
+    background: rgba(0, 0, 0, 0.2);
+  }
+  

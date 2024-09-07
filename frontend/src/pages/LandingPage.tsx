@@ -31,6 +31,16 @@ function LandingPage() {
           <SiOpensearch />
         </Button>
       </div>
+      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
+      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
+      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
+      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
+      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
+      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
+      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
+      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
+      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
+      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
     </>
   );
 }
