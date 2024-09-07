@@ -4,6 +4,7 @@ function MocksPage() {
   return (
     <>
       <Navbar />
+      <h1 className="font-bold text-center text-2xl">Welcome to mockpage</h1>
     </>
   );
 }

@@ -18,6 +18,12 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        lightseagreen:
+          "text-primary-foreground bg-lightseagreen hover:bg-[#349597] duration-300",
+        mediumseagreen:
+          "text-primary-foreground bg-mediumseagreen hover:bg-[#39966D] duration-300",
+        celadon:
+          "text-primary-foreground bg-celadon hover:bg-[#ADD9A4] duration-300",
       },
       size: {
         default: "h-10 px-4 py-2",

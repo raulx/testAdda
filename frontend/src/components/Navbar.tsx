@@ -2,11 +2,11 @@ import { Button } from "./ui/button";
 import { MdQuiz } from "react-icons/md";
 import { SiMockserviceworker } from "react-icons/si";
 import { IoNewspaper } from "react-icons/io5";
-import { BsMicrosoftTeams } from "react-icons/bs";
+import { RiLoginCircleFill, RiTeamFill } from "react-icons/ri";
 import { useLocation } from "react-router-dom";
 
 const Navbar = () => {
-  const currentPath = useLocation().pathname;
+  const currentPath = useLocation().pathname.split("/").slice(0, 2).join("/");
 
   return (
     <nav className="position-fixed border-b border-bordergray py-4 px-8 flex justify-between items-center bg-white">
@@ -65,12 +65,16 @@ const Navbar = () => {
             href="/about-us"
             className="flex justify-center items-center gap-2 "
           >
-            <BsMicrosoftTeams />
+            <RiTeamFill />
             About Us
           </a>
         </li>
       </ul>
-      <Button className="w-[180px] h-[36px] bg-lightseagreen hover:bg-darkcerulean flex justify-center items-center gap-2">
+      <Button
+        className="w-[128px] h-[32px] flex justify-center items-center gap-2"
+        variant={"lightseagreen"}
+      >
+        <RiLoginCircleFill />
         Login
       </Button>
     </nav>
