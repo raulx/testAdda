@@ -1,46 +1,90 @@
 import Navbar from "@/components/Navbar";
-import { Input } from "@/components/ui/input";
+import QuizCard from "@/components/QuizCard";
+import {
+  TypographyH1,
+  TypographyH2,
+  TypographyH4,
+} from "@/components/Typography";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { SiOpensearch } from "react-icons/si";
+import { FaRocket } from "react-icons/fa";
+
+const mockQuizData: {
+  title: string;
+  description: string;
+  questions: number;
+  duration: number;
+  difficulty_level: string;
+}[] = [
+  {
+    title: "CAT QUIZ - 01",
+    description:
+      "combination of reasoning english and mathematics from previous year cat exams",
+    questions: 25,
+    difficulty_level: "Begginner",
+    duration: 25,
+  },
+  {
+    title: "SSC CGL Previous year quiz - 01",
+    description:
+      "this quiz comprizes of previous years ssc cgl question for you to practice",
+    difficulty_level: "Advanced",
+    questions: 25,
+    duration: 25,
+  },
+  {
+    title: "BANK PO Speed Test - 01",
+    description: "Practice more question in less time",
+    difficulty_level: "Intermediate",
+    questions: 25,
+    duration: 25,
+  },
+];
 
 function LandingPage() {
-  const [searchText, setSearchText] = useState<string>("");
-
-  const handleQuizSearch = () => {
-    if (searchText === "") return;
-
-    console.log(searchText);
-  };
   return (
     <>
       <Navbar />
-      <div className="flex gap-4 justify-center items-center py-4 sm:px-0 px-2 bg-jetstream">
-        <Input
-          type="text"
-          placeholder="Search Quiz"
-          className="sm:w-1/3 rounded-full"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-        />
-        <Button
-          className="rounded-full"
-          variant={"mediumseagreen"}
-          onClick={handleQuizSearch}
-        >
-          <SiOpensearch />
-        </Button>
-      </div>
-      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
-      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
-      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
-      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
-      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
-      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
-      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
-      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
-      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
-      <div className="my-6 bg-orange-300 h-[300px] w-screen" />
+      <section className=" flex sm:flex-row flex-col sm:gap-0 gap-8 justify-center items-center text-center min-h-[32rem] text-darkcerulean">
+        <img src="https://res.cloudinary.com/dj5yf27lr/image/upload/v1725810806/testAdda/frontendAssets/wwoaxs3qrdaiypeghlza.png" />
+        <div className="flex gap-16 flex-col">
+          <div className="flex flex-col gap-4">
+            <TypographyH1 className=" tracking-wide font-inter opacity-85 ">
+              Practice Point
+            </TypographyH1>
+            <TypographyH4 className="opacity-85 font-inter sm:w-2/3 sm:px-0 px-4 mx-auto">
+              Practice more and more for your upcoming exams and ace your result
+              with flying numbers.
+            </TypographyH4>
+          </div>
+          <Button
+            variant={"lightseagreen"}
+            className="w-[12rem] flex gap-4 mx-auto"
+          >
+            <FaRocket />
+            Try For Free
+          </Button>
+        </div>
+      </section>
+      <br />
+      <section className="bg-jetstream px-6 py-12 my-6">
+        <TypographyH2 className="text-center my-12">
+          Practice Quizes
+        </TypographyH2>
+        <div className="flex justify-center items-center gap-6 sm:flex-row flex-col">
+          {mockQuizData.map((data) => {
+            return (
+              <QuizCard
+                key={data.title}
+                title={data.title}
+                description={data.description}
+                questions={data.questions}
+                duration={data.duration}
+                difficulty={data.difficulty_level}
+              />
+            );
+          })}
+        </div>
+      </section>
     </>
   );
 }

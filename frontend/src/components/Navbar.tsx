@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ReactElement, useState } from "react";
 import { Button } from "./ui/button";
 import { MdQuiz } from "react-icons/md";
 import { SiMockserviceworker } from "react-icons/si";
@@ -9,7 +9,7 @@ import Headroom from "react-headroom";
 import { FaHamburger } from "react-icons/fa";
 import { motion } from "framer-motion";
 
-const navLinks = [
+const navLinks: { name: string; url: string; icon: ReactElement }[] = [
   { name: "Quizes", url: "/", icon: <MdQuiz /> },
   { name: "Mocks", url: "/mocks", icon: <SiMockserviceworker /> },
   { name: "News", url: "/news", icon: <IoNewspaper /> },
@@ -18,7 +18,7 @@ const navLinks = [
 
 const DesktopNav = ({ currentPath }: { currentPath: string }) => {
   return (
-    <nav className=" border-b border-bordergray py-6 px-8 flex justify-between items-center bg-white">
+    <nav className=" border-b border-bordergray py-4 px-8 flex justify-between items-center bg-white">
       <div className="flex justify-center items-center gap-4">
         <img
           className="lg:w-[36px] lg:h-[36px] w-[32px] h-[32px]"
@@ -65,7 +65,7 @@ const MobileNav = ({ currentPath }: { currentPath: string }) => {
 
   return (
     <>
-      <div className="w-screen cursor-pointer h-[56px] px-6 fixed bg-white border-b border-bordergray flex justify-between items-center">
+      <div className="w-screen z-10 cursor-pointer h-[56px] px-6 fixed bg-white border-b border-bordergray flex justify-between items-center">
         <div
           className=" text-darkcerulean text-xl"
           onClick={() => setIsOpen(true)}
@@ -91,7 +91,7 @@ const MobileNav = ({ currentPath }: { currentPath: string }) => {
           stiffness: 200,
           damping: 20,
         }}
-        className={`w-3/5 bg-white top-0 left-0 h-screen fixed  flex flex-col py-2 items-center  z-10`}
+        className={`w-3/4 bg-white top-0 left-0 h-screen fixed  flex flex-col py-2 items-center  z-10`}
       >
         <div className="flex items-center gap-2 px-4 py-2 border border-bordergray rounded-xl shadow-md  border-opacity-60">
           <img
