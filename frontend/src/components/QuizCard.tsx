@@ -1,3 +1,4 @@
+import { FaClock } from "react-icons/fa";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -34,7 +35,10 @@ const QuizCard = ({
         <div className="flex justify-between w-full items-center gap-4 text-sm">
           <p>Questions : {questions}</p>
           <p>Duration : {duration}</p>
-          <Button variant={"lightseagreen"}>Start</Button>
+          <Button variant={"lightseagreen"} className="flex gap-2">
+            <FaClock />
+            Start
+          </Button>
         </div>
       </CardFooter>
     </Card>

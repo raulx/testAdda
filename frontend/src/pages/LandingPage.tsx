@@ -1,3 +1,5 @@
+import Footer from "@/components/Footer";
+import MockCard from "@/components/MockCard";
 import Navbar from "@/components/Navbar";
 import QuizCard from "@/components/QuizCard";
 import {
@@ -6,6 +8,7 @@ import {
   TypographyH4,
 } from "@/components/Typography";
 import { Button } from "@/components/ui/button";
+
 import { FaRocket } from "react-icons/fa";
 
 const mockQuizData: {
@@ -40,6 +43,15 @@ const mockQuizData: {
   },
 ];
 
+const mockMockData: { exam: string; duration: number; questions: number }[] = [
+  { exam: "CAT-01", duration: 1, questions: 100 },
+  { exam: "SSC CGL-01", duration: 1, questions: 100 },
+  { exam: "SSC CHSL-01", duration: 1, questions: 100 },
+  { exam: "IBPS PO-01", duration: 1, questions: 100 },
+  { exam: "SBI PO-01", duration: 1, questions: 100 },
+  { exam: "SBI Clerk-01", duration: 1, questions: 100 },
+  { exam: "IBPS Clerk-01", duration: 1, questions: 100 },
+];
 function LandingPage() {
   return (
     <>
@@ -66,11 +78,11 @@ function LandingPage() {
         </div>
       </section>
       <br />
-      <section className="bg-jetstream px-6 py-12 my-6">
+      <section className="bg-jetstream  py-12 my-6">
         <TypographyH2 className="text-center my-12">
           Practice Quizes
         </TypographyH2>
-        <div className="flex justify-center items-center gap-6 sm:flex-row flex-col">
+        <div className="flex justify-center items-center gap-6 sm:flex-row flex-col px-4 flex-wrap">
           {mockQuizData.map((data) => {
             return (
               <QuizCard
@@ -85,6 +97,25 @@ function LandingPage() {
           })}
         </div>
       </section>
+
+      <section className="py-6 my-6">
+        <TypographyH2 className="text-center my-12">
+          Practice Full Length Mocks
+        </TypographyH2>
+        <div className="flex gap-4 justify-center items-center flex-wrap px-4">
+          {mockMockData.map((mock) => {
+            return (
+              <MockCard
+                key={mock.exam}
+                exam={mock.exam}
+                duration={mock.duration}
+                questions={mock.questions}
+              />
+            );
+          })}
+        </div>
+      </section>
+      <Footer />
     </>
   );
 }
