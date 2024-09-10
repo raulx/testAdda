@@ -32,7 +32,6 @@ const generateAccessAndRefereshTokens = async (userId) => {
 const sendEmailOtp = asyncHandler(async (req, res) => {
     // an otp is send to the email and saved with a ttl Index in Otp collection that expires after 10min.
     const { email } = req.body;
-
     if (!email) throw new ApiError(400, 'Email is required');
 
     const otpCode = Math.floor(1000 + Math.random() * 9000).toString();

@@ -8,6 +8,17 @@ const userAuthApi = createApi({
     baseUrl: `${SERVER_BASE_URL}/auth`,
   }),
   endpoints: (builder) => ({
+    sendEmailOtp:builder.mutation<LoginUserType,{email:string}>({
+      query:(({email}) => {
+        return {
+          url:'/sendOtp/email',
+          method:"POST",
+          body:{
+            email
+          }
+        }
+      })
+    }),
     loginInUser: builder.mutation<LoginUserType,{email:string,password:string}>({
       query: ({email,password}) => {
         return {
@@ -23,6 +34,6 @@ const userAuthApi = createApi({
 });
 
 
-export const { useLoginInUserMutation } = userAuthApi;
+export const { useLoginInUserMutation,useSendEmailOtpMutation } = userAuthApi;
 
 export default userAuthApi;

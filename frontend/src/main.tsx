@@ -8,13 +8,13 @@ import store from "./store/store.ts";
 //pages imports
 import LoginPage from "./pages/LoginPage.tsx";
 import SignUpPage from "./pages/SignUpPage.tsx";
-import LandingPage from "./pages/LandingPage.tsx";
 import HomePage from "./pages/HomePage.tsx";
 import NotFoundPage from "./pages/NotFoundPage.tsx";
-import ProtectedRoute from "./hooks/ProtectedRoute.tsx";
+// import ProtectedRoute from "./hooks/ProtectedRoute.tsx";
 import MocksPage from "./pages/MocksPage.tsx";
 import NewsPage from "./pages/NewsPage.tsx";
 import AboutUsPage from "./pages/AboutUsPage.tsx";
+import QuizesPage from "./pages/QuizesPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -22,25 +22,23 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        path: "/",
-        element: <LandingPage />,
+        index: true,
+        element: <HomePage />,
       },
       { path: "/login", element: <LoginPage /> },
       { path: "/signup", element: <SignUpPage /> },
+
+      { path: "/about-us", element: <AboutUsPage /> },
+      { path: "/news", element: <NewsPage /> },
+
+      { path: "/quizes", element: <QuizesPage /> },
       {
         path: "/mocks",
         element: <MocksPage />,
       },
-      { path: "/news", element: <NewsPage /> },
-      { path: "/about-us", element: <AboutUsPage /> },
-      {
-        path: "/home",
-        element: <ProtectedRoute />,
-        children: [{ index: true, element: <HomePage /> }],
-      },
     ],
   },
-  { path: "/error", element: <NotFoundPage /> },
+  { path: "*", element: <NotFoundPage /> },
 ]);
 
 createRoot(document.getElementById("root")!).render(

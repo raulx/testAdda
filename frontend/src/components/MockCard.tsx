@@ -1,4 +1,4 @@
-import { FaQuestion } from "react-icons/fa";
+import { FaClock } from "react-icons/fa";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -30,8 +30,8 @@ const MockCard = ({
       <CardFooter>
         <div className="flex justify-between w-full items-centertext-sm">
           <p>Total Questions : {questions}</p>
-          <Button variant={"lightseagreen"}>
-            <FaQuestion />
+          <Button variant={"lightseagreen"} className="flex gap-2">
+            <FaClock />
             Start
           </Button>
         </div>

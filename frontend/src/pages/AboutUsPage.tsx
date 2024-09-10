@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 
-function AboutUsPage() {
+const AboutUsPage = () => {
   return (
     <>
       <Navbar />
@@ -9,6 +9,6 @@ function AboutUsPage() {
       </h1>
     </>
   );
-}
+};
 
 export default AboutUsPage;

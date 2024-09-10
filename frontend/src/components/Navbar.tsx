@@ -4,14 +4,15 @@ import { MdQuiz } from "react-icons/md";
 import { SiMockserviceworker } from "react-icons/si";
 import { IoNewspaper } from "react-icons/io5";
 import { RiLoginCircleFill, RiTeamFill } from "react-icons/ri";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Headroom from "react-headroom";
-import { FaHamburger } from "react-icons/fa";
+import { FaHamburger, FaHome } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Logo from "./Logo";
 
 const navLinks: { name: string; url: string; icon: ReactElement }[] = [
-  { name: "Quizes", url: "/", icon: <MdQuiz /> },
+  { name: "Home", url: "/", icon: <FaHome /> },
+  { name: "Quizes", url: "/quizes", icon: <MdQuiz /> },
   { name: "Mocks", url: "/mocks", icon: <SiMockserviceworker /> },
   { name: "News", url: "/news", icon: <IoNewspaper /> },
   { name: "About Us", url: "/about-us", icon: <RiTeamFill /> },
@@ -41,13 +42,15 @@ const DesktopNav = ({ currentPath }: { currentPath: string }) => {
           );
         })}
       </ul>
-      <Button
-        className="lg:w-[128px] lg:h-[32px] w-[120px] h-[30px] flex justify-center items-center gap-2"
-        variant={"lightseagreen"}
-      >
-        <RiLoginCircleFill />
-        Login
-      </Button>
+      <Link to="/login">
+        <Button
+          className="lg:w-[128px] lg:h-[32px] w-[120px] h-[30px] flex justify-center items-center gap-2"
+          variant={"lightseagreen"}
+        >
+          <RiLoginCircleFill />
+          Login
+        </Button>
+      </Link>
     </nav>
   );
 };
@@ -65,13 +68,15 @@ const MobileNav = ({ currentPath }: { currentPath: string }) => {
           <FaHamburger />
         </div>
 
-        <Button
-          className=" w-[120px] h-[30px] flex justify-center items-center gap-2"
-          variant={"lightseagreen"}
-        >
-          <RiLoginCircleFill />
-          Login
-        </Button>
+        <Link to={"/login"}>
+          <Button
+            className=" w-[120px] h-[30px] flex justify-center items-center gap-2"
+            variant={"lightseagreen"}
+          >
+            <RiLoginCircleFill />
+            Login
+          </Button>
+        </Link>
       </div>
 
       {/* Sidebar  */}
