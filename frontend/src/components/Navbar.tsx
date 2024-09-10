@@ -8,6 +8,7 @@ import { useLocation } from "react-router-dom";
 import Headroom from "react-headroom";
 import { FaHamburger } from "react-icons/fa";
 import { motion } from "framer-motion";
+import Logo from "./Logo";
 
 const navLinks: { name: string; url: string; icon: ReactElement }[] = [
   { name: "Quizes", url: "/", icon: <MdQuiz /> },
@@ -18,17 +19,8 @@ const navLinks: { name: string; url: string; icon: ReactElement }[] = [
 
 const DesktopNav = ({ currentPath }: { currentPath: string }) => {
   return (
-    <nav className=" border-b border-bordergray py-4 px-8 flex justify-between items-center bg-white">
-      <div className="flex justify-center items-center gap-4">
-        <img
-          className="lg:w-[36px] lg:h-[36px] w-[32px] h-[32px]"
-          src="https://res.cloudinary.com/dj5yf27lr/image/upload/v1725024672/testAdda/frontendAssets/qetoe2ngulol3glcemfx.png"
-          alt="logo"
-        />
-        <span className="lg:text-xl text-lg tracking-wide font-bold font-montserrat text-lightseagreen">
-          TestMagister
-        </span>
-      </div>
+    <nav className="border-b border-bordergray py-4 px-8 flex justify-between items-center bg-white">
+      <Logo />
       <ul className="flex gap-10 items-center  text-darkcerulean">
         {navLinks.map((link) => {
           return (
@@ -93,7 +85,7 @@ const MobileNav = ({ currentPath }: { currentPath: string }) => {
         }}
         className={`w-3/4 bg-white top-0 left-0 h-screen fixed  flex flex-col py-2 items-center  z-10`}
       >
-        <div className="flex items-center gap-2 px-4 py-2 border border-bordergray rounded-xl shadow-md  border-opacity-60">
+        {/* <div className="flex items-center gap-2 px-4 py-2 border border-bordergray rounded-xl shadow-md  border-opacity-60">
           <img
             src="https://res.cloudinary.com/dj5yf27lr/image/upload/v1725024672/testAdda/frontendAssets/qetoe2ngulol3glcemfx.png"
             className="w-[28px] h-[28px]"
@@ -101,7 +93,8 @@ const MobileNav = ({ currentPath }: { currentPath: string }) => {
           <span className="tracking-wide  font-bold font-montserrat text-lightseagreen">
             TestMagister
           </span>
-        </div>
+        </div> */}
+        <Logo medium isBordered />
         <hr className="w-full my-2" />
 
         <ul className="flex flex-col my-6 gap-12 items-center  text-darkcerulean">
