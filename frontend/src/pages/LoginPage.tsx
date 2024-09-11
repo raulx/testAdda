@@ -12,12 +12,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { setAuthenticated, useSendEmailOtpMutation } from "@/store/store";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FcGoogle } from "react-icons/fc";
 import Logo from "@/components/Logo";
 import { FaDiscord } from "react-icons/fa";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 const loginFormSchema = z.object({
   email: z.string().email({
@@ -27,8 +29,10 @@ const loginFormSchema = z.object({
 
 const LoginPage = () => {
   const [sendEmailOtp, results] = useSendEmailOtpMutation();
+  const [isChecked, setIsChecked] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -36,7 +40,17 @@ const LoginPage = () => {
     },
   });
 
+  const handleCheckboxChange = () => {
+    setIsChecked(!isChecked);
+  };
+
   async function onSubmit(values: z.infer<typeof loginFormSchema>) {
+    if (!isChecked)
+      return toast(
+        <div className=" text-darkcerulean">
+          Please Read And Accept Our Terms And Conditions
+        </div>
+      );
     try {
       const res = await sendEmailOtp({
         email: values.email,
@@ -51,8 +65,8 @@ const LoginPage = () => {
   }
 
   return (
-    <>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-6 w-1/4  p-8 rounded-lg">
+    <div className="w-screen min-h-screen flex justify-center items-center">
+      <div className="flex flex-col gap-6 w-2/6 p-8 rounded-lg">
         <Logo large />
         <Button
           className="w-full flex gap-4 shadow-custom-2 py-6"
@@ -70,7 +84,7 @@ const LoginPage = () => {
         </Button>
         <div className="flex mt-8 gap-2 justify-center items-center">
           <hr className="h-[2px] w-full bg-gray-300" />
-          <p className="text-center text-sm text-gray-500">OR</p>
+          <p className="text-center text-lg text-gray-500">OR</p>
           <hr className="h-[2px] w-full bg-gray-300" />
         </div>
         <Form {...form}>
@@ -103,22 +117,24 @@ const LoginPage = () => {
           </form>
         </Form>
         <div className="items-top flex space-x-2">
-          <Checkbox id="terms1" />
+          <Checkbox
+            id="terms1"
+            checked={isChecked}
+            onClick={handleCheckboxChange}
+          />
           <div className="grid gap-1.5 leading-none">
             <label
               htmlFor="terms1"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-sm text-darkcerulean font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              By signing in to TestMagister,you agree with our
+              By signing in to TestMagister , you agree with our
+              <Button variant={"link"}>Terms & Conditions</Button> and
+              <Button variant={"link"}>Privacy Policy</Button>
             </label>
-            <p className="text-sm text-muted-foreground">
-              <Link to="/terms-&-conditions">Terms & Conditions</Link> and{" "}
-              <Link to="/privacy-policy">Privacy Policy</Link>
-            </p>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
