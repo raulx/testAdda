@@ -6,7 +6,10 @@ import { Provider } from "react-redux";
 import store from "./store/store.ts";
 
 //pages imports
-import LoginPage from "./pages/LoginPage.tsx";
+import LoginPage, {
+  LoginComponent,
+  VerifyEmailComponent,
+} from "./pages/LoginPage.tsx";
 import SignUpPage from "./pages/SignUpPage.tsx";
 import HomePage from "./pages/HomePage.tsx";
 import NotFoundPage from "./pages/NotFoundPage.tsx";
@@ -25,7 +28,14 @@ const router = createBrowserRouter([
         index: true,
         element: <HomePage />,
       },
-      { path: "/login", element: <LoginPage /> },
+      {
+        path: "/login",
+        element: <LoginPage />,
+        children: [
+          { index: true, element: <LoginComponent /> },
+          { path: "/login/verify-email", element: <VerifyEmailComponent /> },
+        ],
+      },
       { path: "/signup", element: <SignUpPage /> },
 
       { path: "/about-us", element: <AboutUsPage /> },

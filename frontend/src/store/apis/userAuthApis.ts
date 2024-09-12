@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { LoginUserType } from "@/utils/types";
+import { ApiResponseType } from "@/utils/types";
 import { SERVER_BASE_URL } from "@/utils/constants";
 
 const userAuthApi = createApi({
@@ -8,7 +8,7 @@ const userAuthApi = createApi({
     baseUrl: `${SERVER_BASE_URL}/auth`,
   }),
   endpoints: (builder) => ({
-    sendEmailOtp:builder.mutation<LoginUserType,{email:string}>({
+    sendEmailOtp:builder.mutation<ApiResponseType,{email:string}>({
       query:(({email}) => {
         return {
           url:'/sendOtp/email',
@@ -19,7 +19,7 @@ const userAuthApi = createApi({
         }
       })
     }),
-    loginInUser: builder.mutation<LoginUserType,{email:string,password:string}>({
+    loginInUser: builder.mutation<ApiResponseType,{email:string,password:string}>({
       query: ({email,password}) => {
         return {
           url:'/login',

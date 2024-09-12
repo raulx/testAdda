@@ -34,7 +34,7 @@ const sendEmailOtp = asyncHandler(async (req, res) => {
     const { email } = req.body;
     if (!email) throw new ApiError(400, 'Email is required');
 
-    const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
+    const otpCode = Math.floor(1000 + Math.random() * 900000).toString(); // 6 digit otp will be generated.
     const htmlTemplate = getTemplate('emailTemplate');
     const htmlContent = htmlTemplate.replace('{{OTP_CODE}}', otpCode);
 

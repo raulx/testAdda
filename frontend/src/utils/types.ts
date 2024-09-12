@@ -1,8 +1,8 @@
-interface LoginUserType{
+interface ApiResponseType{
     statusCode:number,
     data:string,
     message:string,
     success:boolean
 }
 
-export type {LoginUserType}
+export type {ApiResponseType}
