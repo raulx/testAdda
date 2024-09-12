@@ -33,7 +33,6 @@ const sendEmailOtp = asyncHandler(async (req, res) => {
     // an otp is send to the email and saved with a ttl Index in Otp collection that expires after 10min.
     const { email } = req.body;
     if (!email) throw new ApiError(400, 'Email is required');
-
     const otpCode = Math.floor(1000 + Math.random() * 900000).toString(); // 6 digit otp will be generated.
     const htmlTemplate = getTemplate('emailTemplate');
     const htmlContent = htmlTemplate.replace('{{OTP_CODE}}', otpCode);
@@ -48,7 +47,7 @@ const sendEmailOtp = asyncHandler(async (req, res) => {
     // new otpCode saved in otp collection, see otp.model.js
 
     const newOtp = await Otp.create({
-        clientId: email,
+        client_id: email,
         otp: otpCode,
     });
 
@@ -61,14 +60,14 @@ const verifyEmailOtp = asyncHandler(async (req, res) => {
 
     if (!email) throw new ApiError(400, 'Email is required');
 
-    const existingOtp = await Otp.findOne({ clientId: email });
+    const existingOtp = await Otp.findOne({ client_id: email });
 
     if (!existingOtp) {
         throw new ApiError(409, 'Session Expired !!');
     }
 
     if (existingOtp && (await existingOtp.matchOtp(otp))) {
-        await existingOtp.updateOne({ isVerified: true });
+        await existingOtp.updateOne({ is_verified: true });
 
         res.json(
             new ApiResponse(
