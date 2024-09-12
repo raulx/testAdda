@@ -3,28 +3,35 @@ import { useEffect, useState } from "react";
 const CountDownTimer = ({
   message,
   seconds,
+  className,
   onTimerEnd,
 }: {
   message: string;
   seconds: number;
+  className?: string;
   onTimerEnd: () => void;
 }) => {
   const [time, setTime] = useState(seconds);
+  const timerEnded = time === 0;
+
+  useEffect(() => {
+    if (timerEnded) {
+      onTimerEnd();
+    }
+  }, [timerEnded, onTimerEnd]);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setTime((time) => {
-        if (time === 0) {
-          onTimerEnd();
-          clearInterval(timer);
-          return 0;
-        } else return time - 1;
-      });
+      setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : prevTime));
     }, 1000);
-  }, [onTimerEnd]);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
 
   return (
-    <div className="App">
+    <div className={className}>
       <p>
         {message}: {`${Math.floor(time / 60)}`}:{`${time % 60}`}
       </p>

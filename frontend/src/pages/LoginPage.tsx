@@ -22,7 +22,13 @@ import { FaDiscord } from "react-icons/fa";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { Link, Outlet, useNavigate, useOutletContext } from "react-router-dom";
+import {
+  Link,
+  NavigateFunction,
+  Outlet,
+  useNavigate,
+  useOutletContext,
+} from "react-router-dom";
 import {
   TypographyH4,
   TypographyLead,
@@ -35,40 +41,36 @@ import {
 } from "@/components/ui/input-otp";
 import CountDownTimer from "@/components/CountDownTimer";
 
-const loginFormSchema = z.object({
+//types
+const LoginFormSchema = z.object({
   email: z.string().email({
     message: "Invalid email address",
   }),
 });
 
-const otpFormSchema = z.object({
+const OtpFormSchema = z.object({
   pin: z.string().min(6, {
     message: "Your one-time password must be 6 characters.",
   }),
 });
-interface SharedEmailContext {
+
+interface SharedLoginPageContext {
   email: string;
+  navigate: NavigateFunction;
   setEmail: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const LoginPage = () => {
-  const [email, setEmail] = useState<string>("");
-  return (
-    <div className="w-screen min-h-screen flex justify-center items-center">
-      <Outlet context={{ email, setEmail }} />
-    </div>
-  );
-};
-
+// children components of '/login
 const LoginComponent = () => {
   const [sendEmailOtp, results] = useSendEmailOtpMutation();
 
-  const { setEmail } = useOutletContext<SharedEmailContext>();
+  const { setEmail } = useOutletContext<SharedLoginPageContext>();
 
   const [isChecked, setIsChecked] = useState(false);
   const navigate = useNavigate();
-  const form = useForm<z.infer<typeof loginFormSchema>>({
-    resolver: zodResolver(loginFormSchema),
+
+  const form = useForm<z.infer<typeof LoginFormSchema>>({
+    resolver: zodResolver(LoginFormSchema),
     defaultValues: {
       email: "",
     },
@@ -78,7 +80,7 @@ const LoginComponent = () => {
     setIsChecked(!isChecked);
   };
 
-  async function onSubmit(values: z.infer<typeof loginFormSchema>) {
+  async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
     if (!isChecked)
       return toast(
         <div className=" text-darkcerulean">
@@ -96,7 +98,7 @@ const LoginComponent = () => {
           hideProgressBar: true,
           autoClose: 3000,
         });
-      toast.success("Otp sent successfully", {
+      toast.success("OTP sent successfully", {
         hideProgressBar: true,
         autoClose: 3000,
       });
@@ -108,73 +110,76 @@ const LoginComponent = () => {
   }
 
   return (
-    <div className="w-screen min-h-screen flex justify-center items-center">
-      <div className="flex flex-col gap-6 w-2/6 p-8 rounded-lg">
-        <Logo large />
-        <Button
-          className="w-full flex gap-4 shadow-custom-2 py-6"
-          variant={"outline"}
-        >
-          <FcGoogle className="text-3xl" />
-          Continue With Google
-        </Button>
-        <Button
-          className="w-full flex gap-4 shadow-custom-2 py-6"
-          variant={"outline"}
-        >
-          <FaDiscord className="text-3xl text-[#5865F2]" />
-          Continue With Discord
-        </Button>
-        <div className="flex mt-8 gap-2 justify-center items-center">
-          <hr className="h-[2px] w-full bg-gray-300" />
-          <p className="text-center text-lg text-gray-500">OR</p>
-          <hr className="h-[2px] w-full bg-gray-300" />
-        </div>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      className="border-2"
-                      placeholder="Enter your email address"
-                      {...field}
-                      type="email"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button
-              type="submit"
-              className="w-full py-6"
-              variant={"lightseagreen"}
-            >
-              {results.isLoading ? <>Loading data</> : <>Continue</>}
-            </Button>
-          </form>
-        </Form>
-        <div className="items-top flex space-x-2">
-          <Checkbox
-            id="terms1"
-            checked={isChecked}
-            onClick={handleCheckboxChange}
+    <div className="flex flex-col gap-6 w-2/6 p-8 rounded-lg">
+      <Logo large />
+
+      <Button
+        className="w-full flex gap-4 shadow-custom-2 py-6"
+        variant={"outline"}
+      >
+        <FcGoogle className="text-3xl" />
+        Continue With Google
+      </Button>
+
+      <Button
+        className="w-full flex gap-4 shadow-custom-2 py-6"
+        variant={"outline"}
+      >
+        <FaDiscord className="text-3xl text-[#5865F2]" />
+        Continue With Discord
+      </Button>
+
+      <div className="flex mt-8 gap-2 justify-center items-center">
+        <hr className="h-[2px] w-full bg-gray-300" />
+        <p className="text-center text-lg text-gray-500">OR</p>
+        <hr className="h-[2px] w-full bg-gray-300" />
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    className="border-2"
+                    placeholder="Enter your email address"
+                    {...field}
+                    type="email"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          <div className="grid gap-1.5 leading-none">
-            <label
-              htmlFor="terms1"
-              className="text-sm text-darkcerulean font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              By signing in to TestMagister , you agree with our
-              <Button variant={"link"}>Terms & Conditions</Button> and
-              <Button variant={"link"}>Privacy Policy</Button>
-            </label>
-          </div>
+          <Button
+            type="submit"
+            className="w-full py-6"
+            variant={"lightseagreen"}
+          >
+            {results.isLoading ? <>Loading data</> : <>Continue</>}
+          </Button>
+        </form>
+      </Form>
+
+      <div className="items-top flex space-x-2">
+        <Checkbox
+          id="terms1"
+          checked={isChecked}
+          onClick={handleCheckboxChange}
+        />
+        <div className="grid gap-1.5 leading-none">
+          <label
+            htmlFor="terms1"
+            className="text-sm text-darkcerulean font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            By signing in to TestMagister , you agree with our
+            <Button variant={"link"}>Terms & Conditions</Button> and
+            <Button variant={"link"}>Privacy Policy</Button>
+          </label>
         </div>
       </div>
     </div>
@@ -182,31 +187,24 @@ const LoginComponent = () => {
 };
 
 const VerifyEmailComponent = () => {
-  const { email } = useOutletContext<SharedEmailContext>();
+  const { email, navigate } = useOutletContext<SharedLoginPageContext>();
 
-  const navigate = useNavigate();
-  const form = useForm<z.infer<typeof otpFormSchema>>({
-    resolver: zodResolver(otpFormSchema),
+  const form = useForm<z.infer<typeof OtpFormSchema>>({
+    resolver: zodResolver(OtpFormSchema),
     defaultValues: {
       pin: "",
     },
   });
 
-  function onSubmit(data: z.infer<typeof otpFormSchema>) {
-    toast(
-      <>
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-          <code className="text-white">{email}</code>
-        </pre>
-      </>
-    );
-  }
+  const onSubmit = (data: z.infer<typeof OtpFormSchema>) => {
+    console.log(data);
+  };
 
-  function onTimerEnd() {
+  const onTimerEnd = () => {
     navigate("/login");
-    toast("Otp Expired");
-  }
+    toast.error("OTP Expired", { hideProgressBar: true, autoClose: 3000 });
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col text-center gap-2">
@@ -272,6 +270,18 @@ const VerifyEmailComponent = () => {
           </TypographyP>
         </Button>
       </Link>
+    </div>
+  );
+};
+
+// parent of '/login
+const LoginPage = () => {
+  const [email, setEmail] = useState<string>("");
+  const navigate = useNavigate();
+
+  return (
+    <div className="w-screen min-h-screen flex justify-center items-center">
+      <Outlet context={{ email, navigate, setEmail }} />
     </div>
   );
 };

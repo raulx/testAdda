@@ -19,6 +19,18 @@ const userAuthApi = createApi({
         }
       })
     }),
+    verifyEmailOtp:builder.mutation<ApiResponseType,{email:string,password:number}>({
+      query:({email,password}) => {
+        return {
+          url:"/verifyOtp/email",
+          method:'POST',
+          body:{
+            email,
+            otp:password
+          }
+        }
+      }
+    }),
     loginInUser: builder.mutation<ApiResponseType,{email:string,password:string}>({
       query: ({email,password}) => {
         return {
@@ -34,6 +46,6 @@ const userAuthApi = createApi({
 });
 
 
-export const { useLoginInUserMutation,useSendEmailOtpMutation } = userAuthApi;
+export const { useLoginInUserMutation,useSendEmailOtpMutation,useVerifyEmailOtpMutation } = userAuthApi;
 
 export default userAuthApi;
