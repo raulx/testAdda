@@ -19,7 +19,7 @@ const userAuthApi = createApi({
         }
       })
     }),
-    verifyEmailOtp:builder.mutation<ApiResponseType,{email:string,password:number}>({
+    verifyEmailOtp:builder.mutation<ApiResponseType,{email:string,password:string}>({
       query:({email,password}) => {
         return {
           url:"/verifyOtp/email",

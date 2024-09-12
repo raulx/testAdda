@@ -13,7 +13,10 @@ import {
   FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useSendEmailOtpMutation } from "@/store/store";
+import {
+  useSendEmailOtpMutation,
+  useVerifyEmailOtpMutation,
+} from "@/store/store";
 // import { useNavigate } from "react-router-dom";
 // import { useDispatch } from "react-redux";
 import { FcGoogle } from "react-icons/fc";
@@ -40,6 +43,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import CountDownTimer from "@/components/CountDownTimer";
+import RingLoader from "@/components/RingLoader";
 
 //types
 const LoginFormSchema = z.object({
@@ -160,7 +164,7 @@ const LoginComponent = () => {
             className="w-full py-6"
             variant={"lightseagreen"}
           >
-            {results.isLoading ? <>Loading data</> : <>Continue</>}
+            {results.isLoading ? <RingLoader /> : <>Continue</>}
           </Button>
         </form>
       </Form>
@@ -188,6 +192,7 @@ const LoginComponent = () => {
 
 const VerifyEmailComponent = () => {
   const { email, navigate } = useOutletContext<SharedLoginPageContext>();
+  const [verifyEmailOtp, results] = useVerifyEmailOtpMutation();
 
   const form = useForm<z.infer<typeof OtpFormSchema>>({
     resolver: zodResolver(OtpFormSchema),
@@ -196,8 +201,15 @@ const VerifyEmailComponent = () => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof OtpFormSchema>) => {
-    console.log(data);
+  const onSubmit = async (data: z.infer<typeof OtpFormSchema>) => {
+    if (email === "")
+      toast("Email is required", { autoClose: 3000, hideProgressBar: true });
+    try {
+      const res = await verifyEmailOtp({ email, password: data.pin });
+      console.log(res);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const onTimerEnd = () => {
@@ -257,7 +269,7 @@ const VerifyEmailComponent = () => {
       </div>
       <div className="mx-auto">
         <CountDownTimer
-          seconds={20}
+          seconds={600}
           message="OTP Expires In"
           onTimerEnd={onTimerEnd}
         />
@@ -270,6 +282,7 @@ const VerifyEmailComponent = () => {
           </TypographyP>
         </Button>
       </Link>
+      {results.isLoading && <RingLoader />}
     </div>
   );
 };
