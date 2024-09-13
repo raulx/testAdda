@@ -254,7 +254,7 @@ const VerifyEmailComponent = () => {
                     </div>
                   </FormControl>
                   <FormDescription>
-                    Please enter the one-time password sent to your phone.
+                    Please enter the one-time password sent to your Email.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
