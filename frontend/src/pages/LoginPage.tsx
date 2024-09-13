@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -17,8 +16,7 @@ import {
   useSendEmailOtpMutation,
   useVerifyEmailOtpMutation,
 } from "@/store/store";
-// import { useNavigate } from "react-router-dom";
-// import { useDispatch } from "react-redux";
+
 import { FcGoogle } from "react-icons/fc";
 import Logo from "@/components/Logo";
 import { FaDiscord } from "react-icons/fa";
@@ -219,6 +217,7 @@ const VerifyEmailComponent = () => {
 
   return (
     <div className="flex flex-col gap-4">
+      <h1>Backend-restructuring.</h1>
       <div className="flex flex-col text-center gap-2">
         <TypographyH4>
           Please enter the One-Time Password to verify your account
