@@ -8,6 +8,7 @@ import store from "./store/store.ts";
 //pages imports
 import LoginPage, {
   LoginComponent,
+  SetUserDetails,
   VerifyEmailComponent,
 } from "./pages/LoginPage.tsx";
 import SignUpPage from "./pages/SignUpPage.tsx";
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <LoginComponent /> },
           { path: "/login/verify-email", element: <VerifyEmailComponent /> },
+          { path: "/login/set-userdetails", element: <SetUserDetails /> },
         ],
       },
       { path: "/signup", element: <SignUpPage /> },

@@ -42,6 +42,9 @@ import {
 } from "@/components/ui/input-otp";
 import CountDownTimer from "@/components/CountDownTimer";
 import RingLoader from "@/components/RingLoader";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
+import { ApiResponseType, UserData } from "@/utils/types";
 
 //types
 const LoginFormSchema = z.object({
@@ -55,6 +58,12 @@ const OtpFormSchema = z.object({
     message: "Your one-time password must be 6 characters.",
   }),
 });
+
+function isFetchBaseQueryError(
+  error: FetchBaseQueryError | SerializedError
+): error is FetchBaseQueryError {
+  return (error as FetchBaseQueryError).status !== undefined;
+}
 
 interface SharedLoginPageContext {
   email: string;
@@ -95,15 +104,16 @@ const LoginComponent = () => {
         email: values.email,
       });
 
-      if (res.error || res.data.statusCode >= 400)
-        toast("Error Occured while logging In ! Please try again", {
-          hideProgressBar: true,
-          autoClose: 3000,
-        });
+      if (res.error && isFetchBaseQueryError(res.error)) {
+        const serverError = res.error.data as ApiResponseType<object>;
+        return toast(`Error:${serverError.message}`);
+      }
+
       toast.success("OTP sent successfully", {
         hideProgressBar: true,
         autoClose: 3000,
       });
+
       setEmail(values.email);
       navigate("/login/verify-email");
     } catch (err) {
@@ -188,6 +198,9 @@ const LoginComponent = () => {
   );
 };
 
+const SetUserDetails = () => {
+  return <div>Set User Details...</div>;
+};
 const VerifyEmailComponent = () => {
   const { email, navigate } = useOutletContext<SharedLoginPageContext>();
   const [verifyEmailOtp, results] = useVerifyEmailOtpMutation();
@@ -201,10 +214,30 @@ const VerifyEmailComponent = () => {
 
   const onSubmit = async (data: z.infer<typeof OtpFormSchema>) => {
     if (email === "")
-      toast("Email is required", { autoClose: 3000, hideProgressBar: true });
+      return toast("Email is required", {
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
+
     try {
       const res = await verifyEmailOtp({ email, password: data.pin });
-      console.log(res);
+
+      if (res.error && isFetchBaseQueryError(res.error)) {
+        const serverError = res.error.data as ApiResponseType<UserData>;
+        return toast.error(`Error:${serverError.message}`, {
+          hideProgressBar: true,
+          autoClose: 3000,
+        });
+      }
+
+      if (!res.data?.data.username) navigate("/login/set-userdetails");
+      else {
+        toast.success(res.data?.message, {
+          hideProgressBar: true,
+          autoClose: 3000,
+        });
+        navigate("/");
+      }
     } catch (err) {
       console.error(err);
     }
@@ -217,7 +250,6 @@ const VerifyEmailComponent = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1>Backend-restructuring.</h1>
       <div className="flex flex-col text-center gap-2">
         <TypographyH4>
           Please enter the One-Time Password to verify your account
@@ -299,4 +331,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-export { LoginComponent, VerifyEmailComponent };
+export { LoginComponent, VerifyEmailComponent, SetUserDetails };

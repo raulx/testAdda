@@ -33,7 +33,12 @@ const sendEmailOtp = asyncHandler(async (req, res) => {
     // an otp is send to the email and saved with a ttl Index in Otp collection that expires after 10min.
     const { email } = req.body;
     if (!email) throw new ApiError(400, 'Email is required');
-    const otpCode = Math.floor(1000 + Math.random() * 900000).toString(); // 6 digit otp will be generated.
+
+    // const otpAlreadySent = await Otp.findOne({ client_id: email });
+
+    // if (otpAlreadySent) throw new ApiError(409, 'Otp Already Sent');
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit otp will be generated.
     const htmlTemplate = getTemplate('emailTemplate');
     const htmlContent = htmlTemplate.replace('{{OTP_CODE}}', otpCode);
 
@@ -46,13 +51,13 @@ const sendEmailOtp = asyncHandler(async (req, res) => {
 
     // new otpCode saved in otp collection, see otp.model.js
 
-    const newOtp = await Otp.create({
+    await Otp.create({
         client_id: email,
         otp: otpCode,
     });
 
     //note*:otp model has a ttl index referring updatedAt field. i.e: it gets expired after 10 min from the last update.
-    res.json(new ApiResponse(200, newOtp, 'Otp Send Successfully'));
+    res.json(new ApiResponse(200, {}, 'Otp Send Successfully'));
 });
 
 const verifyEmailOtp = asyncHandler(async (req, res) => {
@@ -68,14 +73,8 @@ const verifyEmailOtp = asyncHandler(async (req, res) => {
 
     if (existingOtp && (await existingOtp.matchOtp(otp))) {
         await existingOtp.updateOne({ is_verified: true });
-
-        res.json(
-            new ApiResponse(
-                200,
-                { clientId: email, otpVerified: true },
-                'Verified Successfully'
-            )
-        );
+        req.token = 'otp';
+        loginUser(req, res);
     } else {
         throw new ApiError(400, 'OTP Not Matched !!');
     }
@@ -107,30 +106,32 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+    const { email } = req.body;
+    const token = req.token;
 
-    if (!email || !password)
-        throw new ApiError(400, 'All Fields are required !');
+    if (!token) throw new ApiError(401, 'Token Not Found !');
 
-    const user = await User.findOne({ email: email });
+    if (!email) throw new ApiError(400, 'All Fields are required !');
 
-    if (!user) throw new ApiError(404, 'User Not Found !');
+    let user = await User.findOne({ email: email }).select('-refresh_token');
 
-    if (user && (await user.isPasswordCorrect(password))) {
-        const { accessToken, refreshToken } =
-            await generateAccessAndRefereshTokens(user._id);
-
-        const options = {
-            httpOnly: true,
-            secure: true,
-        };
-
-        res.cookie('accessToken', accessToken, options)
-            .cookie('refreshToken', refreshToken, options)
-            .json(new ApiResponse(200, 'User Logged In successfully !'));
-    } else {
-        throw new ApiError(409, 'Password not matched !');
+    //create user if user not exist
+    if (!user) {
+        const newUser = await User.create({ email: email });
+        user = newUser;
     }
+    const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
+        user._id
+    );
+
+    const options = {
+        httpOnly: true,
+        secure: true,
+    };
+
+    res.cookie('accessToken', accessToken, options)
+        .cookie('refreshToken', refreshToken, options)
+        .json(new ApiResponse(200, user, 'User Logged In successfully !'));
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
