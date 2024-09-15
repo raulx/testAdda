@@ -201,6 +201,7 @@ const LoginComponent = () => {
 const SetUserDetails = () => {
   return <div>Set User Details...</div>;
 };
+
 const VerifyEmailComponent = () => {
   const { email, navigate } = useOutletContext<SharedLoginPageContext>();
   const [verifyEmailOtp, results] = useVerifyEmailOtpMutation();
