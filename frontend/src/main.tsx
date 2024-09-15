@@ -6,15 +6,16 @@ import { Provider } from "react-redux";
 import store from "./store/store.ts";
 
 //pages imports
+
 import LoginPage, {
-  LoginComponent,
-  SetUserDetails,
-  VerifyEmailComponent,
+  LoginHome,
+  SetAvatar,
+  SetUserName,
+  VerifyOtpAndLogin,
 } from "./pages/LoginPage.tsx";
 import SignUpPage from "./pages/SignUpPage.tsx";
 import HomePage from "./pages/HomePage.tsx";
 import NotFoundPage from "./pages/NotFoundPage.tsx";
-// import ProtectedRoute from "./hooks/ProtectedRoute.tsx";
 import MocksPage from "./pages/MocksPage.tsx";
 import NewsPage from "./pages/NewsPage.tsx";
 import AboutUsPage from "./pages/AboutUsPage.tsx";
@@ -33,9 +34,10 @@ const router = createBrowserRouter([
         path: "/login",
         element: <LoginPage />,
         children: [
-          { index: true, element: <LoginComponent /> },
-          { path: "/login/verify-email", element: <VerifyEmailComponent /> },
-          { path: "/login/set-user-name", element: <SetUserDetails /> },
+          { index: true, element: <LoginHome /> },
+          { path: "/login/verify-email", element: <VerifyOtpAndLogin /> },
+          { path: "/login/set-user-name", element: <SetUserName /> },
+          { path: "/login/set-avatar", element: <SetAvatar /> },
         ],
       },
       { path: "/signup", element: <SignUpPage /> },

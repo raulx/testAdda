@@ -3,9 +3,8 @@ import { ApiResponseType, UserData } from "@/utils/types";
 import { SERVER_BASE_URL } from "@/utils/constants";
 
 
-
-const userAuthApi = createApi({
-  reducerPath: "userAuth",
+const authApis = createApi({
+  reducerPath: "authApis",
   baseQuery: fetchBaseQuery({
     baseUrl: `${SERVER_BASE_URL}/auth`,
   }),
@@ -48,6 +47,6 @@ const userAuthApi = createApi({
 });
 
 
-export const { useLoginInUserMutation,useSendEmailOtpMutation,useVerifyEmailOtpMutation } = userAuthApi;
+export const { useLoginInUserMutation,useSendEmailOtpMutation,useVerifyEmailOtpMutation } = authApis;
 
-export default userAuthApi;
+export default authApis;

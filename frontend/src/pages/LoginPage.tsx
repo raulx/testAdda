@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import {
   useSendEmailOtpMutation,
+  useUpdateUserNameMutation,
   useVerifyEmailOtpMutation,
 } from "@/store/store";
 
@@ -79,8 +80,8 @@ interface SharedLoginPageContext {
 }
 
 // children components of '/login
-const LoginComponent = () => {
-  const [sendEmailOtp, results] = useSendEmailOtpMutation();
+const LoginHome = () => {
+  const [sendEmailOtp, { isLoading }] = useSendEmailOtpMutation();
 
   const { setEmail } = useOutletContext<SharedLoginPageContext>();
 
@@ -179,7 +180,7 @@ const LoginComponent = () => {
             className="w-full py-6"
             variant={"lightseagreen"}
           >
-            {results.isLoading ? <RingLoader /> : <>Continue</>}
+            {isLoading ? <RingLoader /> : <>Continue</>}
           </Button>
         </form>
       </Form>
@@ -205,7 +206,9 @@ const LoginComponent = () => {
   );
 };
 
-const SetUserDetails = () => {
+const SetUserName = () => {
+  const [updateUserName] = useUpdateUserNameMutation();
+
   const form = useForm<z.infer<typeof UserNameFormSchema>>({
     resolver: zodResolver(UserNameFormSchema),
     defaultValues: {
@@ -213,12 +216,14 @@ const SetUserDetails = () => {
     },
   });
 
-  function onSubmit(data: z.infer<typeof UserNameFormSchema>) {
-    toast(
-      <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-        <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-      </pre>
-    );
+  async function onSubmit(data: z.infer<typeof UserNameFormSchema>) {
+    try {
+      const res = await updateUserName({ username: data.username });
+
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   return (
@@ -258,9 +263,13 @@ const SetUserDetails = () => {
   );
 };
 
-const VerifyEmailComponent = () => {
+const SetAvatar = () => {
+  return <div>Set Avatar</div>;
+};
+
+const VerifyOtpAndLogin = () => {
   const { email, navigate } = useOutletContext<SharedLoginPageContext>();
-  const [verifyEmailOtp, results] = useVerifyEmailOtpMutation();
+  const [verifyEmailOtp, { isLoading }] = useVerifyEmailOtpMutation();
 
   const form = useForm<z.infer<typeof OtpFormSchema>>({
     resolver: zodResolver(OtpFormSchema),
@@ -279,6 +288,7 @@ const VerifyEmailComponent = () => {
     try {
       const res = await verifyEmailOtp({ email, password: data.pin });
 
+      // for server side errors
       if (res.error && isFetchBaseQueryError(res.error)) {
         const serverError = res.error.data as ApiResponseType<UserData>;
         return toast.error(`Error:${serverError.message}`, {
@@ -287,7 +297,17 @@ const VerifyEmailComponent = () => {
         });
       }
 
-      if (!res.data?.data.username) navigate("/login/set-userdetails");
+      // for client side errors
+      if (res.error && !isFetchBaseQueryError(res.error)) {
+        return toast.error("Error : Client side Error !");
+      }
+
+      // if username or avatar in not present in the response, then send user to the respective routes,
+      if (!res.data?.data.username)
+        navigate("/login/set-user-name"); //to set the username
+      else if (!res.data?.data.avatar_url)
+        navigate("/login/set-user-avatar"); //to set the avatar
+      // and if username and avatar is present in the response then send user to the homepage.
       else {
         toast.success(res.data?.message, {
           hideProgressBar: true,
@@ -370,7 +390,7 @@ const VerifyEmailComponent = () => {
           </TypographyP>
         </Button>
       </Link>
-      {results.isLoading && <RingLoader />}
+      {isLoading && <RingLoader />}
     </div>
   );
 };
@@ -388,4 +408,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-export { LoginComponent, VerifyEmailComponent, SetUserDetails };
+export { LoginHome, VerifyOtpAndLogin, SetUserName, SetAvatar };

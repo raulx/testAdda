@@ -1,18 +1,20 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
-import userAuthApi from "./apis/userAuthApis";
 import authSlice from "./slices/authSlice";
 import userSlice from "./slices/userSlice";
+import userApis from "./apis/userApis";
+import authApis from "./apis/authApis";
 
 
 const store = configureStore({
     reducer:{
-        [userAuthApi.reducerPath] : userAuthApi.reducer,
+        [authApis.reducerPath] : authApis.reducer,
+        [userApis.reducerPath]:userApis.reducer,
         auth:authSlice.reducer,
         user:userSlice.reducer
     },
     middleware:(getDefaultMiddleware)=>{
-        return getDefaultMiddleware().concat(userAuthApi.middleware)
+        return getDefaultMiddleware().concat(authApis.middleware).concat(userApis.middleware)
     }
 })
 
@@ -23,6 +25,7 @@ export * from './slices/authSlice'
 export * from "./slices/userSlice"
 
 // api's exports 
-export * from "./apis/userAuthApis"
+export * from "./apis/authApis"
+export * from "./apis/userApis"
 
 export default store
