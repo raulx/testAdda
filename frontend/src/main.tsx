@@ -35,7 +35,7 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <LoginComponent /> },
           { path: "/login/verify-email", element: <VerifyEmailComponent /> },
-          { path: "/login/set-userdetails", element: <SetUserDetails /> },
+          { path: "/login/set-user-name", element: <SetUserDetails /> },
         ],
       },
       { path: "/signup", element: <SignUpPage /> },

@@ -31,6 +31,7 @@ import {
   useOutletContext,
 } from "react-router-dom";
 import {
+  TypographyH2,
   TypographyH4,
   TypographyLead,
   TypographyP,
@@ -56,6 +57,12 @@ const LoginFormSchema = z.object({
 const OtpFormSchema = z.object({
   pin: z.string().min(6, {
     message: "Your one-time password must be 6 characters.",
+  }),
+});
+
+const UserNameFormSchema = z.object({
+  username: z.string().min(2, {
+    message: "Username must be at least 2 characters.",
   }),
 });
 
@@ -199,7 +206,56 @@ const LoginComponent = () => {
 };
 
 const SetUserDetails = () => {
-  return <div>Set User Details...</div>;
+  const form = useForm<z.infer<typeof UserNameFormSchema>>({
+    resolver: zodResolver(UserNameFormSchema),
+    defaultValues: {
+      username: "",
+    },
+  });
+
+  function onSubmit(data: z.infer<typeof UserNameFormSchema>) {
+    toast(
+      <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+        <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+      </pre>
+    );
+  }
+
+  return (
+    <div className="w-1/3 px-4 py-12 border-2 rounded-lg  flex flex-col gap-4">
+      <TypographyH2 className="text-center">Set Your Username</TypographyH2>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col gap-8"
+        >
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Set Your Username"
+                    {...field}
+                    type="text"
+                  />
+                </FormControl>
+                <FormDescription>
+                  This is your public display name.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" variant={"lightseagreen"} className="w-1/3">
+            Save
+          </Button>
+        </form>
+      </Form>
+    </div>
+  );
 };
 
 const VerifyEmailComponent = () => {

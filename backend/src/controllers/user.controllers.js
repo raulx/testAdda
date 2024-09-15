@@ -9,16 +9,16 @@ import {
 } from '../services/cloudinary.js';
 
 const updateUserName = asyncHandler(async (req, res) => {
-    const { firstName, lastName } = req.body;
+    const { username } = req.body;
     const user = req.user;
 
-    if (!firstName || !lastName)
-        throw new ApiError(401, 'Both FirstName and LastName are required');
+    if (!username) throw new ApiError(401, 'All Fields are required !');
+
     const updatedUser = await User.findOneAndUpdate(
         { _id: user._id },
-        { $set: { first_name: firstName, last_name: lastName } },
+        { $set: { username: username } },
         { new: true }
-    ).select('-password -refreshToken');
+    ).select('-refreshToken');
 
     res.json(new ApiResponse(200, updatedUser, 'Name changed successfully'));
 });
