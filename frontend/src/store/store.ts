@@ -8,7 +8,7 @@ import authApis from "./apis/authApis";
 
 const store = configureStore({
     reducer:{
-        [authApis.reducerPath] : authApis.reducer,
+        [authApis.reducerPath]:authApis.reducer,
         [userApis.reducerPath]:userApis.reducer,
         auth:authSlice.reducer,
         user:userSlice.reducer

@@ -1,5 +1,7 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+// import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {createApi,fetchBaseQuery} from "@reduxjs/toolkit/query/react"
 import { ApiResponseType, UserData } from "@/utils/types";
+
 import { SERVER_BASE_URL } from "@/utils/constants";
 
 
@@ -10,10 +12,10 @@ const userApis = createApi({
     }),
     endpoints:(builder) => ({
         updateUserName:builder.mutation<ApiResponseType<UserData>,{username:string}>({
-            query:((username)=>{
+            query:(({username})=>{
                 return {
-                    url:"/update-user",
-                    method:'POST',
+                    url:"/updateUserName",
+                    method:'PATCH',
                     body:{username}
                 }
             })

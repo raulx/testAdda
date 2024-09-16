@@ -10,6 +10,7 @@ import {
 
 const updateUserName = asyncHandler(async (req, res) => {
     const { username } = req.body;
+    console.log(username);
     const user = req.user;
 
     if (!username) throw new ApiError(401, 'All Fields are required !');

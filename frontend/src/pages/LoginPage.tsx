@@ -67,6 +67,28 @@ const UserNameFormSchema = z.object({
   }),
 });
 
+const AvatarUploadSchema = z.object({
+  file: z
+    .any()
+    .refine((fileList) => fileList && fileList[0], {
+      message: "File is required",
+    }) // Ensure a file is selected
+    .refine((fileList) => fileList && fileList[0].size <= 2 * 1024 * 1024, {
+      message: "File size should be less than 2MB",
+    }) // Size limit (2MB)
+    .refine(
+      (fileList) =>
+        fileList && ["image/jpeg", "image/png"].includes(fileList[0].type),
+      {
+        message: "Only .jpg or .png files are allowed",
+      }
+    ), // File type validation
+
+  username: z.string().min(2, {
+    message: "Username must be at least 2 characters.",
+  }),
+});
+
 function isFetchBaseQueryError(
   error: FetchBaseQueryError | SerializedError
 ): error is FetchBaseQueryError {
@@ -83,10 +105,9 @@ interface SharedLoginPageContext {
 const LoginHome = () => {
   const [sendEmailOtp, { isLoading }] = useSendEmailOtpMutation();
 
-  const { setEmail } = useOutletContext<SharedLoginPageContext>();
+  const { setEmail, navigate } = useOutletContext<SharedLoginPageContext>();
 
   const [isChecked, setIsChecked] = useState(false);
-  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof LoginFormSchema>>({
     resolver: zodResolver(LoginFormSchema),
@@ -126,6 +147,10 @@ const LoginHome = () => {
       navigate("/login/verify-email");
     } catch (err) {
       console.log(err);
+      toast.error("SERVER ERROR : Try Again Later ", {
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
     }
   }
 
@@ -207,7 +232,9 @@ const LoginHome = () => {
 };
 
 const SetUserName = () => {
-  const [updateUserName] = useUpdateUserNameMutation();
+  const [updateUserName, { isLoading }] = useUpdateUserNameMutation();
+
+  const { navigate } = useOutletContext<SharedLoginPageContext>();
 
   const form = useForm<z.infer<typeof UserNameFormSchema>>({
     resolver: zodResolver(UserNameFormSchema),
@@ -219,8 +246,25 @@ const SetUserName = () => {
   async function onSubmit(data: z.infer<typeof UserNameFormSchema>) {
     try {
       const res = await updateUserName({ username: data.username });
+      // for server side errors
+      if (res.error && isFetchBaseQueryError(res.error)) {
+        const serverError = res.error.data as ApiResponseType<UserData>;
+        return toast.error(`Error:${serverError.message}`, {
+          hideProgressBar: true,
+          autoClose: 3000,
+        });
+      }
 
-      console.log(res);
+      // for client side errors
+      if (res.error && !isFetchBaseQueryError(res.error)) {
+        return toast.error("Error : Client side Error !");
+      }
+
+      // if user avatar is not set
+      if (!res.data?.data.avatar_url) navigate("/login/set-avatar");
+      else {
+        navigate("/");
+      }
     } catch (err) {
       console.log(err);
     }
@@ -259,12 +303,74 @@ const SetUserName = () => {
           </Button>
         </form>
       </Form>
+      {isLoading && <RingLoader />}
     </div>
   );
 };
 
 const SetAvatar = () => {
-  return <div>Set Avatar</div>;
+  const form = useForm<z.infer<typeof AvatarUploadSchema>>({
+    resolver: zodResolver(AvatarUploadSchema),
+    defaultValues: { username: "", file: undefined },
+  });
+
+  async function onSubmit(data: z.infer<typeof AvatarUploadSchema>) {
+    if (data.file) console.log(data.file, data.username);
+    else console.log("file not found !");
+  }
+
+  return (
+    <div className="w-1/3 px-4 py-12 border-2 rounded-lg  flex flex-col gap-4">
+      <TypographyH2 className="text-center">Set Your Username</TypographyH2>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col gap-8"
+        >
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Avatar</FormLabel>
+                <FormControl>
+                  <Input placeholder="Set Your Avatar" type="text" {...field} />
+                </FormControl>
+                <FormDescription>
+                  This is your public display Avatar.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="file"
+            render={() => (
+              <FormItem>
+                <FormLabel>Avatar</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Set Your Avatar"
+                    {...form.register("file")}
+                    required
+                    type="file"
+                  />
+                </FormControl>
+                <FormDescription>
+                  This is your public display Avatar.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" variant={"lightseagreen"} className="w-1/3">
+            Save
+          </Button>
+        </form>
+      </Form>
+    </div>
+  );
 };
 
 const VerifyOtpAndLogin = () => {
@@ -306,7 +412,7 @@ const VerifyOtpAndLogin = () => {
       if (!res.data?.data.username)
         navigate("/login/set-user-name"); //to set the username
       else if (!res.data?.data.avatar_url)
-        navigate("/login/set-user-avatar"); //to set the avatar
+        navigate("/login/set-avatar"); //to set the avatar
       // and if username and avatar is present in the response then send user to the homepage.
       else {
         toast.success(res.data?.message, {

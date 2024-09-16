@@ -1,7 +1,9 @@
 import { UserData } from "@/utils/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const userInitialState:UserData = {
+
+const userInitialState:{user:UserData} = {
+    user:{
     _id:'',
     email:'',
     username:'',
@@ -9,20 +11,23 @@ const userInitialState:UserData = {
     is_subscribed:false,
     createdAt:'',
     updatedAt:''
+    },
 }
-
 
 const userSlice = createSlice({
     name:"user",
     initialState:userInitialState,
     reducers:{
         setUser(state,action:PayloadAction<UserData>){
-            state = action.payload
+            state.user = action.payload
+        },
+        updateUserName(state,action:PayloadAction<string>){
+            state.user.username = action.payload 
         }
     }
 })
 
 
-export const {setUser} = userSlice.actions
+export const {setUser,updateUserName} = userSlice.actions
 
 export default userSlice

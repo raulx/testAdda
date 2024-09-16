@@ -34,7 +34,8 @@ const sendEmailOtp = asyncHandler(async (req, res) => {
     const { email } = req.body;
     if (!email) throw new ApiError(400, 'Email is required');
 
-    // const otpAlreadySent = await Otp.findOne({ client_id: email });
+    // remove older otp if it exists
+    await Otp.findOneAndDelete({ client_id: email });
 
     // if (otpAlreadySent) throw new ApiError(409, 'Otp Already Sent');
 
