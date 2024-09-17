@@ -21,7 +21,7 @@ const navLinks: { name: string; url: string; icon: ReactElement }[] = [
 ];
 
 const DesktopNav = ({ currentPath }: { currentPath: string }) => {
-  const { user } = useSelector((store: RootState) => {
+  const user = useSelector((store: RootState) => {
     return store.user;
   });
   return (
@@ -47,8 +47,8 @@ const DesktopNav = ({ currentPath }: { currentPath: string }) => {
           );
         })}
       </ul>
-      {user._id ? (
-        <h1>{user.username}</h1>
+      {user.data._id ? (
+        <h1>{user.data.username}</h1>
       ) : (
         <Link to="/login">
           <Button

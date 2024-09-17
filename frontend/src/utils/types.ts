@@ -8,6 +8,14 @@ interface UserData {
     updatedAt:string
 }
 
+interface UserLoginResponseType{
+    _id:string,
+    email:string,
+    username:string,
+    avatar_url:string
+  }
+
+
 interface ApiResponseType<T = unknown> {
     statusCode:number,
     data:T,
@@ -16,4 +24,4 @@ interface ApiResponseType<T = unknown> {
 }
 
 
-export type {ApiResponseType,UserData}
+export type {ApiResponseType,UserData,UserLoginResponseType}

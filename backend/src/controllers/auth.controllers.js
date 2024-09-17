@@ -138,7 +138,17 @@ const loginUser = asyncHandler(async (req, res) => {
             ...options,
             maxAge: 24 * 60 * 60 * 1000 * 10,
         })
-        .json(new ApiResponse(200, user, 'User Logged In successfully !'));
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    _id: user._id,
+                    username: user.username,
+                    avatar_url: user.avatar_url,
+                },
+                'User Logged In successfully !'
+            )
+        );
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {

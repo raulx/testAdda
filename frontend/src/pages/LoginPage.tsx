@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+  AppDispatch,
+  logInUser,
   useSendEmailOtpMutation,
   useUpdateUserAvatarMutation,
   useUpdateUserNameMutation,
@@ -48,6 +50,7 @@ import RingLoader from "@/components/RingLoader";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
 import { ApiResponseType, UserData } from "@/utils/types";
+import { useDispatch } from "react-redux";
 
 //types
 const LoginFormSchema = z.object({
@@ -392,6 +395,7 @@ const SetAvatar = () => {
 const VerifyOtpAndLogin = () => {
   const { email, navigate } = useOutletContext<SharedLoginPageContext>();
   const [verifyEmailOtp, { isLoading }] = useVerifyEmailOtpMutation();
+  const dispatch = useDispatch<AppDispatch>();
 
   const form = useForm<z.infer<typeof OtpFormSchema>>({
     resolver: zodResolver(OtpFormSchema),
@@ -429,12 +433,13 @@ const VerifyOtpAndLogin = () => {
         navigate("/login/set-user-name"); //to set the username
       else if (!res.data?.data.avatar_url)
         navigate("/login/set-avatar"); //to set the avatar
-      // and if username and avatar is present in the response then send user to the homepage.
+      // and if username and avatar is present in the response then loginuser and send to the homepage.
       else {
         toast.success(res.data?.message, {
           hideProgressBar: true,
           autoClose: 3000,
         });
+        dispatch(logInUser(res.data?.data._id));
         navigate("/");
       }
     } catch (err) {

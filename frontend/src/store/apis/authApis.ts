@@ -1,6 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { ApiResponseType, UserData } from "@/utils/types";
+import { ApiResponseType,} from "@/utils/types";
 import { SERVER_BASE_URL } from "@/utils/constants";
+import { UserLoginResponseType } from "@/utils/types";
+
+
 
 
 const authApis = createApi({
@@ -20,7 +23,7 @@ const authApis = createApi({
         }
       })
     }),
-    verifyEmailOtp:builder.mutation<ApiResponseType<UserData>,{email:string,password:string}>({
+    verifyEmailOtp:builder.mutation<ApiResponseType<UserLoginResponseType>,{email:string,password:string}>({
       query:({email,password}) => {
         return {
           url:"/verifyOtp/email",
