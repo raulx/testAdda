@@ -127,11 +127,17 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === 'production',
     };
 
-    res.cookie('accessToken', accessToken, options)
-        .cookie('refreshToken', refreshToken, options)
+    res.cookie('accessToken', accessToken, {
+        ...options,
+        maxAge: 24 * 60 * 60 * 1000,
+    })
+        .cookie('refreshToken', refreshToken, {
+            ...options,
+            maxAge: 24 * 60 * 60 * 1000 * 10,
+        })
         .json(new ApiResponse(200, user, 'User Logged In successfully !'));
 });
 

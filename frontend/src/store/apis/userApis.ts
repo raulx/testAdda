@@ -1,7 +1,5 @@
-// import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {createApi,fetchBaseQuery} from "@reduxjs/toolkit/query/react"
 import { ApiResponseType, UserData } from "@/utils/types";
-
 import { SERVER_BASE_URL } from "@/utils/constants";
 
 
@@ -19,11 +17,20 @@ const userApis = createApi({
                     body:{username}
                 }
             })
+        }),
+        updateUserAvatar:builder.mutation<ApiResponseType<UserData>,FormData>({
+            query:((formData)=>{
+                return {
+                    url:'/updateUserAvatar',
+                    method:'PATCH',
+                    body:formData
+                }
+            })
         })
     })
 
 })
 
-export const {useUpdateUserNameMutation} = userApis
+export const {useUpdateUserNameMutation,useUpdateUserAvatarMutation} = userApis
 
 export default userApis

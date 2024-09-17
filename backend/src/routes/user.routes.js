@@ -10,6 +10,6 @@ const router = Router();
 router.route('/updateUserName').patch(updateUserName);
 router
     .route('/updateUserAvatar')
-    .patch(upload.single('avatar'), updateUserAvatar);
+    .patch(upload.single('file'), updateUserAvatar);
 
 export default router;

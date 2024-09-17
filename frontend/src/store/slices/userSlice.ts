@@ -23,11 +23,14 @@ const userSlice = createSlice({
         },
         updateUserName(state,action:PayloadAction<string>){
             state.user.username = action.payload 
+        },
+        updateUserAvatar(state,action:PayloadAction<string>){
+            state.user.avatar_url = action.payload
         }
     }
 })
 
 
-export const {setUser,updateUserName} = userSlice.actions
+export const {setUser,updateUserName,updateUserAvatar} = userSlice.actions
 
 export default userSlice

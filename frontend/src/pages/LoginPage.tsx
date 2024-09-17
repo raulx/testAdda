@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import {
   useSendEmailOtpMutation,
+  useUpdateUserAvatarMutation,
   useUpdateUserNameMutation,
   useVerifyEmailOtpMutation,
 } from "@/store/store";
@@ -83,10 +84,6 @@ const AvatarUploadSchema = z.object({
         message: "Only .jpg or .png files are allowed",
       }
     ), // File type validation
-
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
 });
 
 function isFetchBaseQueryError(
@@ -100,6 +97,18 @@ interface SharedLoginPageContext {
   navigate: NavigateFunction;
   setEmail: React.Dispatch<React.SetStateAction<string>>;
 }
+
+// parent of '/login
+const LoginPage = () => {
+  const [email, setEmail] = useState<string>("");
+  const navigate = useNavigate();
+
+  return (
+    <div className="w-screen min-h-screen flex justify-center items-center">
+      <Outlet context={{ email, navigate, setEmail }} />
+    </div>
+  );
+};
 
 // children components of '/login
 const LoginHome = () => {
@@ -309,40 +318,46 @@ const SetUserName = () => {
 };
 
 const SetAvatar = () => {
+  const [updateUserAvatar, { isLoading }] = useUpdateUserAvatarMutation();
+  const { navigate } = useOutletContext<SharedLoginPageContext>();
+
   const form = useForm<z.infer<typeof AvatarUploadSchema>>({
     resolver: zodResolver(AvatarUploadSchema),
-    defaultValues: { username: "", file: undefined },
   });
 
   async function onSubmit(data: z.infer<typeof AvatarUploadSchema>) {
-    if (data.file) console.log(data.file, data.username);
-    else console.log("file not found !");
+    const formData = new FormData();
+    formData.append("file", data.file[0]);
+    try {
+      const res = await updateUserAvatar(formData);
+      console.log(res);
+
+      if (res.error && isFetchBaseQueryError(res.error)) {
+        const serverError = res.error.data as ApiResponseType<UserData>;
+        return toast.error(`Error:${serverError.message}`, {
+          hideProgressBar: true,
+          autoClose: 3000,
+        });
+      }
+
+      // for client side errors
+      if (res.error && !isFetchBaseQueryError(res.error)) {
+        return toast.error("Error : Client side Error !");
+      }
+      navigate("/");
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   return (
     <div className="w-1/3 px-4 py-12 border-2 rounded-lg  flex flex-col gap-4">
-      <TypographyH2 className="text-center">Set Your Username</TypographyH2>
+      <TypographyH2 className="text-center">Set Avatar</TypographyH2>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-8"
         >
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Avatar</FormLabel>
-                <FormControl>
-                  <Input placeholder="Set Your Avatar" type="text" {...field} />
-                </FormControl>
-                <FormDescription>
-                  This is your public display Avatar.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="file"
@@ -369,6 +384,7 @@ const SetAvatar = () => {
           </Button>
         </form>
       </Form>
+      {isLoading && <RingLoader />}
     </div>
   );
 };
@@ -497,18 +513,6 @@ const VerifyOtpAndLogin = () => {
         </Button>
       </Link>
       {isLoading && <RingLoader />}
-    </div>
-  );
-};
-
-// parent of '/login
-const LoginPage = () => {
-  const [email, setEmail] = useState<string>("");
-  const navigate = useNavigate();
-
-  return (
-    <div className="w-screen min-h-screen flex justify-center items-center">
-      <Outlet context={{ email, navigate, setEmail }} />
     </div>
   );
 };

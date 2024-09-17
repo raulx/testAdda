@@ -9,6 +9,8 @@ import Headroom from "react-headroom";
 import { FaHamburger, FaHome } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Logo from "./Logo";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 const navLinks: { name: string; url: string; icon: ReactElement }[] = [
   { name: "Home", url: "/", icon: <FaHome /> },
@@ -19,6 +21,9 @@ const navLinks: { name: string; url: string; icon: ReactElement }[] = [
 ];
 
 const DesktopNav = ({ currentPath }: { currentPath: string }) => {
+  const { user } = useSelector((store: RootState) => {
+    return store.user;
+  });
   return (
     <nav className="border-b border-bordergray py-4 px-8 flex justify-between items-center bg-white">
       <Logo />
@@ -42,15 +47,19 @@ const DesktopNav = ({ currentPath }: { currentPath: string }) => {
           );
         })}
       </ul>
-      <Link to="/login">
-        <Button
-          className="lg:w-[128px] lg:h-[32px] w-[120px] h-[30px] flex justify-center items-center gap-2"
-          variant={"lightseagreen"}
-        >
-          <RiLoginCircleFill />
-          Login
-        </Button>
-      </Link>
+      {user._id ? (
+        <h1>{user.username}</h1>
+      ) : (
+        <Link to="/login">
+          <Button
+            className="lg:w-[128px] lg:h-[32px] w-[120px] h-[30px] flex justify-center items-center gap-2"
+            variant={"lightseagreen"}
+          >
+            <RiLoginCircleFill />
+            Login
+          </Button>
+        </Link>
+      )}
     </nav>
   );
 };
