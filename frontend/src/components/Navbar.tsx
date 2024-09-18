@@ -9,8 +9,24 @@ import Headroom from "react-headroom";
 import { FaHamburger, FaHome } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Logo from "./Logo";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  AppDispatch,
+  logOutUser,
+  RootState,
+  useLogOutUserMutation,
+} from "@/store/store";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import RingLoader from "./RingLoader";
 
 const navLinks: { name: string; url: string; icon: ReactElement }[] = [
   { name: "Home", url: "/", icon: <FaHome /> },
@@ -24,6 +40,20 @@ const DesktopNav = ({ currentPath }: { currentPath: string }) => {
   const user = useSelector((store: RootState) => {
     return store.user;
   });
+  const [logoutUser, { isLoading }] = useLogOutUserMutation();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleLogout = async () => {
+    try {
+      const res = await logoutUser(null);
+      if (res.data?.statusCode === 200) {
+        dispatch(logOutUser());
+        window.location.reload();
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <nav className="border-b border-bordergray py-4 px-8 flex justify-between items-center bg-white">
       <Logo />
@@ -48,7 +78,28 @@ const DesktopNav = ({ currentPath }: { currentPath: string }) => {
         })}
       </ul>
       {user.data._id ? (
-        <h1>{user.data.username}</h1>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant={"outline"}>Profile</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="p-4">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <Avatar>
+                  <AvatarImage src={user.data.avatar_url} />
+                  <AvatarFallback>A</AvatarFallback>
+                </Avatar>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Button variant={"destructive"} onClick={handleLogout}>
+                  Logout
+                </Button>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ) : (
         <Link to="/login">
           <Button
@@ -60,6 +111,7 @@ const DesktopNav = ({ currentPath }: { currentPath: string }) => {
           </Button>
         </Link>
       )}
+      {isLoading && <RingLoader />}
     </nav>
   );
 };

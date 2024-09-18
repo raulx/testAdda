@@ -9,6 +9,14 @@ const userApis = createApi({
         baseUrl:`${SERVER_BASE_URL}/user`
     }),
     endpoints:(builder) => ({
+        getUser:builder.query<ApiResponseType<UserData>,null>({
+            query:(()=>{
+                return{
+                    url:"/getUser",
+                    method:'GET'
+                }
+            })
+        }),
         updateUserName:builder.mutation<ApiResponseType<UserData>,{username:string}>({
             query:(({username})=>{
                 return {
@@ -31,6 +39,6 @@ const userApis = createApi({
 
 })
 
-export const {useUpdateUserNameMutation,useUpdateUserAvatarMutation} = userApis
+export const {useUpdateUserNameMutation,useUpdateUserAvatarMutation,useGetUserQuery,useLazyGetUserQuery} = userApis
 
 export default userApis

@@ -47,8 +47,7 @@ import {
 } from "@/components/ui/input-otp";
 import CountDownTimer from "@/components/CountDownTimer";
 import RingLoader from "@/components/RingLoader";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { SerializedError } from "@reduxjs/toolkit";
+import { isFetchBaseQueryError } from "@/utils/helpers";
 import { ApiResponseType, UserData } from "@/utils/types";
 import { useDispatch } from "react-redux";
 
@@ -89,12 +88,6 @@ const AvatarUploadSchema = z.object({
     ), // File type validation
 });
 
-function isFetchBaseQueryError(
-  error: FetchBaseQueryError | SerializedError
-): error is FetchBaseQueryError {
-  return (error as FetchBaseQueryError).status !== undefined;
-}
-
 interface SharedLoginPageContext {
   email: string;
   navigate: NavigateFunction;
@@ -132,7 +125,7 @@ const LoginHome = () => {
     setIsChecked(!isChecked);
   };
 
-  async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
+  async function handleOtpSending(values: z.infer<typeof LoginFormSchema>) {
     if (!isChecked)
       return toast(
         <div className=" text-darkcerulean">
@@ -193,7 +186,10 @@ const LoginHome = () => {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form
+          onSubmit={form.handleSubmit(handleOtpSending)}
+          className="space-y-8"
+        >
           <FormField
             control={form.control}
             name="email"
@@ -245,7 +241,7 @@ const LoginHome = () => {
 
 const SetUserName = () => {
   const [updateUserName, { isLoading }] = useUpdateUserNameMutation();
-
+  const dispatch = useDispatch<AppDispatch>();
   const { navigate } = useOutletContext<SharedLoginPageContext>();
 
   const form = useForm<z.infer<typeof UserNameFormSchema>>({
@@ -255,7 +251,7 @@ const SetUserName = () => {
     },
   });
 
-  async function onSubmit(data: z.infer<typeof UserNameFormSchema>) {
+  async function handleSetUserName(data: z.infer<typeof UserNameFormSchema>) {
     try {
       const res = await updateUserName({ username: data.username });
       // for server side errors
@@ -275,6 +271,7 @@ const SetUserName = () => {
       // if user avatar is not set
       if (!res.data?.data.avatar_url) navigate("/login/set-avatar");
       else {
+        dispatch(logInUser(res.data?.data._id));
         navigate("/");
       }
     } catch (err) {
@@ -287,7 +284,7 @@ const SetUserName = () => {
       <TypographyH2 className="text-center">Set Your Username</TypographyH2>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(handleSetUserName)}
           className="flex flex-col gap-8"
         >
           <FormField
@@ -323,17 +320,17 @@ const SetUserName = () => {
 const SetAvatar = () => {
   const [updateUserAvatar, { isLoading }] = useUpdateUserAvatarMutation();
   const { navigate } = useOutletContext<SharedLoginPageContext>();
+  const dispatch = useDispatch<AppDispatch>();
 
   const form = useForm<z.infer<typeof AvatarUploadSchema>>({
     resolver: zodResolver(AvatarUploadSchema),
   });
 
-  async function onSubmit(data: z.infer<typeof AvatarUploadSchema>) {
+  async function handleSetAvatar(data: z.infer<typeof AvatarUploadSchema>) {
     const formData = new FormData();
     formData.append("file", data.file[0]);
     try {
       const res = await updateUserAvatar(formData);
-      console.log(res);
 
       if (res.error && isFetchBaseQueryError(res.error)) {
         const serverError = res.error.data as ApiResponseType<UserData>;
@@ -347,7 +344,11 @@ const SetAvatar = () => {
       if (res.error && !isFetchBaseQueryError(res.error)) {
         return toast.error("Error : Client side Error !");
       }
-      navigate("/");
+
+      if (res.data) {
+        dispatch(logInUser(res.data?.data._id));
+        navigate("/");
+      }
     } catch (err) {
       console.log(err);
     }
@@ -358,7 +359,7 @@ const SetAvatar = () => {
       <TypographyH2 className="text-center">Set Avatar</TypographyH2>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(handleSetAvatar)}
           className="flex flex-col gap-8"
         >
           <FormField

@@ -4,8 +4,6 @@ import { SERVER_BASE_URL } from "@/utils/constants";
 import { UserLoginResponseType } from "@/utils/types";
 
 
-
-
 const authApis = createApi({
   reducerPath: "authApis",
   baseQuery: fetchBaseQuery({
@@ -35,7 +33,7 @@ const authApis = createApi({
         }
       }
     }),
-    loginInUser: builder.mutation<ApiResponseType,{email:string,password:string}>({
+    logInUser: builder.mutation<ApiResponseType,{email:string,password:string}>({
       query: ({email,password}) => {
         return {
           url:'/login',
@@ -46,10 +44,18 @@ const authApis = createApi({
         }
      } ,
     }),
+    logOutUser:builder.mutation<ApiResponseType,null>({
+      query:(()=>{
+        return {
+          url:'/logoutUser',
+          method:'POST',
+        }
+      })
+    })
   }),
 });
 
 
-export const { useLoginInUserMutation,useSendEmailOtpMutation,useVerifyEmailOtpMutation } = authApis;
+export const { useLogInUserMutation,useSendEmailOtpMutation,useVerifyEmailOtpMutation,useLogOutUserMutation } = authApis;
 
 export default authApis;

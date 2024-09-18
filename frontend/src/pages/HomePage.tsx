@@ -8,7 +8,20 @@ import {
   TypographyH2,
 } from "@/components/Typography";
 import { Button } from "@/components/ui/button";
+import {
+  AppDispatch,
+  logOutUser,
+  RootState,
+  setUser,
+  useLazyGetUserQuery,
+} from "@/store/store";
+import { useEffect } from "react";
 import { FaRocket } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { isFetchBaseQueryError } from "@/utils/helpers";
+import { toast } from "react-toastify";
+import RingLoader from "@/components/RingLoader";
+import { ApiResponseType, UserData } from "@/utils/types";
 
 const mockQuizData: {
   title: string;
@@ -53,6 +66,41 @@ const mockMockData: { exam: string; duration: number; questions: number }[] = [
 ];
 
 const HomePage = () => {
+  const { isLoggedIn } = useSelector((state: RootState) => {
+    return state.auth.data;
+  });
+  const dispatch = useDispatch<AppDispatch>();
+  const [fetchUserData, { isLoading }] = useLazyGetUserQuery();
+
+  // load the user if user session is active
+  useEffect(() => {
+    if (isLoggedIn) {
+      const getUser = async () => {
+        try {
+          const res = await fetchUserData(null);
+          // for server side errors
+          if (res.error && isFetchBaseQueryError(res.error)) {
+            dispatch(logOutUser());
+            const serverError = res.error.data as ApiResponseType<UserData>;
+            toast.error(`Error : ${serverError.message}`, {
+              autoClose: 3000,
+              hideProgressBar: true,
+            });
+          }
+
+          // for client side errors
+          if (res.error && !isFetchBaseQueryError(res.error)) {
+            return toast.error("Error : Client side Error !");
+          }
+          if (res.data?.statusCode === 200) dispatch(setUser(res.data?.data));
+        } catch (err) {
+          console.log(err);
+        }
+      };
+      getUser();
+    }
+  }, [isLoggedIn, fetchUserData, dispatch]);
+
   return (
     <>
       <Navbar />
@@ -116,6 +164,7 @@ const HomePage = () => {
         </div>
       </section>
       <Footer />
+      {isLoading && <RingLoader />}
     </>
   );
 };

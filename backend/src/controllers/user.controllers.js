@@ -8,9 +8,16 @@ import {
     deleteOnCloudinary,
 } from '../services/cloudinary.js';
 
+const getUser = asyncHandler(async (req, res) => {
+    const user = req.user;
+
+    if (!user) throw new ApiError(404, 'User NotFound');
+
+    res.json(new ApiResponse(200, user, 'user data fetched successfully'));
+});
+
 const updateUserName = asyncHandler(async (req, res) => {
     const { username } = req.body;
-    console.log(username);
     const user = req.user;
 
     if (!username) throw new ApiError(401, 'All Fields are required !');
@@ -57,4 +64,4 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, user, 'Avatar image updated successfully'));
 });
 
-export { updateUserAvatar, updateUserName };
+export { updateUserAvatar, updateUserName, getUser };
