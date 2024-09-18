@@ -1,30 +1,55 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./store/store.ts";
+import { Suspense, lazy } from "react";
 
 //pages imports
-
-import LoginPage, {
-  LoginHome,
-  SetAvatar,
-  SetUserName,
-  VerifyOtpAndLogin,
-} from "./pages/LoginPage.tsx";
-import SignUpPage from "./pages/SignUpPage.tsx";
-import HomePage from "./pages/HomePage.tsx";
-import NotFoundPage from "./pages/NotFoundPage.tsx";
-import MocksPage from "./pages/MocksPage.tsx";
-import NewsPage from "./pages/NewsPage.tsx";
-import AboutUsPage from "./pages/AboutUsPage.tsx";
-import QuizesPage from "./pages/QuizesPage.tsx";
+const LoginPage = lazy(() => import("./pages/LoginPage.tsx"));
+const LoginHome = lazy(() =>
+  import("./pages/LoginPage.tsx").then((module) => ({
+    default: module.LoginHome,
+  }))
+);
+const SetAvatar = lazy(() =>
+  import("./pages/LoginPage.tsx").then((module) => ({
+    default: module.SetAvatar,
+  }))
+);
+const SetUserName = lazy(() =>
+  import("./pages/LoginPage.tsx").then((module) => ({
+    default: module.SetUserName,
+  }))
+);
+const VerifyOtpAndLogin = lazy(() =>
+  import("./pages/LoginPage.tsx").then((module) => ({
+    default: module.VerifyOtpAndLogin,
+  }))
+);
+const HomePage = lazy(() => import("./pages/HomePage.tsx"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage.tsx"));
+const MocksPage = lazy(() => import("./pages/MocksPage.tsx"));
+const NewsPage = lazy(() => import("./pages/NewsPage.tsx"));
+const AboutUsPage = lazy(() => import("./pages/AboutUsPage.tsx"));
+const QuizesPage = lazy(() => import("./pages/QuizesPage.tsx"));
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: (
+      <Suspense
+        fallback={
+          <div className="w-screen h-screen flex justify-center items-center">
+            <div className="loader"></div>
+          </div>
+        }
+      >
+        <App />
+      </Suspense>
+    ),
     children: [
       {
         index: true,
@@ -40,7 +65,6 @@ const router = createBrowserRouter([
           { path: "/login/set-avatar", element: <SetAvatar /> },
         ],
       },
-      { path: "/signup", element: <SignUpPage /> },
 
       { path: "/about-us", element: <AboutUsPage /> },
       { path: "/news", element: <NewsPage /> },

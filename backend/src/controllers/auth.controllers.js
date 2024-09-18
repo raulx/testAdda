@@ -237,13 +237,19 @@ const logoutUser = asyncHandler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === 'production',
     };
 
     return res
         .status(200)
-        .clearCookie('accessToken', options)
-        .clearCookie('refreshToken', options)
+        .clearCookie('accessToken', {
+            ...options,
+            maxAge: new Date(0),
+        })
+        .clearCookie('refreshToken', {
+            ...options,
+            maxAge: new Date(0),
+        })
         .json(new ApiResponse(200, {}, 'User logged Out'));
 });
 

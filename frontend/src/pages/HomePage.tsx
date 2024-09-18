@@ -130,7 +130,7 @@ const HomePage = () => {
             </div>
           </section>
           <br />
-          <section className="bg-jetstream  py-12 my-6">
+          <section className="bg-jetstream   py-12 my-6">
             <TypographyH2 className="text-center my-12">
               Practice Quizes
             </TypographyH2>

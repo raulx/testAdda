@@ -136,50 +136,6 @@ const DesktopNav = ({ currentPath }: { currentPath: string }) => {
       {user.data._id ? (
         <ProfileMenu />
       ) : (
-        // <div className="mr-8">
-        //   <DropdownMenu
-        //     onOpenChange={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-        //   >
-        //     <DropdownMenuTrigger asChild>
-        //       <div className="cursor-pointer h-12  flex justify-center items-center gap-2">
-        //         {/* <FaUser /> */}
-        //         <Avatar>
-        //           <AvatarImage src={user.data.avatar_url} />
-        //           <AvatarFallback>A</AvatarFallback>
-        //         </Avatar>
-        //         <span className="text-darkcerulean">Profile</span>
-        //         {isProfileMenuOpen ? (
-        //           <FaCaretDown className="text-sm" />
-        //         ) : (
-        //           <FaCaretRight className="text-sm" />
-        //         )}
-        //       </div>
-        //     </DropdownMenuTrigger>
-        //     <DropdownMenuContent className="rounded-xl  text-darkcerulean p-2">
-        //       <DropdownMenuGroup className="flex flex-col gap-2">
-        //         <DropdownMenuItem className="flex gap-2">
-        //           <TbReport className="text-xl" /> <span>My Attempts</span>
-        //         </DropdownMenuItem>
-        //         <DropdownMenuItem className="flex gap-2">
-        //           <FaChartLine className="text-xl" />
-        //           <span>Analysis</span>
-        //         </DropdownMenuItem>
-        //         <DropdownMenuItem className="flex gap-2">
-        //           <FaEdit className="text-xl" />
-        //           <span>Edit Profile</span>
-        //         </DropdownMenuItem>
-
-        //         <DropdownMenuItem
-        //           className=" flex gap-2 text-orange-600"
-        //           onClick={handleLogout}
-        //         >
-        //           <TbLogout className="text-xl" />
-        //           Logout
-        //         </DropdownMenuItem>
-        //       </DropdownMenuGroup>
-        //     </DropdownMenuContent>
-        //   </DropdownMenu>
-        // </div>
         <Link to="/login">
           <Button
             className="lg:w-[128px] lg:h-[32px] w-[120px] h-[30px] flex justify-center items-center gap-2"
