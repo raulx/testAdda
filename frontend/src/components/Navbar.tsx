@@ -6,27 +6,29 @@ import { IoNewspaper } from "react-icons/io5";
 import { RiLoginCircleFill, RiTeamFill } from "react-icons/ri";
 import { Link, useLocation } from "react-router-dom";
 import Headroom from "react-headroom";
-import { FaHamburger, FaHome } from "react-icons/fa";
+import {
+  FaCaretDown,
+  FaCaretRight,
+  FaChartLine,
+  FaEdit,
+  FaHamburger,
+  FaHome,
+} from "react-icons/fa";
 import { motion } from "framer-motion";
 import Logo from "./Logo";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  AppDispatch,
-  logOutUser,
-  RootState,
-  useLogOutUserMutation,
-} from "@/store/store";
+import { useDispatch } from "react-redux";
+import { AppDispatch, logOutUser, useLogOutUserMutation } from "@/store/store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { TbLogout, TbReport } from "react-icons/tb";
 import RingLoader from "./RingLoader";
+import UseGetUserDataHook from "@/hooks/UseGetUserDataHook";
 
 const navLinks: { name: string; url: string; icon: ReactElement }[] = [
   { name: "Home", url: "/", icon: <FaHome /> },
@@ -36,11 +38,13 @@ const navLinks: { name: string; url: string; icon: ReactElement }[] = [
   { name: "About Us", url: "/about-us", icon: <RiTeamFill /> },
 ];
 
-const DesktopNav = ({ currentPath }: { currentPath: string }) => {
-  const user = useSelector((store: RootState) => {
-    return store.user;
-  });
+const ProfileMenu = () => {
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+  const user = UseGetUserDataHook();
+
   const [logoutUser, { isLoading }] = useLogOutUserMutation();
+
   const dispatch = useDispatch<AppDispatch>();
 
   const handleLogout = async () => {
@@ -55,7 +59,59 @@ const DesktopNav = ({ currentPath }: { currentPath: string }) => {
     }
   };
   return (
-    <nav className="border-b border-bordergray py-4 px-8 flex justify-between items-center bg-white">
+    <>
+      <div className="sm:mr-8 mr-2">
+        <DropdownMenu
+          onOpenChange={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+        >
+          <DropdownMenuTrigger asChild>
+            <div className="cursor-pointer  flex justify-center items-center gap-2">
+              <Avatar>
+                <AvatarImage src={user.data.avatar_url} />
+                <AvatarFallback>A</AvatarFallback>
+              </Avatar>
+              <span className="text-darkcerulean">Profile</span>
+              {isProfileMenuOpen ? (
+                <FaCaretDown className="text-sm" />
+              ) : (
+                <FaCaretRight className="text-sm" />
+              )}
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="rounded-xl  text-darkcerulean p-2">
+            <DropdownMenuGroup className="flex flex-col gap-2">
+              <DropdownMenuItem className="flex gap-2">
+                <TbReport className="text-xl" /> <span>My Attempts</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="flex gap-2">
+                <FaChartLine className="text-xl" />
+                <span>Analysis</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="flex gap-2">
+                <FaEdit className="text-xl" />
+                <span>Edit Profile</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                className=" flex gap-2 text-orange-600"
+                onClick={handleLogout}
+              >
+                <TbLogout className="text-xl" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      {isLoading && <RingLoader />}
+    </>
+  );
+};
+
+const DesktopNav = ({ currentPath }: { currentPath: string }) => {
+  const user = UseGetUserDataHook();
+  return (
+    <nav className="border-b w-screen border-bordergray py-4 px-8 flex justify-between items-center bg-white">
       <Logo />
       <ul className="flex gap-10 items-center  text-darkcerulean">
         {navLinks.map((link) => {
@@ -78,29 +134,52 @@ const DesktopNav = ({ currentPath }: { currentPath: string }) => {
         })}
       </ul>
       {user.data._id ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant={"outline"}>Profile</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="p-4">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Avatar>
-                  <AvatarImage src={user.data.avatar_url} />
-                  <AvatarFallback>A</AvatarFallback>
-                </Avatar>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Button variant={"destructive"} onClick={handleLogout}>
-                  Logout
-                </Button>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <ProfileMenu />
       ) : (
+        // <div className="mr-8">
+        //   <DropdownMenu
+        //     onOpenChange={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+        //   >
+        //     <DropdownMenuTrigger asChild>
+        //       <div className="cursor-pointer h-12  flex justify-center items-center gap-2">
+        //         {/* <FaUser /> */}
+        //         <Avatar>
+        //           <AvatarImage src={user.data.avatar_url} />
+        //           <AvatarFallback>A</AvatarFallback>
+        //         </Avatar>
+        //         <span className="text-darkcerulean">Profile</span>
+        //         {isProfileMenuOpen ? (
+        //           <FaCaretDown className="text-sm" />
+        //         ) : (
+        //           <FaCaretRight className="text-sm" />
+        //         )}
+        //       </div>
+        //     </DropdownMenuTrigger>
+        //     <DropdownMenuContent className="rounded-xl  text-darkcerulean p-2">
+        //       <DropdownMenuGroup className="flex flex-col gap-2">
+        //         <DropdownMenuItem className="flex gap-2">
+        //           <TbReport className="text-xl" /> <span>My Attempts</span>
+        //         </DropdownMenuItem>
+        //         <DropdownMenuItem className="flex gap-2">
+        //           <FaChartLine className="text-xl" />
+        //           <span>Analysis</span>
+        //         </DropdownMenuItem>
+        //         <DropdownMenuItem className="flex gap-2">
+        //           <FaEdit className="text-xl" />
+        //           <span>Edit Profile</span>
+        //         </DropdownMenuItem>
+
+        //         <DropdownMenuItem
+        //           className=" flex gap-2 text-orange-600"
+        //           onClick={handleLogout}
+        //         >
+        //           <TbLogout className="text-xl" />
+        //           Logout
+        //         </DropdownMenuItem>
+        //       </DropdownMenuGroup>
+        //     </DropdownMenuContent>
+        //   </DropdownMenu>
+        // </div>
         <Link to="/login">
           <Button
             className="lg:w-[128px] lg:h-[32px] w-[120px] h-[30px] flex justify-center items-center gap-2"
@@ -111,13 +190,13 @@ const DesktopNav = ({ currentPath }: { currentPath: string }) => {
           </Button>
         </Link>
       )}
-      {isLoading && <RingLoader />}
     </nav>
   );
 };
 
 const MobileNav = ({ currentPath }: { currentPath: string }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const user = UseGetUserDataHook();
 
   return (
     <>
@@ -128,16 +207,19 @@ const MobileNav = ({ currentPath }: { currentPath: string }) => {
         >
           <FaHamburger />
         </div>
-
-        <Link to={"/login"}>
-          <Button
-            className=" w-[120px] h-[30px] flex justify-center items-center gap-2"
-            variant={"lightseagreen"}
-          >
-            <RiLoginCircleFill />
-            Login
-          </Button>
-        </Link>
+        {user.data._id ? (
+          <ProfileMenu />
+        ) : (
+          <Link to={"/login"}>
+            <Button
+              className=" w-[120px] h-[30px] flex justify-center items-center gap-2"
+              variant={"lightseagreen"}
+            >
+              <RiLoginCircleFill />
+              Login
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Sidebar  */}
@@ -151,15 +233,6 @@ const MobileNav = ({ currentPath }: { currentPath: string }) => {
         }}
         className={`w-3/4 bg-white top-0 left-0 h-screen fixed  flex flex-col py-2 items-center  z-10`}
       >
-        {/* <div className="flex items-center gap-2 px-4 py-2 border border-bordergray rounded-xl shadow-md  border-opacity-60">
-          <img
-            src="https://res.cloudinary.com/dj5yf27lr/image/upload/v1725024672/testAdda/frontendAssets/qetoe2ngulol3glcemfx.png"
-            className="w-[28px] h-[28px]"
-          />
-          <span className="tracking-wide  font-bold font-montserrat text-lightseagreen">
-            TestMagister
-          </span>
-        </div> */}
         <Logo medium isBordered />
         <hr className="w-full my-2" />
 

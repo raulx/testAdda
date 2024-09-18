@@ -436,10 +436,6 @@ const VerifyOtpAndLogin = () => {
         navigate("/login/set-avatar"); //to set the avatar
       // and if username and avatar is present in the response then loginuser and send to the homepage.
       else {
-        toast.success(res.data?.message, {
-          hideProgressBar: true,
-          autoClose: 3000,
-        });
         dispatch(logInUser(res.data?.data._id));
         navigate("/");
       }

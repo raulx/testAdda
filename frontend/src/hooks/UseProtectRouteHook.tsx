@@ -1,6 +1,6 @@
 import { useLocation, Outlet, Navigate } from "react-router-dom";
 
-const ProtectedRoute = () => {
+const UseProtectRouteHook = () => {
   const auth = localStorage.getItem("auth");
   const location = useLocation();
   if (auth) {
@@ -19,4 +19,4 @@ const ProtectedRoute = () => {
   }
 };
 
-export default ProtectedRoute;
+export default UseProtectRouteHook;
