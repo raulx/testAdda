@@ -156,7 +156,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         req.cookies.refreshToken || req.body.refreshToken;
 
     if (!incomingRefreshToken) {
-        throw new ApiError(401, 'unauthorized request');
+        throw new ApiError(401, 'Session Expired !');
     }
 
     try {
@@ -177,20 +177,30 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
         const options = {
             httpOnly: true,
-            secure: true,
+            secure: process.env.NODE_ENV === 'production',
         };
 
-        const { accessToken, newRefreshToken } =
+        const { accessToken, refreshToken } =
             await generateAccessAndRefereshTokens(user._id);
 
         return res
             .status(200)
-            .cookie('accessToken', accessToken, options)
-            .cookie('refreshToken', newRefreshToken, options)
+            .cookie('accessToken', accessToken, {
+                ...options,
+                maxAge: 24 * 60 * 60 * 1000,
+            })
+            .cookie('refreshToken', refreshToken, {
+                ...options,
+                maxAge: 24 * 60 * 60 * 1000 * 10,
+            })
             .json(
                 new ApiResponse(
                     200,
-                    { accessToken, refreshToken: newRefreshToken },
+                    {
+                        _id: user._id,
+                        username: user.username,
+                        avatar_url: user.avatar_url,
+                    },
                     'Access token refreshed'
                 )
             );

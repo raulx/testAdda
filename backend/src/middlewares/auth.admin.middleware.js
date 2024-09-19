@@ -10,7 +10,7 @@ const verifyAdminJwt = asyncHandler(async function (req, _, next) {
             req.header('Authorization')?.replace('Bearer ', '');
 
         if (!token) {
-            throw new ApiError(401, 'Unauthorized request');
+            throw new ApiError(401, 'Session Expired !');
         }
 
         const decodedToken = jwt.verify(token, process.env.ADMIN_TOKEN_SECRET);

@@ -1,27 +1,25 @@
 interface UserData {
-    _id:string,
-    email:string,
-    username:string,
-    avatar_url:string,
-    is_subscribed:boolean,
-    createdAt:string,
-    updatedAt:string
+  _id: string;
+  email: string;
+  username: string;
+  avatar_url: string;
+  is_subscribed: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
-interface UserLoginResponseType{
-    _id:string,
-    email:string,
-    username:string,
-    avatar_url:string
-  }
-
+interface UserLoginResponseType {
+  _id: string;
+  email: string;
+  username: string;
+  avatar_url: string;
+}
 
 interface ApiResponseType<T = unknown> {
-    statusCode:number,
-    data:T,
-    message:string,
-    success:boolean
+  statusCode: number;
+  data: T;
+  message: string;
+  success: boolean;
 }
 
-
-export type {ApiResponseType,UserData,UserLoginResponseType}
+export type { ApiResponseType, UserData, UserLoginResponseType };
