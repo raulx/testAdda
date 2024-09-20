@@ -21,7 +21,6 @@ import {
   useVerifyEmailOtpMutation,
 } from "@/store/store";
 
-import { FcGoogle } from "react-icons/fc";
 import Logo from "@/components/Logo";
 import { FaDiscord } from "react-icons/fa";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -50,7 +49,8 @@ import RingLoader from "@/components/RingLoader";
 import { isFetchBaseQueryError } from "@/utils/helpers";
 import { ApiResponseType, UserData } from "@/utils/types";
 import { useDispatch } from "react-redux";
-
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import GoogleAuth from "@/components/GoogleAuth";
 //types
 const LoginFormSchema = z.object({
   email: z.string().email({
@@ -160,16 +160,11 @@ const LoginHome = () => {
   }
 
   return (
-    <div className="flex flex-col gap-6 w-2/6 p-8 rounded-lg">
+    <div className="flex flex-col gap-6 lg:w-2/6 lg:p-8 md:w-3/6 p-6 rounded-lg">
       <Logo large />
-
-      <Button
-        className="w-full flex gap-4 shadow-custom-2 py-6"
-        variant={"outline"}
-      >
-        <FcGoogle className="text-3xl" />
-        Continue With Google
-      </Button>
+      <GoogleOAuthProvider clientId="129545101591-d5fu6ee7cvkb31ipl94ogvgcuckb4kd3.apps.googleusercontent.com">
+        <GoogleAuth />
+      </GoogleOAuthProvider>
 
       <Button
         className="w-full flex gap-4 shadow-custom-2 py-6"
