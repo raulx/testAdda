@@ -70,7 +70,9 @@ const ProfileMenu = () => {
                 <AvatarImage src={user.data.avatar_url} />
                 <AvatarFallback>A</AvatarFallback>
               </Avatar>
-              <span className="text-darkcerulean hidden sm:block">Profile</span>
+              <span className="text-darkcerulean hidden sm:block capitalize">
+                {user.data.username}
+              </span>
               {isProfileMenuOpen ? (
                 <FaCaretDown className="text-sm" />
               ) : (

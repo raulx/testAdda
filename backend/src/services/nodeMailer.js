@@ -2,25 +2,22 @@
 import nodemailer from 'nodemailer';
 
 async function sendMail({ from, to, subject, text, html }) {
-    // Create a transporter object using the default SMTP transport
     let transporter = nodemailer.createTransport({
-        service: 'Yahoo', // Replace with your email service, e.g., 'Gmail', 'Yahoo', etc.
+        service: 'Yahoo',
         auth: {
-            user: process.env.EMAIL_USER, // Your email address
-            pass: process.env.EMAIL_PASS, // Your email password or app-specific password
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
         },
     });
 
-    // Define the email options
     let mailOptions = {
-        from: from || process.env.EMAIL_USER, // Sender address
-        to: to, // List of recipients
-        subject: subject, // Subject line
-        text: text, // Plain text body
-        html: html, // HTML body (optional)
+        from: from || process.env.EMAIL_USER,
+        to: to,
+        subject: subject,
+        text: text,
+        html: html,
     };
 
-    // Send the email
     let info = await transporter.sendMail(mailOptions);
 
     return info;

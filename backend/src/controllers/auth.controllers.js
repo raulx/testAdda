@@ -6,9 +6,10 @@ import getTemplate from '../utils/getTemplate.js';
 import { Otp } from '../models/otp.model.js';
 import User from '../models/user.model.js';
 import jwt from 'jsonwebtoken';
+import { oauth2Client } from '../index.js';
+import { google } from 'googleapis';
 
 // helper functions
-
 const generateAccessAndRefereshTokens = async (userId) => {
     try {
         const user = await User.findById(userId);
@@ -27,8 +28,6 @@ const generateAccessAndRefereshTokens = async (userId) => {
     }
 };
 
-// route controllers
-
 const sendEmailOtp = asyncHandler(async (req, res) => {
     // an otp is send to the email and saved with a ttl Index in Otp collection that expires after 10min.
     const { email } = req.body;
@@ -36,9 +35,6 @@ const sendEmailOtp = asyncHandler(async (req, res) => {
 
     // remove older otp if it exists
     await Otp.findOneAndDelete({ client_id: email });
-
-    // if (otpAlreadySent) throw new ApiError(409, 'Otp Already Sent');
-
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit otp will be generated.
     const htmlTemplate = getTemplate('emailTemplate');
     const htmlContent = htmlTemplate.replace('{{OTP_CODE}}', otpCode);
@@ -61,7 +57,7 @@ const sendEmailOtp = asyncHandler(async (req, res) => {
     res.json(new ApiResponse(200, {}, 'Otp Send Successfully'));
 });
 
-const verifyEmailOtp = asyncHandler(async (req, res) => {
+const emailOtpLogin = asyncHandler(async (req, res) => {
     const { email, otp } = req.body;
 
     if (!email) throw new ApiError(400, 'Email is required');
@@ -72,83 +68,113 @@ const verifyEmailOtp = asyncHandler(async (req, res) => {
         throw new ApiError(409, 'Session Expired !!');
     }
 
+    // if otp matches then login the user.
     if (existingOtp && (await existingOtp.matchOtp(otp))) {
         await existingOtp.updateOne({ is_verified: true });
-        req.token = 'otp';
-        loginUser(req, res);
+
+        let user = await User.findOne({ email: email }).select(
+            '-refresh_token'
+        );
+
+        //create user if doesn't exists.
+        if (!user) {
+            const newUser = await User.create({ email: email });
+            user = newUser;
+        }
+        const { accessToken, refreshToken } =
+            await generateAccessAndRefereshTokens(user._id);
+
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+        };
+
+        res.cookie('accessToken', accessToken, {
+            ...options,
+            maxAge: 24 * 60 * 60 * 1000,
+        })
+            .cookie('refreshToken', refreshToken, {
+                ...options,
+                maxAge: 24 * 60 * 60 * 1000 * 10,
+            })
+            .json(
+                new ApiResponse(
+                    200,
+                    {
+                        _id: user._id,
+                        username: user.username,
+                        avatar_url: user.avatar_url,
+                    },
+                    'User Logged In successfully !'
+                )
+            );
+        // req.token = 'otp';
+        // loginUser(req, res);
     } else {
         throw new ApiError(400, 'OTP Not Matched !!');
     }
 });
 
-const registerUser = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+const googleLogin = asyncHandler(async (req, res) => {
+    const { token } = req.body;
 
-    if (!email || !password)
-        throw new ApiError(400, 'All Fields are required !');
+    try {
+        const { tokens } = await oauth2Client.getToken(token);
 
-    const userExists = await User.findOne({ email: email });
+        oauth2Client.setCredentials(tokens);
 
-    if (userExists) throw new ApiError(409, 'User Already Exists');
+        const oauth2 = google.oauth2({
+            auth: oauth2Client,
+            version: 'v2',
+        });
 
-    const newUser = await User.create({ email: email, password: password });
+        const { data: userInfo } = await oauth2.userinfo.get();
+        let user = await User.findOne({ email: userInfo.email });
+        if (!user) {
+            const newUserData = {
+                email: userInfo.email,
+                username: userInfo.name,
+                avatar_url: userInfo.picture,
+            };
 
-    const responseData = {
-        email: newUser.email,
-        isSubscribed: newUser.is_subscribed,
-        firstName: newUser.first_name,
-        lastName: newUser.last_name,
-        avatarUrl: newUser.avatar_name,
-    };
+            user = await User.create(newUserData);
+        } else {
+            // change the profile pic and name with updated user data from google.
+            (user.username = userInfo.name),
+                (user.avatar_url = userInfo.picture);
+            await user.save({ validateBeforeSave: true });
+        }
 
-    res.json(
-        new ApiResponse(200, responseData, 'User Registered Successfully')
-    );
-});
+        const { accessToken, refreshToken } =
+            await generateAccessAndRefereshTokens(user._id);
 
-const loginUser = asyncHandler(async (req, res) => {
-    const { email } = req.body;
-    const token = req.token;
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+        };
 
-    if (!token) throw new ApiError(401, 'Token Not Found !');
-
-    if (!email) throw new ApiError(400, 'All Fields are required !');
-
-    let user = await User.findOne({ email: email }).select('-refresh_token');
-
-    //create user if user not exist
-    if (!user) {
-        const newUser = await User.create({ email: email });
-        user = newUser;
-    }
-    const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
-        user._id
-    );
-
-    const options = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-    };
-
-    res.cookie('accessToken', accessToken, {
-        ...options,
-        maxAge: 24 * 60 * 60 * 1000,
-    })
-        .cookie('refreshToken', refreshToken, {
+        res.cookie('accessToken', accessToken, {
             ...options,
-            maxAge: 24 * 60 * 60 * 1000 * 10,
+            maxAge: 24 * 60 * 60 * 1000,
         })
-        .json(
-            new ApiResponse(
-                200,
-                {
-                    _id: user._id,
-                    username: user.username,
-                    avatar_url: user.avatar_url,
-                },
-                'User Logged In successfully !'
-            )
-        );
+            .cookie('refreshToken', refreshToken, {
+                ...options,
+                maxAge: 24 * 60 * 60 * 1000 * 10,
+            })
+            .json(
+                new ApiResponse(
+                    200,
+                    {
+                        _id: user._id,
+                        username: user.username,
+                        avatar_url: user.avatar_url,
+                    },
+                    'User Logged In successfully !'
+                )
+            );
+    } catch (error) {
+        console.log(error);
+    }
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
@@ -209,29 +235,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 });
 
-const changeCurrentPassword = asyncHandler(async (req, res) => {
-    const { oldPassword, newPassword } = req.body;
-
-    if (!oldPassword || !newPassword) {
-        throw new ApiError(400, 'Old and New password is Required !');
-    }
-
-    const user = await User.findById(req.user?._id);
-
-    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
-
-    if (!isPasswordCorrect) {
-        throw new ApiError(409, 'Invalid old password');
-    }
-
-    user.password = newPassword;
-    await user.save({ validateBeforeSave: false });
-
-    return res
-        .status(200)
-        .json(new ApiResponse(200, {}, 'Password changed successfully'));
-});
-
 const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
@@ -254,21 +257,17 @@ const logoutUser = asyncHandler(async (req, res) => {
         .status(200)
         .clearCookie('accessToken', {
             ...options,
-            maxAge: new Date(0),
         })
         .clearCookie('refreshToken', {
             ...options,
-            maxAge: new Date(0),
         })
         .json(new ApiResponse(200, {}, 'User logged Out'));
 });
 
 export {
     sendEmailOtp,
-    verifyEmailOtp,
-    registerUser,
-    loginUser,
+    emailOtpLogin,
     refreshAccessToken,
-    changeCurrentPassword,
     logoutUser,
+    googleLogin,
 };

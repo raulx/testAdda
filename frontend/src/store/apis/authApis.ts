@@ -26,7 +26,7 @@ const authApis = createApi({
     >({
       query: ({ email, password }) => {
         return {
-          url: "/verifyOtp/email",
+          url: "/login/emailOtpLogin",
           method: "POST",
           body: {
             email,
@@ -35,6 +35,7 @@ const authApis = createApi({
         };
       },
     }),
+
     refreshLogin: builder.mutation<
       ApiResponseType<UserLoginResponseType>,
       null
@@ -46,21 +47,20 @@ const authApis = createApi({
         };
       },
     }),
-    logInUser: builder.mutation<
-      ApiResponseType<object>,
-      { email: string; password: string }
+
+    googleLogin: builder.mutation<
+      ApiResponseType<UserLoginResponseType>,
+      string
     >({
-      query: ({ email, password }) => {
+      query: (token) => {
         return {
-          url: "/login",
+          url: "/login/googleLogin",
           method: "POST",
-          body: {
-            email,
-            password,
-          },
+          body: { token },
         };
       },
     }),
+
     logOutUser: builder.mutation<ApiResponseType, null>({
       query: () => {
         return {
@@ -73,11 +73,11 @@ const authApis = createApi({
 });
 
 export const {
-  useLogInUserMutation,
   useSendEmailOtpMutation,
   useVerifyEmailOtpMutation,
   useLogOutUserMutation,
   useRefreshLoginMutation,
+  useGoogleLoginMutation,
 } = authApis;
 
 export default authApis;
