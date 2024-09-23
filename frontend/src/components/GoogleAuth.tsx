@@ -9,7 +9,7 @@ import { ApiResponseType, UserData } from "@/utils/types";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
-const GoogleAuth = () => {
+const GoogleAuth = ({ from }: { from: string }) => {
   const [googleLogin, { isLoading }] = useGoogleLoginMutation();
 
   const dispatch = useDispatch<AppDispatch>();
@@ -35,7 +35,7 @@ const GoogleAuth = () => {
       } else if (!res.data) console.log("no data received ");
       else {
         dispatch(logInUser(res.data?.data._id));
-        navigate("/");
+        navigate(from);
       }
     },
     onError: () => {

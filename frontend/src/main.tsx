@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./store/store.ts";
 import { Suspense, lazy } from "react";
+import ProtectedRoute from "./hooks/UseProtectRouteHook.tsx";
 
 //pages imports
 const LoginPage = lazy(() => import("./pages/LoginPage.tsx"));
@@ -69,7 +70,11 @@ const router = createBrowserRouter([
       { path: "/about-us", element: <AboutUsPage /> },
       { path: "/news", element: <NewsPage /> },
 
-      { path: "/quizes", element: <QuizesPage /> },
+      {
+        path: "/quizes",
+        element: <ProtectedRoute />,
+        children: [{ path: "/quizes", element: <QuizesPage /> }],
+      },
       {
         path: "/mocks",
         element: <MocksPage />,

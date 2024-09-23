@@ -68,7 +68,14 @@ const ProfileMenu = () => {
             <div className="cursor-pointer  flex justify-center items-center gap-2">
               <Avatar>
                 <AvatarImage src={user.data.avatar_url} />
-                <AvatarFallback>A</AvatarFallback>
+                <AvatarFallback>
+                  {user.data.username
+                    .split(" ")
+                    .map((word) => word[0])
+                    .join("")
+                    .substring(0, 2)
+                    .toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <span className="text-darkcerulean hidden sm:block capitalize">
                 {user.data.username}

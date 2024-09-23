@@ -1,6 +1,6 @@
 import { useLocation, Outlet, Navigate } from "react-router-dom";
 
-const UseProtectRouteHook = () => {
+const ProtectedRoute = () => {
   const auth = localStorage.getItem("auth");
   const location = useLocation();
   if (auth) {
@@ -8,7 +8,7 @@ const UseProtectRouteHook = () => {
   } else {
     return (
       <Navigate
-        to={"/"}
+        to={"/login"}
         state={{
           from: location,
           message: "You Need to Login or Register First.",
@@ -19,4 +19,4 @@ const UseProtectRouteHook = () => {
   }
 };
 
-export default UseProtectRouteHook;
+export default ProtectedRoute;

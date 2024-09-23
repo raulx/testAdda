@@ -30,6 +30,7 @@ import {
   Link,
   NavigateFunction,
   Outlet,
+  useLocation,
   useNavigate,
   useOutletContext,
 } from "react-router-dom";
@@ -92,16 +93,19 @@ interface SharedLoginPageContext {
   email: string;
   navigate: NavigateFunction;
   setEmail: React.Dispatch<React.SetStateAction<string>>;
+  navigateToAfterLogin: string;
 }
 
 // parent of '/login
 const LoginPage = () => {
   const [email, setEmail] = useState<string>("");
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const navigateToAfterLogin = location.state?.from?.pathname || "/"; // send the user to the page clicked which is a protected page that leads the user to loginpage or if no page the clicked just send to '/' route.
+  console.log(navigateToAfterLogin);
   return (
     <div className="w-screen min-h-screen flex justify-center items-center">
-      <Outlet context={{ email, navigate, setEmail }} />
+      <Outlet context={{ email, navigate, setEmail, navigateToAfterLogin }} />
     </div>
   );
 };
@@ -110,7 +114,8 @@ const LoginPage = () => {
 const LoginHome = () => {
   const [sendEmailOtp, { isLoading }] = useSendEmailOtpMutation();
 
-  const { setEmail, navigate } = useOutletContext<SharedLoginPageContext>();
+  const { setEmail, navigate, navigateToAfterLogin } =
+    useOutletContext<SharedLoginPageContext>();
 
   const [isChecked, setIsChecked] = useState(false);
 
@@ -120,7 +125,7 @@ const LoginHome = () => {
       email: "",
     },
   });
-
+  console.log(navigateToAfterLogin);
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
   };
@@ -149,7 +154,9 @@ const LoginHome = () => {
       });
 
       setEmail(values.email);
-      navigate("/login/verify-email");
+      navigate("/login/verify-email", {
+        state: { from: navigateToAfterLogin },
+      });
     } catch (err) {
       console.log(err);
       toast.error("SERVER ERROR : Try Again Later ", {
@@ -163,7 +170,7 @@ const LoginHome = () => {
     <div className="flex flex-col gap-6 lg:w-2/6 lg:p-8 md:w-3/6 p-6 rounded-lg">
       <Logo large />
       <GoogleOAuthProvider clientId="129545101591-d5fu6ee7cvkb31ipl94ogvgcuckb4kd3.apps.googleusercontent.com">
-        <GoogleAuth />
+        <GoogleAuth from={navigateToAfterLogin} />
       </GoogleOAuthProvider>
 
       <Button
@@ -245,7 +252,8 @@ const SetUserName = () => {
       username: "",
     },
   });
-
+  const location = useLocation();
+  const navigateToAfterLogin = location.state?.from || "/";
   async function handleSetUserName(data: z.infer<typeof UserNameFormSchema>) {
     try {
       const res = await updateUserName({ username: data.username });
@@ -264,10 +272,13 @@ const SetUserName = () => {
       }
 
       // if user avatar is not set
-      if (!res.data?.data.avatar_url) navigate("/login/set-avatar");
+      if (!res.data?.data.avatar_url)
+        navigate("/login/set-avatar", {
+          state: { from: navigateToAfterLogin },
+        });
       else {
         dispatch(logInUser(res.data?.data._id));
-        navigate("/");
+        navigate(navigateToAfterLogin);
       }
     } catch (err) {
       console.log(err);
@@ -316,6 +327,8 @@ const SetAvatar = () => {
   const [updateUserAvatar, { isLoading }] = useUpdateUserAvatarMutation();
   const { navigate } = useOutletContext<SharedLoginPageContext>();
   const dispatch = useDispatch<AppDispatch>();
+  const location = useLocation();
+  const navigateToAfterLogin = location.state?.from || "/";
 
   const form = useForm<z.infer<typeof AvatarUploadSchema>>({
     resolver: zodResolver(AvatarUploadSchema),
@@ -342,7 +355,7 @@ const SetAvatar = () => {
 
       if (res.data) {
         dispatch(logInUser(res.data?.data._id));
-        navigate("/");
+        navigate(navigateToAfterLogin);
       }
     } catch (err) {
       console.log(err);
@@ -392,13 +405,14 @@ const VerifyOtpAndLogin = () => {
   const { email, navigate } = useOutletContext<SharedLoginPageContext>();
   const [verifyEmailOtp, { isLoading }] = useVerifyEmailOtpMutation();
   const dispatch = useDispatch<AppDispatch>();
-
   const form = useForm<z.infer<typeof OtpFormSchema>>({
     resolver: zodResolver(OtpFormSchema),
     defaultValues: {
       pin: "",
     },
   });
+  const location = useLocation();
+  const navigateToAfterLogin = location.state?.from || "/";
 
   const onSubmit = async (data: z.infer<typeof OtpFormSchema>) => {
     if (email === "")
@@ -426,13 +440,16 @@ const VerifyOtpAndLogin = () => {
 
       // if username or avatar in not present in the response, then send user to the respective routes,
       if (!res.data?.data.username)
-        navigate("/login/set-user-name"); //to set the username
+        navigate("/login/set-user-name", {
+          state: { from: navigateToAfterLogin },
+        });
+      //to set the username
       else if (!res.data?.data.avatar_url)
         navigate("/login/set-avatar"); //to set the avatar
       // and if username and avatar is present in the response then loginuser and send to the homepage.
       else {
         dispatch(logInUser(res.data?.data._id));
-        navigate("/");
+        navigate(navigateToAfterLogin);
       }
     } catch (err) {
       console.error(err);
