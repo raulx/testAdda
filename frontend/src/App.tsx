@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import "./App.css";
 import { Outlet, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -7,36 +7,37 @@ import "react-toastify/dist/ReactToastify.css";
 import {
   AppDispatch,
   useLazyGetUserQuery,
-  logOutUser,
+  // logOutUser,
   setUser,
   useRefreshLoginMutation,
   logInUser,
 } from "./store/store";
 import { isFetchBaseQueryError } from "./utils/helpers";
 import { ApiResponseType, UserData } from "./utils/types";
-import { RootState } from "./store/store";
+// import { RootState } from "./store/store";
 import RingLoader from "./components/RingLoader";
 
 function App() {
-  const { isLoggedIn } = useSelector((state: RootState) => {
-    return state.auth.data;
-  });
+  const isLoggedIn = localStorage.getItem("auth");
   const refreshAvailable = localStorage.getItem("refresh");
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
+  // const location = useLocation();
+
   const [fetchUserData, { isLoading }] = useLazyGetUserQuery();
   const [refreshLogin] = useRefreshLoginMutation();
 
-  // load the user if user session is active
   useEffect(() => {
+    // load the user if user session is active and accessToken is available
     if (isLoggedIn) {
       const getUser = async () => {
         try {
           const res = await fetchUserData(null);
           // for server side errors
           if (res.error && isFetchBaseQueryError(res.error)) {
-            dispatch(logOutUser());
+            // dispatch(logOutUser());
+            localStorage.removeItem("auth");
           }
 
           // for client side errors
@@ -49,12 +50,8 @@ function App() {
         }
       };
       getUser();
-    }
-  }, [isLoggedIn, fetchUserData, dispatch]);
-
-  // if access token expired then refresh the access token
-  useEffect(() => {
-    if (refreshAvailable) {
+    } else if (refreshAvailable) {
+      // refresh the user login automatically if refreshToken is available
       const refreshAccessToken = async () => {
         const res = await refreshLogin(null);
         if (res.error && isFetchBaseQueryError(res.error)) {
@@ -77,7 +74,14 @@ function App() {
       };
       refreshAccessToken();
     }
-  }, [refreshAvailable, navigate, dispatch, refreshLogin]);
+  }, [
+    isLoggedIn,
+    fetchUserData,
+    dispatch,
+    refreshAvailable,
+    refreshLogin,
+    navigate,
+  ]);
 
   return (
     <>

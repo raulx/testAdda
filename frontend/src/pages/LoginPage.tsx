@@ -24,7 +24,7 @@ import {
 import Logo from "@/components/Logo";
 import { FaDiscord } from "react-icons/fa";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
   Link,
@@ -101,8 +101,14 @@ const LoginPage = () => {
   const [email, setEmail] = useState<string>("");
   const navigate = useNavigate();
   const location = useLocation();
-  const navigateToAfterLogin = location.state?.from?.pathname || "/"; // send the user to the page clicked which is a protected page that leads the user to loginpage or if no page the clicked just send to '/' route.
-  console.log(navigateToAfterLogin);
+  const navigateToAfterLogin = location.state?.from?.pathname || "/";
+  const isLoggedIn = localStorage.getItem("auth");
+  console.log(isLoggedIn);
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate(navigateToAfterLogin);
+    }
+  }, [navigate, isLoggedIn, navigateToAfterLogin]);
   return (
     <div className="w-screen min-h-screen flex justify-center items-center">
       <Outlet context={{ email, navigate, setEmail, navigateToAfterLogin }} />
@@ -125,7 +131,7 @@ const LoginHome = () => {
       email: "",
     },
   });
-  console.log(navigateToAfterLogin);
+
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
   };

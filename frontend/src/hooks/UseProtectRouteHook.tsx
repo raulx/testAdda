@@ -1,9 +1,14 @@
+import { RootState } from "@/store/store";
+import { useSelector } from "react-redux";
 import { useLocation, Outlet, Navigate } from "react-router-dom";
 
 const ProtectedRoute = () => {
-  const auth = localStorage.getItem("auth");
+  const { isLoggedIn } = useSelector((store: RootState) => {
+    return store.auth.data;
+  });
   const location = useLocation();
-  if (auth) {
+
+  if (isLoggedIn) {
     return <Outlet />;
   } else {
     return (
