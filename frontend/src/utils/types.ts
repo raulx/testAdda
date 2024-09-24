@@ -15,6 +15,17 @@ interface UserLoginResponseType {
   avatar_url: string;
 }
 
+type QuizesResponseType = {
+  _id: string;
+  title: string;
+  description: string;
+  questions: string[];
+  duration: number;
+  access_type: string;
+  number_of_questions: number;
+  difficulty_level: string;
+}[];
+
 interface ApiResponseType<T = unknown> {
   statusCode: number;
   data: T;
@@ -22,4 +33,9 @@ interface ApiResponseType<T = unknown> {
   success: boolean;
 }
 
-export type { ApiResponseType, UserData, UserLoginResponseType };
+export type {
+  ApiResponseType,
+  UserData,
+  UserLoginResponseType,
+  QuizesResponseType,
+};

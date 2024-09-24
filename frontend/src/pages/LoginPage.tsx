@@ -24,7 +24,7 @@ import {
 import Logo from "@/components/Logo";
 import { FaDiscord } from "react-icons/fa";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import {
   Link,
@@ -52,6 +52,7 @@ import { ApiResponseType, UserData } from "@/utils/types";
 import { useDispatch } from "react-redux";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import GoogleAuth from "@/components/GoogleAuth";
+
 //types
 const LoginFormSchema = z.object({
   email: z.string().email({
@@ -102,13 +103,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const navigateToAfterLogin = location.state?.from?.pathname || "/";
-  const isLoggedIn = localStorage.getItem("auth");
-  console.log(isLoggedIn);
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate(navigateToAfterLogin);
-    }
-  }, [navigate, isLoggedIn, navigateToAfterLogin]);
+
   return (
     <div className="w-screen min-h-screen flex justify-center items-center">
       <Outlet context={{ email, navigate, setEmail, navigateToAfterLogin }} />

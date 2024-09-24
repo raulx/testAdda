@@ -7,14 +7,13 @@ import "react-toastify/dist/ReactToastify.css";
 import {
   AppDispatch,
   useLazyGetUserQuery,
-  // logOutUser,
   setUser,
   useRefreshLoginMutation,
   logInUser,
 } from "./store/store";
 import { isFetchBaseQueryError } from "./utils/helpers";
 import { ApiResponseType, UserData } from "./utils/types";
-// import { RootState } from "./store/store";
+
 import RingLoader from "./components/RingLoader";
 
 function App() {
@@ -22,9 +21,6 @@ function App() {
   const refreshAvailable = localStorage.getItem("refresh");
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-
-  // const location = useLocation();
-
   const [fetchUserData, { isLoading }] = useLazyGetUserQuery();
   const [refreshLogin] = useRefreshLoginMutation();
 
@@ -36,7 +32,6 @@ function App() {
           const res = await fetchUserData(null);
           // for server side errors
           if (res.error && isFetchBaseQueryError(res.error)) {
-            // dispatch(logOutUser());
             localStorage.removeItem("auth");
           }
 

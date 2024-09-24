@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import { Link } from "react-router-dom";
 
 const MockCard = ({
   exam,
@@ -30,10 +31,12 @@ const MockCard = ({
       <CardFooter>
         <div className="flex justify-between w-full items-centertext-sm">
           <p>Total Questions : {questions}</p>
-          <Button variant={"lightseagreen"} className="flex gap-2">
-            <FaClock />
-            Start
-          </Button>
+          <Link to="/mocks">
+            <Button variant={"lightseagreen"} className="flex gap-2">
+              <FaClock />
+              Start
+            </Button>
+          </Link>
         </div>
       </CardFooter>
     </Card>

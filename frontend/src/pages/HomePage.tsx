@@ -14,7 +14,7 @@ import { FaRocket } from "react-icons/fa";
 const mockQuizData: {
   title: string;
   description: string;
-  questions: number;
+  questions: string[];
   duration: number;
   difficulty_level: string;
 }[] = [
@@ -22,7 +22,7 @@ const mockQuizData: {
     title: "CAT QUIZ - 01",
     description:
       "combination of reasoning english and mathematics from previous year cat exams",
-    questions: 25,
+    questions: ["2234e", "wesdewew4", "2342sd", "234s32"],
     difficulty_level: "Begginner",
     duration: 25,
   },
@@ -31,14 +31,14 @@ const mockQuizData: {
     description:
       "this quiz comprizes of previous years ssc cgl question for you to practice",
     difficulty_level: "Advanced",
-    questions: 25,
+    questions: ["232342", "ssaawser", "43sosidufy", "sdwerws"],
     duration: 25,
   },
   {
     title: "BANK PO Speed Test - 01",
     description: "Practice more question in less time",
     difficulty_level: "Intermediate",
-    questions: 25,
+    questions: ["2232sdf", "weswww2", "4322sew", "2342ss", "232s234"],
     duration: 25,
   },
 ];

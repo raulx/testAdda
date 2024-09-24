@@ -77,7 +77,8 @@ const router = createBrowserRouter([
       },
       {
         path: "/mocks",
-        element: <MocksPage />,
+        element: <ProtectedRoute />,
+        children: [{ path: "/mocks", element: <MocksPage /> }],
       },
     ],
   },

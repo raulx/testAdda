@@ -1,17 +1,27 @@
+import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import QuizCard from "@/components/QuizCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useLazyGetQuizesQuery } from "@/store/store";
+import { useEffect, useState } from "react";
 import { SiOpensearch } from "react-icons/si";
 
 const QuizesPage = () => {
   const [searchText, setSearchText] = useState<string>("");
+  const [getQuizes, { data, isLoading }] = useLazyGetQuizesQuery();
 
   const handleQuizSearch = () => {
     if (searchText === "") return;
-
     console.log(searchText);
   };
+
+  useEffect(() => {
+    const fetchQuizes = async () => {
+      await getQuizes(null);
+    };
+    fetchQuizes();
+  }, [getQuizes]);
 
   return (
     <>
@@ -33,6 +43,27 @@ const QuizesPage = () => {
           <SiOpensearch />
         </Button>
       </div>
+      <div className="w-screen flex flex-wrap gap-4 justify-center my-6">
+        {isLoading ? (
+          <h1>Loading...</h1>
+        ) : (
+          <>
+            {data?.data?.map((q) => {
+              return (
+                <QuizCard
+                  key={q.title}
+                  title={q.title}
+                  description={q.description}
+                  duration={q.duration}
+                  questions={q.questions}
+                  difficulty={q.difficulty_level}
+                />
+              );
+            })}
+          </>
+        )}
+      </div>
+      <Footer />
     </>
   );
 };

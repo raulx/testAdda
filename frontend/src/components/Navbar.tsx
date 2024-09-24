@@ -125,20 +125,18 @@ const DesktopNav = ({ currentPath }: { currentPath: string }) => {
       <ul className="flex gap-10 items-center  text-darkcerulean">
         {navLinks.map((link) => {
           return (
-            <li
+            <Link
               key={link.name}
               className={`cursor-pointer ${
                 currentPath === link.url &&
                 "font-bold scale-105 border-b border-darkcerulean"
               }`}
+              to={link.url}
             >
-              <a
-                href={link.url}
-                className="flex justify-center items-center gap-2 "
-              >
+              <span className="flex justify-center items-center gap-2 ">
                 {link.icon} <span className="lg:block hidden">{link.name}</span>
-              </a>
-            </li>
+              </span>
+            </Link>
           );
         })}
       </ul>
