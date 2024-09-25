@@ -5,6 +5,7 @@ import userSlice from "./slices/userSlice";
 import userApis from "./apis/userApis";
 import authApis from "./apis/authApis";
 import quizApis from "./apis/quizApis";
+import quizesSlice from "./slices/quizesSlice";
 
 const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ const store = configureStore({
     [quizApis.reducerPath]: quizApis.reducer,
     auth: authSlice.reducer,
     user: userSlice.reducer,
+    quizes: quizesSlice.reducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware()
@@ -30,6 +32,7 @@ export type AppDispatch = typeof store.dispatch;
 // slices exports
 export * from "./slices/authSlice";
 export * from "./slices/userSlice";
+export * from "./slices/quizesSlice";
 
 // api's exports
 export * from "./apis/authApis";

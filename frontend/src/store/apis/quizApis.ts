@@ -5,7 +5,7 @@ import { ApiResponseType } from "@/utils/types";
 import { QuizesResponseType } from "@/utils/types";
 
 const quizApis = createApi({
-  reducerPath: "quiz",
+  reducerPath: "quizApis",
   baseQuery: fetchBaseQuery({
     baseUrl: `${SERVER_BASE_URL}/quiz`,
   }),
