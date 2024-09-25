@@ -53,6 +53,7 @@ const QuizesPage = () => {
                 <QuizCard
                   key={q.title}
                   title={q.title}
+                  access_type={q.access_type}
                   description={q.description}
                   duration={q.duration}
                   questions={q.questions}

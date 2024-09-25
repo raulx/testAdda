@@ -21,7 +21,7 @@ type QuizesResponseType = {
   description: string;
   questions: string[];
   duration: number;
-  access_type: string;
+  access_type: "free" | "paid";
   number_of_questions: number;
   difficulty_level: string;
 }[];

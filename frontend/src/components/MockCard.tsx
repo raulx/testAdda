@@ -20,7 +20,7 @@ const MockCard = ({
   questions: number;
 }) => {
   return (
-    <Card className="w-[340px] py-2 border border-bordergray flex flex-col justify-between my-6">
+    <Card className="min-w-[380px] py-2 border border-bordergray flex flex-col justify-between ">
       <CardHeader>
         <CardTitle className="text-center my-2">{exam}</CardTitle>
         <CardDescription className="text-darkcerulean">
