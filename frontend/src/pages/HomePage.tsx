@@ -8,19 +8,14 @@ import {
   TypographyH2,
 } from "@/components/Typography";
 import { Button } from "@/components/ui/button";
+import { QuizesResponseType } from "@/utils/types";
 
 import { FaNewspaper, FaRocket } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-const mockQuizData: {
-  title: string;
-  description: string;
-  questions: string[];
-  duration: number;
-  access_type: "free" | "paid";
-  difficulty_level: string;
-}[] = [
+const mockQuizData: QuizesResponseType = [
   {
+    _id: "dsasdd",
     title: "CAT QUIZ - 01",
     access_type: "free",
     description:
@@ -30,6 +25,7 @@ const mockQuizData: {
     duration: 25,
   },
   {
+    _id: "sldkjf",
     title: "SSC CGL Previous year quiz - 01",
     description:
       "this quiz comprizes of previous years ssc cgl question for you to practice",
@@ -39,6 +35,7 @@ const mockQuizData: {
     access_type: "free",
   },
   {
+    _id: "sldkjf",
     title: "BANK PO Speed Test - 01",
     description: "Practice more question in less time",
     difficulty_level: "Intermediate",
@@ -97,12 +94,13 @@ const HomePage = () => {
               return (
                 <QuizCard
                   key={data.title}
+                  _id={data._id}
                   access_type={data.access_type}
                   title={data.title}
                   description={data.description}
                   questions={data.questions}
                   duration={data.duration}
-                  difficulty={data.difficulty_level}
+                  difficulty_level={data.difficulty_level}
                 />
               );
             })}

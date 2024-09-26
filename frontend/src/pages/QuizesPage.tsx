@@ -3,15 +3,61 @@ import Navbar from "@/components/Navbar";
 import QuizCard from "@/components/QuizCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AppDispatch, setQuizes, useLazyGetQuizesQuery } from "@/store/store";
+import {
+  AppDispatch,
+  RootState,
+  setQuizes,
+  useLazyGetQuizesQuery,
+} from "@/store/store";
 import { useEffect, useState } from "react";
 import { SiOpensearch } from "react-icons/si";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { DoubleRingLoader } from "@/components/Loaders";
+
+const QuizesBox = ({
+  dataLoading,
+  accessType,
+}: {
+  dataLoading: boolean;
+  accessType: "free" | "paid";
+}) => {
+  const quizes = useSelector((store: RootState) => {
+    return store.quizes;
+  });
+  return (
+    <div className=" flex flex-wrap gap-4 justify-center my-6">
+      {dataLoading ? (
+        <div className="h-96 flex justify-center items-center">
+          <DoubleRingLoader />
+        </div>
+      ) : (
+        <>
+          {quizes.data
+            ?.filter((q) => q.access_type === accessType)
+            ?.map((q) => {
+              return (
+                <QuizCard
+                  _id={q._id}
+                  key={q._id}
+                  title={q.title}
+                  access_type={q.access_type}
+                  description={q.description}
+                  duration={q.duration}
+                  questions={q.questions}
+                  difficulty_level={q.difficulty_level}
+                />
+              );
+            })}
+        </>
+      )}
+    </div>
+  );
+};
 
 const QuizesPage = () => {
   const [searchText, setSearchText] = useState<string>("");
-  const [getQuizes, { data, isLoading }] = useLazyGetQuizesQuery();
+  const [getQuizes, { isLoading }] = useLazyGetQuizesQuery();
   const dispatch = useDispatch<AppDispatch>();
 
   const handleQuizSearch = () => {
@@ -61,29 +107,11 @@ const QuizesPage = () => {
             </div>
           </TabsList>
           <TabsContent value="free">
-            <div className=" flex flex-wrap gap-4 justify-center my-6">
-              {isLoading ? (
-                <h1>Loading...</h1>
-              ) : (
-                <>
-                  {data?.data?.map((q) => {
-                    return (
-                      <QuizCard
-                        key={q.title}
-                        title={q.title}
-                        access_type={q.access_type}
-                        description={q.description}
-                        duration={q.duration}
-                        questions={q.questions}
-                        difficulty={q.difficulty_level}
-                      />
-                    );
-                  })}
-                </>
-              )}
-            </div>
+            <QuizesBox accessType="free" dataLoading={isLoading} />
           </TabsContent>
-          <TabsContent value="password">Change your password here.</TabsContent>
+          <TabsContent value="paid">
+            <QuizesBox accessType="paid" dataLoading={isLoading} />
+          </TabsContent>
         </Tabs>
       </main>
 

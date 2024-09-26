@@ -7,6 +7,7 @@ import { Provider } from "react-redux";
 import store from "./store/store.ts";
 import { Suspense, lazy } from "react";
 import ProtectedRoute from "./hooks/UseProtectRouteHook.tsx";
+import { RingCutLoader } from "./components/Loaders.tsx";
 
 //pages imports
 const LoginPage = lazy(() => import("./pages/LoginPage.tsx"));
@@ -44,7 +45,7 @@ const router = createBrowserRouter([
       <Suspense
         fallback={
           <div className="w-screen h-screen flex justify-center items-center">
-            <div className="loader"></div>
+            <RingCutLoader />
           </div>
         }
       >

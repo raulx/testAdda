@@ -2,9 +2,11 @@ html{
     font-family: 'Roboto' sans-serif;
 }
 
-/* body{
-    background-color: #F6F6F6;
-} */
+:root{
+  --color-dark-cerulean:'#514b82',
+  --color-light-seagreen:'#38A3A5',
+  --color-jetstream:"#BDD5D6"
+}
 
 /* src/components/MobileNavbar.css */
 .bm-burger-button {
@@ -35,13 +37,45 @@ html{
   }
   
 
-  /* HTML: <div class="loader"></div> */
-.loader {
+  /* Loader Classes  */
+  .double-ring-loader {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    position: relative;
+    animation: rotate 1s linear infinite
+  }
+  .double-ring-loader::before , .double-ring-loader::after {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    inset: 0px;
+    border-radius: 50%;
+    border: 5px solid #38A3A5;
+    animation: prixClipFix 2s linear infinite ;
+  }
+  .double-ring-loader::after{
+    inset: 8px;
+    transform: rotate3d(90, 90, 0, 180deg );
+    border-color: #BDD5D6;
+  }
+
+  @keyframes rotate {
+    0%   {transform: rotate(0deg)}
+    100%   {transform: rotate(360deg)}
+  }
+
+  @keyframes prixClipFix {
+      0%   {clip-path:polygon(50% 50%,0 0,0 0,0 0,0 0,0 0)}
+      50%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 0,100% 0,100% 0)}
+      75%, 100%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,100% 100%,100% 100%)}
+  }
+.ring-cut-loader {
   width: 50px;
   --b: 8px;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: #514b82;
+  background: var(--color-dark-cerulean);
   -webkit-mask:
     repeating-conic-gradient(#0000 0deg,#000 1deg 70deg,#0000 71deg 90deg),
     radial-gradient(farthest-side,#0000 calc(100% - var(--b) - 1px),#000 calc(100% - var(--b)));

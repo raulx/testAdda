@@ -81,4 +81,9 @@ const getQuizes = asynchandler(async (req, res) => {
     res.json(new ApiResponse(200, quizes, 'Quizes available !'));
 });
 
-export { addQuiz, removeQuiz, getQuizes };
+const getQuiz = asynchandler(async (req, res) => {
+    const { quiz_id } = req.query;
+    res.json(new ApiResponse(200, { quiz_id }, 'here is your quiz'));
+});
+
+export { addQuiz, removeQuiz, getQuizes, getQuiz };
