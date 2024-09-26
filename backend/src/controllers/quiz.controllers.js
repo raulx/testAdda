@@ -3,6 +3,7 @@ import { ApiError } from '../utils/ApiError.js';
 import Quiz from '../models/quiz.model.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import Question from '../models/question.model.js';
+import mongoose from 'mongoose';
 
 const addQuiz = asynchandler(async (req, res) => {
     const {
@@ -83,7 +84,35 @@ const getQuizes = asynchandler(async (req, res) => {
 
 const getQuiz = asynchandler(async (req, res) => {
     const { quiz_id } = req.query;
-    res.json(new ApiResponse(200, { quiz_id }, 'here is your quiz'));
+
+    const quiz = await Quiz.aggregate([
+        {
+            $match: {
+                _id: mongoose.Types.ObjectId.createFromHexString(quiz_id),
+            },
+        },
+        {
+            $lookup: {
+                from: 'questions',
+                localField: 'questions',
+                foreignField: '_id',
+                as: 'questions',
+                pipeline: [
+                    {
+                        $project: {
+                            _id: 1,
+                            options: 1,
+                            question: 1,
+                            subject: 1,
+                        },
+                    },
+                ],
+            },
+        },
+    ]);
+
+    if (!quiz) throw new ApiError(404, 'Quiz not Found');
+    res.json(new ApiResponse(200, quiz, 'Quiz Data successfully sent'));
 });
 
 export { addQuiz, removeQuiz, getQuizes, getQuiz };
