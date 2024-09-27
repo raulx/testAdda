@@ -97,6 +97,13 @@ const QuizCard = (props: QuizData) => {
           quizWindow.document.body.style.margin = "0";
           quizWindow.document.body.style.overflow = "hidden"; // Remove scrollbars
 
+          // Inject the Tailwind CSS into the new window
+          const tailwindLink = quizWindow.document.createElement("link");
+          tailwindLink.rel = "stylesheet";
+          tailwindLink.href =
+            "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css";
+          quizWindow.document.head.appendChild(tailwindLink);
+
           // Create a div element where React can render the component
           const quizDiv = quizWindow.document.createElement("div");
           quizWindow.document.body.appendChild(quizDiv);
