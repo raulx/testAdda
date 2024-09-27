@@ -109,6 +109,11 @@ const getQuiz = asynchandler(async (req, res) => {
                 ],
             },
         },
+        {
+            $project: {
+                __v: 0,
+            },
+        },
     ]);
 
     if (!quiz) throw new ApiError(404, 'Quiz not Found');

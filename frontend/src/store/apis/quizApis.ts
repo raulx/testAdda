@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { SERVER_BASE_URL } from "@/utils/constants";
 import { ApiResponseType } from "@/utils/types";
-import { QuizesResponseType } from "@/utils/types";
+import { QuizResponseType } from "@/utils/types";
 import { pause } from "@/utils/helpers";
 
 const quizApis = createApi({
@@ -16,7 +16,7 @@ const quizApis = createApi({
     },
   }),
   endpoints: (builder) => ({
-    getQuiz: builder.query<ApiResponseType, string>({
+    getQuiz: builder.query<ApiResponseType<QuizResponseType>, string>({
       query: (_id) => {
         return {
           url: `/getQuiz?quiz_id=${_id}`,
@@ -24,7 +24,7 @@ const quizApis = createApi({
         };
       },
     }),
-    getQuizes: builder.query<ApiResponseType<QuizesResponseType>, null>({
+    getQuizes: builder.query<ApiResponseType<QuizResponseType>, null>({
       query: () => {
         return {
           url: "/getQuizes",

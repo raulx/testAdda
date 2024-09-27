@@ -15,18 +15,25 @@ interface UserLoginResponseType {
   avatar_url: string;
 }
 
+interface QuizQuestionsType {
+  options: { a: string; b: string; c: string; d: string };
+  question: string;
+  subject: "english" | "mathematics" | "reasoning";
+  _id: string;
+}
+
 interface QuizData {
   _id: string;
   title: string;
   description: string;
-  questions: string[];
+  questions: string | QuizQuestionsType[];
   duration: number;
   access_type: "free" | "paid";
   number_of_questions?: number;
   difficulty_level: string;
 }
 
-type QuizesResponseType = QuizData[];
+type QuizResponseType = QuizData[];
 
 interface ApiResponseType<T = unknown> {
   statusCode: number;
@@ -39,6 +46,6 @@ export type {
   ApiResponseType,
   UserData,
   UserLoginResponseType,
-  QuizesResponseType,
+  QuizResponseType,
   QuizData,
 };

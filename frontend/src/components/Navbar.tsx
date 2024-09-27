@@ -67,9 +67,9 @@ const ProfileMenu = () => {
           <DropdownMenuTrigger asChild>
             <div className="cursor-pointer  flex justify-center items-center gap-2">
               <Avatar>
-                <AvatarImage src={user.data.avatar_url} />
+                <AvatarImage src={user.data?.avatar_url} />
                 <AvatarFallback>
-                  {user.data.username
+                  {user.data?.username
                     .split(" ")
                     .map((word) => word[0])
                     .join("")
@@ -78,7 +78,7 @@ const ProfileMenu = () => {
                 </AvatarFallback>
               </Avatar>
               <span className="text-darkcerulean hidden sm:block capitalize">
-                {user.data.username}
+                {user.data?.username}
               </span>
               {isProfileMenuOpen ? (
                 <FaCaretDown className="text-sm" />
@@ -140,7 +140,7 @@ const DesktopNav = ({ currentPath }: { currentPath: string }) => {
           );
         })}
       </ul>
-      {user.data._id ? (
+      {user.data?._id ? (
         <ProfileMenu />
       ) : (
         <Link to="/login">
@@ -170,7 +170,7 @@ const MobileNav = ({ currentPath }: { currentPath: string }) => {
         >
           <FaHamburger />
         </div>
-        {user.data._id ? (
+        {user.data?._id ? (
           <ProfileMenu />
         ) : (
           <Link to={"/login"}>

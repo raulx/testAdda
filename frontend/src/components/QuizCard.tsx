@@ -11,66 +11,116 @@ import {
   CardContent,
 } from "./ui/card";
 import { QuizData } from "@/utils/types";
-import { useLazyGetQuizQuery } from "@/store/store";
+import store, { setCurrentQuiz, useLazyGetQuizQuery } from "@/store/store";
 import { RingLoader } from "./Loaders";
-
-const QuizComponent = ({ windowRef }: { windowRef: Window | null }) => {
-  return (
-    <div>
-      <h1>This is the Quiz Component</h1>
-      {/* Your quiz content here */}
-      <button onClick={() => windowRef?.close()}>Close</button>
-    </div>
-  );
-};
+import { AttemptRoot } from "@/pages/AttemptPage";
+import { UseDispatchHook } from "@/hooks/UseDispatchHook";
+import { Provider } from "react-redux";
+import { UseGetSliceHook } from "@/hooks/UseGetSliceHook";
 
 const QuizCard = (props: QuizData) => {
-  const [getQuiz, { isLoading }] = useLazyGetQuizQuery();
+  const [getQuiz, { isFetching }] = useLazyGetQuizQuery();
 
-  const handleQuizStart = async (_id: string) => {
-    try {
-      const res = await getQuiz(_id);
-      if (res.data) {
-        const openQuizInNewWindow = () => {
-          // Get the screen width and height
-          const screenWidth = window.screen.width;
-          const screenHeight = window.screen.height;
+  const dispatch = UseDispatchHook();
+  const { quiz } = UseGetSliceHook();
 
-          // Open a new window with full width and height of the screen
-          const quizWindow = window.open(
-            "",
-            "_blank",
-            `width=${screenWidth},height=${screenHeight},top=0,left=0`
+  const handleQuizStart = async (_id: string, title: string) => {
+    if (quiz.data?._id != _id) {
+      try {
+        const res = await getQuiz(_id);
+
+        const quizData = res.data?.data[0];
+
+        if (quizData) {
+          dispatch(setCurrentQuiz(quizData));
+          // const openQuizInNewWindow = () => {
+          //   // Get the screen width and height
+          //   const screenWidth = window.screen.width;
+          //   const screenHeight = window.screen.height;
+
+          //   // Open a new window with full width and height of the screen
+          //   const quizWindow = window.open(
+          //     "",
+          //     "_blank",
+          //     `width=${screenWidth},height=${screenHeight},top=0,left=0`
+          //   );
+
+          //   if (quizWindow) {
+          //     quizWindow.document.title = title;
+          //     quizWindow.document.body.style.margin = "0";
+          //     quizWindow.document.body.style.overflow = "hidden"; // Remove scrollbars
+
+          //     // Create a div element where React can render the component
+          //     const quizDiv = quizWindow.document.createElement("div");
+          //     quizWindow.document.body.appendChild(quizDiv);
+
+          //     // Apply CSS to make the div fill the entire window
+          //     quizDiv.style.width = "100%";
+          //     quizDiv.style.height = "100vh";
+
+          //     // Render the React component into the new window
+          //     const root = createRoot(quizDiv);
+          //     root.render(
+          //       <Provider store={store}>
+          //         <AttemptRoot windowRef={quizWindow} />
+          //       </Provider>
+          //     );
+
+          //     // Unmount component when the new window is closed or refreshed
+          //     quizWindow.addEventListener("beforeunload", () => {
+          //       root.unmount();
+          //     });
+          //   }
+          // };
+
+          // openQuizInNewWindow();
+        } else throw Error(`Error : ${res}`);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    if (quiz.data) {
+      const openQuizInNewWindow = () => {
+        // Get the screen width and height
+        const screenWidth = window.screen.width;
+        const screenHeight = window.screen.height;
+
+        // Open a new window with full width and height of the screen
+        const quizWindow = window.open(
+          "",
+          "_blank",
+          `width=${screenWidth},height=${screenHeight},top=0,left=0`
+        );
+
+        if (quizWindow) {
+          quizWindow.document.title = title;
+          quizWindow.document.body.style.margin = "0";
+          quizWindow.document.body.style.overflow = "hidden"; // Remove scrollbars
+
+          // Create a div element where React can render the component
+          const quizDiv = quizWindow.document.createElement("div");
+          quizWindow.document.body.appendChild(quizDiv);
+
+          // Apply CSS to make the div fill the entire window
+          quizDiv.style.width = "100%";
+          quizDiv.style.height = "100vh";
+
+          // Render the React component into the new window
+          const root = createRoot(quizDiv);
+          root.render(
+            <Provider store={store}>
+              <AttemptRoot windowRef={quizWindow} />
+            </Provider>
           );
 
-          if (quizWindow) {
-            quizWindow.document.title = "Quiz";
-            quizWindow.document.body.style.margin = "0";
-            quizWindow.document.body.style.overflow = "hidden"; // Remove scrollbars
+          // Unmount component when the new window is closed or refreshed
+          quizWindow.addEventListener("beforeunload", () => {
+            root.unmount();
+          });
+        }
+      };
 
-            // Create a div element where React can render the component
-            const quizDiv = quizWindow.document.createElement("div");
-            quizWindow.document.body.appendChild(quizDiv);
-
-            // Apply CSS to make the div fill the entire window
-            quizDiv.style.width = "100%";
-            quizDiv.style.height = "100vh";
-
-            // Render the React component into the new window
-            const root = createRoot(quizDiv);
-            root.render(<QuizComponent windowRef={quizWindow} />);
-
-            // Unmount component when the new window is closed or refreshed
-            quizWindow.addEventListener("beforeunload", () => {
-              root.unmount();
-            });
-          }
-        };
-
-        openQuizInNewWindow();
-      }
-    } catch (error) {
-      console.error(error);
+      openQuizInNewWindow();
     }
   };
 
@@ -93,7 +143,7 @@ const QuizCard = (props: QuizData) => {
                 <Button
                   variant={"lightseagreen"}
                   className="flex gap-2"
-                  onClick={() => handleQuizStart(props._id)}
+                  onClick={() => handleQuizStart(props._id, props.title)}
                 >
                   <FaRocket /> Start
                 </Button>
@@ -108,7 +158,7 @@ const QuizCard = (props: QuizData) => {
           </div>
         </CardFooter>
       </Card>
-      {isLoading && <RingLoader />}
+      {isFetching && <RingLoader />}
     </>
   );
 };

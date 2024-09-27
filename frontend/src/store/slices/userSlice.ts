@@ -1,36 +1,26 @@
 import { UserData } from "@/utils/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-
-const userInitialState:{data:UserData} = {
-    data:{
-    _id:'',
-    email:'',
-    username:'',
-    avatar_url:'',
-    is_subscribed:false,
-    createdAt:'',
-    updatedAt:''
-    },
-}
+const userInitialState: { data: UserData | null } = {
+  data: null,
+};
 
 const userSlice = createSlice({
-    name:"user",
-    initialState:userInitialState,
-    reducers:{
-        setUser(state,action:PayloadAction<UserData>){
-            state.data = action.payload
-        },
-        updateUserName(state,action:PayloadAction<string>){
-            state.data.username = action.payload 
-        },
-        updateUserAvatar(state,action:PayloadAction<string>){
-            state.data.avatar_url = action.payload
-        }
-    }
-})
+  name: "user",
+  initialState: userInitialState,
+  reducers: {
+    setUser(state, action: PayloadAction<UserData>) {
+      state.data = action.payload;
+    },
+    updateUserName(state, action: PayloadAction<string>) {
+      if (state.data) state.data.username = action.payload;
+    },
+    updateUserAvatar(state, action: PayloadAction<string>) {
+      if (state.data) state.data.avatar_url = action.payload;
+    },
+  },
+});
 
+export const { setUser, updateUserName, updateUserAvatar } = userSlice.actions;
 
-export const {setUser,updateUserName,updateUserAvatar} = userSlice.actions
-
-export default userSlice
+export default userSlice;
