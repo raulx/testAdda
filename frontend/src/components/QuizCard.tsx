@@ -1,4 +1,3 @@
-// import { FaClock } from "react-icons/fa";
 import { FaLock, FaRocket } from "react-icons/fa";
 import { Button } from "./ui/button";
 import { createRoot } from "react-dom/client";
@@ -11,124 +10,84 @@ import {
   CardContent,
 } from "./ui/card";
 import { QuizData } from "@/utils/types";
-import store, { setCurrentQuiz, useLazyGetQuizQuery } from "@/store/store";
+import store, {
+  RootState,
+  setCurrentQuiz,
+  useLazyGetQuizQuery,
+} from "@/store/store";
 import { RingLoader } from "./Loaders";
 import { AttemptRoot } from "@/pages/AttemptPage";
 import { UseDispatchHook } from "@/hooks/UseDispatchHook";
-import { Provider } from "react-redux";
-import { UseGetSliceHook } from "@/hooks/UseGetSliceHook";
+import { Provider, useSelector } from "react-redux";
 
-const QuizCard = (props: QuizData) => {
+const openQuizInNewWindow = (title: string) => {
+  // Get the screen width and height
+  const screenWidth = window.screen.width;
+  const screenHeight = window.screen.height;
+
+  // Open a new window with full width and height of the screen
+  const quizWindow = window.open(
+    "",
+    "_blank",
+    `width=${screenWidth},height=${screenHeight},top=0,left=0`
+  );
+
+  if (quizWindow) {
+    quizWindow.document.title = title;
+    quizWindow.document.body.style.margin = "0";
+    quizWindow.document.body.style.overflow = "hidden"; // Remove scrollbars
+
+    // Inject the Tailwind CSS into the new window
+    const tailwindLink = quizWindow.document.createElement("link");
+    tailwindLink.rel = "stylesheet";
+    tailwindLink.href =
+      "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css";
+    quizWindow.document.head.appendChild(tailwindLink);
+
+    // Create a div element where React can render the component
+    const quizDiv = quizWindow.document.createElement("div");
+    quizWindow.document.body.appendChild(quizDiv);
+
+    // Apply CSS to make the div fill the entire window
+    quizDiv.style.width = "100%";
+    quizDiv.style.height = "100vh";
+
+    // Render the React component into the new window
+    const root = createRoot(quizDiv);
+    root.render(
+      <Provider store={store}>
+        <AttemptRoot windowRef={quizWindow} />
+      </Provider>
+    );
+
+    // Unmount component when the new window is closed or refreshed
+    quizWindow.addEventListener("beforeunload", () => {
+      root.unmount();
+    });
+  }
+};
+
+const QuizCard = (props: QuizData<string>) => {
   const [getQuiz, { isFetching }] = useLazyGetQuizQuery();
-
   const dispatch = UseDispatchHook();
-  const { quiz } = UseGetSliceHook();
+  const quiz = useSelector((store: RootState) => {
+    return store.quiz;
+  });
 
   const handleQuizStart = async (_id: string, title: string) => {
     if (quiz.data?._id != _id) {
       try {
         const res = await getQuiz(_id);
-
         const quizData = res.data?.data[0];
-
         if (quizData) {
           dispatch(setCurrentQuiz(quizData));
-          // const openQuizInNewWindow = () => {
-          //   // Get the screen width and height
-          //   const screenWidth = window.screen.width;
-          //   const screenHeight = window.screen.height;
-
-          //   // Open a new window with full width and height of the screen
-          //   const quizWindow = window.open(
-          //     "",
-          //     "_blank",
-          //     `width=${screenWidth},height=${screenHeight},top=0,left=0`
-          //   );
-
-          //   if (quizWindow) {
-          //     quizWindow.document.title = title;
-          //     quizWindow.document.body.style.margin = "0";
-          //     quizWindow.document.body.style.overflow = "hidden"; // Remove scrollbars
-
-          //     // Create a div element where React can render the component
-          //     const quizDiv = quizWindow.document.createElement("div");
-          //     quizWindow.document.body.appendChild(quizDiv);
-
-          //     // Apply CSS to make the div fill the entire window
-          //     quizDiv.style.width = "100%";
-          //     quizDiv.style.height = "100vh";
-
-          //     // Render the React component into the new window
-          //     const root = createRoot(quizDiv);
-          //     root.render(
-          //       <Provider store={store}>
-          //         <AttemptRoot windowRef={quizWindow} />
-          //       </Provider>
-          //     );
-
-          //     // Unmount component when the new window is closed or refreshed
-          //     quizWindow.addEventListener("beforeunload", () => {
-          //       root.unmount();
-          //     });
-          //   }
-          // };
-
-          // openQuizInNewWindow();
         } else throw Error(`Error : ${res}`);
       } catch (error) {
         console.error(error);
       }
     }
-    if (quiz.data) {
-      const openQuizInNewWindow = () => {
-        // Get the screen width and height
-        const screenWidth = window.screen.width;
-        const screenHeight = window.screen.height;
 
-        // Open a new window with full width and height of the screen
-        const quizWindow = window.open(
-          "",
-          "_blank",
-          `width=${screenWidth},height=${screenHeight},top=0,left=0`
-        );
-
-        if (quizWindow) {
-          quizWindow.document.title = title;
-          quizWindow.document.body.style.margin = "0";
-          quizWindow.document.body.style.overflow = "hidden"; // Remove scrollbars
-
-          // Inject the Tailwind CSS into the new window
-          const tailwindLink = quizWindow.document.createElement("link");
-          tailwindLink.rel = "stylesheet";
-          tailwindLink.href =
-            "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css";
-          quizWindow.document.head.appendChild(tailwindLink);
-
-          // Create a div element where React can render the component
-          const quizDiv = quizWindow.document.createElement("div");
-          quizWindow.document.body.appendChild(quizDiv);
-
-          // Apply CSS to make the div fill the entire window
-          quizDiv.style.width = "100%";
-          quizDiv.style.height = "100vh";
-
-          // Render the React component into the new window
-          const root = createRoot(quizDiv);
-          root.render(
-            <Provider store={store}>
-              <AttemptRoot windowRef={quizWindow} />
-            </Provider>
-          );
-
-          // Unmount component when the new window is closed or refreshed
-          quizWindow.addEventListener("beforeunload", () => {
-            root.unmount();
-          });
-        }
-      };
-
-      openQuizInNewWindow();
-    }
+    openQuizInNewWindow(title);
   };
 
   return (

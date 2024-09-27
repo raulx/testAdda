@@ -22,18 +22,19 @@ interface QuizQuestionsType {
   _id: string;
 }
 
-interface QuizData {
+interface QuizData<T> {
   _id: string;
   title: string;
   description: string;
-  questions: string | QuizQuestionsType[];
+  questions: T[];
   duration: number;
   access_type: "free" | "paid";
-  number_of_questions?: number;
+  number_of_questions: number;
   difficulty_level: string;
 }
 
-type QuizResponseType = QuizData[];
+type QuizResponseType = QuizData<QuizQuestionsType>[];
+type QuizesResponseType = QuizData<string>[];
 
 interface ApiResponseType<T = unknown> {
   statusCode: number;
@@ -47,5 +48,7 @@ export type {
   UserData,
   UserLoginResponseType,
   QuizResponseType,
+  QuizesResponseType,
   QuizData,
+  QuizQuestionsType,
 };

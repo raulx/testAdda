@@ -23,6 +23,7 @@ const mockQuizData: QuizesResponseType = [
     questions: ["2234e", "wesdewew4", "2342sd", "234s32"],
     difficulty_level: "Begginner",
     duration: 25,
+    number_of_questions: 4,
   },
   {
     _id: "sldkjf",
@@ -33,6 +34,7 @@ const mockQuizData: QuizesResponseType = [
     questions: ["232342", "ssaawser", "43sosidufy", "sdwerws"],
     duration: 25,
     access_type: "free",
+    number_of_questions: 4,
   },
   {
     _id: "sldkjf",
@@ -42,6 +44,7 @@ const mockQuizData: QuizesResponseType = [
     questions: ["2232sdf", "weswww2", "4322sew", "2342ss", "232s234"],
     duration: 25,
     access_type: "paid",
+    number_of_questions: 5,
   },
 ];
 
@@ -101,6 +104,7 @@ const HomePage = () => {
                   questions={data.questions}
                   duration={data.duration}
                   difficulty_level={data.difficulty_level}
+                  number_of_questions={data.number_of_questions}
                 />
               );
             })}
