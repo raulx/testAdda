@@ -7,13 +7,33 @@ import { useState } from "react";
 
 import { FaClock } from "react-icons/fa";
 
+type AttemptType = {
+  quiz_id: string | undefined;
+  questionsAttempted: {
+    [questionId: string]: {
+      answerMarked: string | undefined;
+      timeTaken: number | undefined;
+    };
+  };
+};
 export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
   const quiz = UseQuizHook();
   const quizQuestions = quiz.data?.questions;
   const [questionNumber, setQuestionNumber] = useState<number>(0);
 
+  const [attempt, setAttempt] = useState<AttemptType>({
+    quiz_id: quiz.data?._id,
+    questionsAttempted: {
+      questionId: {
+        answerMarked: undefined,
+        timeTaken: undefined,
+      },
+    },
+  });
+
   const currentQuestion = quiz.data?.questions[questionNumber];
   const nextQuestion = () => {
+    console.log(attempt);
     setQuestionNumber((prev) => {
       if (prev + 1 === quizQuestions?.length) {
         return 0;
@@ -34,7 +54,20 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
   };
 
   const handleQuestionMarked = (value: string) => {
-    console.log(value);
+    setAttempt((prevValue) => {
+      return {
+        ...prevValue,
+        questionsAttempted: {
+          ...prevValue.questionsAttempted,
+          [currentQuestion?._id]: { answerMarked: value, timeTaken: 0 },
+        },
+      };
+    });
+  };
+
+  const handleFinishTest = () => {
+    console.log(attempt);
+    windowRef?.close();
   };
 
   return (
@@ -58,37 +91,27 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
           </TypographyP>
           <div className="mx-4 mt-10">
             <RadioGroup
-              defaultValue="comfortable"
+              value={`${
+                attempt.questionsAttempted[currentQuestion?._id]?.answerMarked
+              }`}
               onValueChange={(value) => handleQuestionMarked(value)}
               className="flex flex-col gap-4"
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value={`${currentQuestion?.options.a}`}
-                  id="r1"
-                />
+                <RadioGroupItem value={`a`} id="r1" />
                 <Label htmlFor="r1">{currentQuestion?.options.a}</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value={`${currentQuestion?.options.b}`}
-                  id="r2"
-                />
+                <RadioGroupItem value={`b`} id="r2" />
                 <Label htmlFor="r2">{currentQuestion?.options.b}</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value={`${currentQuestion?.options.c}`}
-                  id="r3"
-                />
+                <RadioGroupItem value={`c`} id="r3" />
                 <Label htmlFor="r3">{currentQuestion?.options.c}</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value={`${currentQuestion?.options.d}`}
-                  id="r3"
-                />
-                <Label htmlFor="r3">{currentQuestion?.options.d}</Label>
+                <RadioGroupItem value={`d`} id="r4" />
+                <Label htmlFor="r4">{currentQuestion?.options.d}</Label>
               </div>
             </RadioGroup>
           </div>
@@ -123,7 +146,7 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
               Next
             </Button>
             <Button
-              onClick={nextQuestion}
+              onClick={handleFinishTest}
               className="w-32 rounded-full"
               size={"sm"}
               style={{ backgroundColor: "#FF6F61", color: "#fff" }}
@@ -170,7 +193,7 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
           style={{ backgroundColor: "#B7CDCE" }}
         >
           <FaClock />
-          Time Left<button onClick={() => windowRef?.close()}>Close</button>
+          Time Left
         </div>
         <div className="flex justify-center items-center p-6 bg-white">
           Time Box

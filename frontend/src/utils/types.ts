@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 interface UserData {
   _id: string;
   email: string;
@@ -19,7 +20,7 @@ interface QuizQuestionsType {
   options: { a: string; b: string; c: string; d: string };
   question: string;
   subject: "english" | "mathematics" | "reasoning";
-  _id: string;
+  _id: string | any;
 }
 
 interface QuizData<T> {

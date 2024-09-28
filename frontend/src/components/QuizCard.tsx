@@ -9,7 +9,7 @@ import {
   CardFooter,
   CardContent,
 } from "./ui/card";
-import { QuizData } from "@/utils/types";
+import { QuizData, QuizQuestionsType } from "@/utils/types";
 import store, {
   RootState,
   setCurrentQuiz,
@@ -67,7 +67,7 @@ const openQuizInNewWindow = (title: string) => {
   }
 };
 
-const QuizCard = (props: QuizData<string>) => {
+const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
   const [getQuiz, { isFetching }] = useLazyGetQuizQuery();
   const dispatch = UseDispatchHook();
   const quiz = useSelector((store: RootState) => {
