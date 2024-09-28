@@ -2,6 +2,7 @@ import { TypographyP } from "@/components/Typography";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { UseQuizHook } from "@/hooks/UseSliceHook";
+import { QuizQuestionsType } from "@/utils/types";
 import { Label } from "@radix-ui/react-label";
 import { useState } from "react";
 
@@ -32,8 +33,8 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
   });
 
   const currentQuestion = quiz.data?.questions[questionNumber];
+
   const nextQuestion = () => {
-    console.log(attempt);
     setQuestionNumber((prev) => {
       if (prev + 1 === quizQuestions?.length) {
         return 0;
@@ -70,6 +71,27 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
     windowRef?.close();
   };
 
+  const handleClearQuestion = () => {
+    setAttempt((prevValue) => {
+      return {
+        ...prevValue,
+        questionsAttempted: {
+          ...prevValue.questionsAttempted,
+          [currentQuestion?._id]: { answerMarked: "", timeTaken: 0 },
+        },
+      };
+    });
+  };
+
+  const handleButtonColor = (ques: QuizQuestionsType): string => {
+    if (
+      ques._id in attempt.questionsAttempted &&
+      attempt.questionsAttempted[ques._id].answerMarked != ""
+    )
+      return "#358935";
+    else return "#BDD5D6";
+  };
+
   return (
     <div className="w-screen h-screen flex bg-white font-semibold">
       <div className=" w-3/4 flex flex-col ">
@@ -99,19 +121,27 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value={`a`} id="r1" />
-                <Label htmlFor="r1">{currentQuestion?.options.a}</Label>
+                <Label htmlFor="r1" className="cursor-pointer">
+                  {currentQuestion?.options.a}
+                </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value={`b`} id="r2" />
-                <Label htmlFor="r2">{currentQuestion?.options.b}</Label>
+                <Label htmlFor="r2" className="cursor-pointer">
+                  {currentQuestion?.options.b}
+                </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value={`c`} id="r3" />
-                <Label htmlFor="r3">{currentQuestion?.options.c}</Label>
+                <Label htmlFor="r3" className="cursor-pointer">
+                  {currentQuestion?.options.c}
+                </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value={`d`} id="r4" />
-                <Label htmlFor="r4">{currentQuestion?.options.d}</Label>
+                <Label htmlFor="r4" className="cursor-pointer">
+                  {currentQuestion?.options.d}
+                </Label>
               </div>
             </RadioGroup>
           </div>
@@ -122,12 +152,12 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
         >
           <div className="py-8 px-8 flex gap-4 items-end  justify-end">
             <Button
-              onClick={prevQuestion}
+              onClick={handleClearQuestion}
               className="w-24 rounded-full"
               size={"sm"}
               style={{ backgroundColor: "#38A3A5", color: "#fff" }}
             >
-              Skip
+              Clear
             </Button>
             <Button
               onClick={prevQuestion}
@@ -205,11 +235,15 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
           Attempts
         </div>
         <div className="px-4 py-8 flex flex-wrap gap-2">
-          {quizQuestions?.map((_, index) => {
+          {quizQuestions?.map((ques, index) => {
             return (
               <Button
                 variant={"outline"}
                 key={index}
+                style={{
+                  color: "#fff",
+                  backgroundColor: handleButtonColor(ques),
+                }}
                 onClick={() => setQuestionNumber(index)}
               >
                 {index + 1}
