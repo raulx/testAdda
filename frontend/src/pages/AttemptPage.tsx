@@ -1,17 +1,21 @@
+import { TypographyP } from "@/components/Typography";
 import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { UseQuizHook } from "@/hooks/UseSliceHook";
+import { Label } from "@radix-ui/react-label";
 import { useState } from "react";
 
 import { FaClock } from "react-icons/fa";
 
 export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
   const quiz = UseQuizHook();
-  const quizLength = quiz.data?.questions.length;
+  const quizQuestions = quiz.data?.questions;
   const [questionNumber, setQuestionNumber] = useState<number>(0);
 
+  const currentQuestion = quiz.data?.questions[questionNumber];
   const nextQuestion = () => {
     setQuestionNumber((prev) => {
-      if (prev + 1 === quizLength) {
+      if (prev + 1 === quizQuestions?.length) {
         return 0;
       } else {
         return (prev += 1);
@@ -22,33 +26,145 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
   const prevQuestion = () => {
     setQuestionNumber((prev) => {
       if (prev === 0) {
-        if (quizLength != undefined) return quizLength - 1;
+        if (quizQuestions?.length != undefined)
+          return quizQuestions?.length - 1;
         else return prev;
       } else return (prev -= 1);
     });
   };
 
+  const handleQuestionMarked = (value: string) => {
+    console.log(value);
+  };
+
   return (
-    <div className="w-screen h-screen flex bg-white">
-      <div className=" w-2/3 flex flex-col">
+    <div className="w-screen h-screen flex bg-white font-semibold">
+      <div className=" w-3/4 flex flex-col ">
         <div
           className="flex w-full justify-center items-center p-2"
           style={{ backgroundColor: "#BDD5D6" }}
         >
           <h1>Online Quiz : {quiz.data?.title}</h1>
         </div>
-        <div className="flex-1 bg-white p-4">
-          <div>
-            Question : {questionNumber + 1}
-            {quiz.data?.questions[questionNumber].question}
+        <div className="flex-1 flex-col bg-white p-4">
+          <div className="flex gap-2  items-center mx-4 mb-2">
+            <h1 className="" style={{ color: "#22577A" }}>
+              Question {questionNumber + 1}
+            </h1>
+          </div>
+          <hr />
+          <TypographyP className="mx-6 my-4">
+            {currentQuestion?.question}
+          </TypographyP>
+          <div className="mx-4 mt-10">
+            <RadioGroup
+              defaultValue="comfortable"
+              onValueChange={(value) => handleQuestionMarked(value)}
+              className="flex flex-col gap-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={`${currentQuestion?.options.a}`}
+                  id="r1"
+                />
+                <Label htmlFor="r1">{currentQuestion?.options.a}</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={`${currentQuestion?.options.b}`}
+                  id="r2"
+                />
+                <Label htmlFor="r2">{currentQuestion?.options.b}</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={`${currentQuestion?.options.c}`}
+                  id="r3"
+                />
+                <Label htmlFor="r3">{currentQuestion?.options.c}</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={`${currentQuestion?.options.d}`}
+                  id="r3"
+                />
+                <Label htmlFor="r3">{currentQuestion?.options.d}</Label>
+              </div>
+            </RadioGroup>
           </div>
         </div>
-        <div className="p-8" style={{ backgroundColor: "#F5F5F5" }}>
-          <Button onClick={nextQuestion}>Next</Button>
-          <Button onClick={prevQuestion}>Prev</Button>
+        <div
+          style={{ backgroundColor: "#F5F5F5" }}
+          className=" border-t-2 border-bordergray"
+        >
+          <div className="py-8 px-8 flex gap-4 items-end  justify-end">
+            <Button
+              onClick={prevQuestion}
+              className="w-24 rounded-full"
+              size={"sm"}
+              style={{ backgroundColor: "#38A3A5", color: "#fff" }}
+            >
+              Skip
+            </Button>
+            <Button
+              onClick={prevQuestion}
+              className="w-32 rounded-full"
+              size={"sm"}
+              style={{ backgroundColor: "#22577A", color: "#fff" }}
+            >
+              Previous
+            </Button>
+            <Button
+              onClick={nextQuestion}
+              className="w-24 rounded-full"
+              size={"sm"}
+              style={{ backgroundColor: "#358935", color: "#fff" }}
+            >
+              Next
+            </Button>
+            <Button
+              onClick={nextQuestion}
+              className="w-32 rounded-full"
+              size={"sm"}
+              style={{ backgroundColor: "#FF6F61", color: "#fff" }}
+            >
+              Finish
+            </Button>
+          </div>
+
+          <div className="flex gap-8 items-center mx-2 py-8 justify-center">
+            <div className="flex items-center gap-2 text-xs">
+              <div
+                className="w-4 h-4 rounded-full"
+                style={{ backgroundColor: "#22577A" }}
+              />
+              <span>Answered & Marked for review</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <div
+                className="w-4 h-4 rounded-full"
+                style={{ backgroundColor: "#358935" }}
+              />
+              <span>Answered</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <div
+                className="w-4 h-4 rounded-full"
+                style={{ backgroundColor: "#FF6F61" }}
+              />
+              <span>Not Answered</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <div
+                className="w-4 h-4 rounded-full"
+                style={{ backgroundColor: "#38A3A5" }}
+              />
+              <span>Not Answered & Marked for Review</span>
+            </div>
+          </div>
         </div>
       </div>
-      <div className=" w-1/3 flex flex-col">
+      <div className="w-1/4 border-l flex flex-col">
         <div
           className="flex gap-4 justify-center items-center p-2"
           style={{ backgroundColor: "#B7CDCE" }}
@@ -65,7 +181,19 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
         >
           Attempts
         </div>
-        <div>Attempts Box </div>
+        <div className="px-4 py-8 flex flex-wrap gap-2">
+          {quizQuestions?.map((_, index) => {
+            return (
+              <Button
+                variant={"outline"}
+                key={index}
+                onClick={() => setQuestionNumber(index)}
+              >
+                {index + 1}
+              </Button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
