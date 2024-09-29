@@ -14,6 +14,7 @@ type AttemptType = {
     [questionId: string]: {
       answerMarked: string | undefined;
       timeTaken: number | undefined;
+      review: boolean;
     };
   };
 };
@@ -26,8 +27,9 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
     quiz_id: quiz.data?._id,
     questionsAttempted: {
       questionId: {
-        answerMarked: undefined,
-        timeTaken: undefined,
+        answerMarked: "",
+        timeTaken: 0,
+        review: false,
       },
     },
   });
@@ -48,7 +50,11 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
           ...prevValue,
           questionsAttempted: {
             ...prevValue.questionsAttempted,
-            [currentQuestion?._id]: { answerMarked: "", timeTaken: 0 },
+            [currentQuestion?._id]: {
+              ...prevValue.questionsAttempted[currentQuestion?._id],
+              answerMarked: "",
+              timeTaken: 0,
+            },
           },
         };
       });
@@ -62,7 +68,11 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
           ...prevValue,
           questionsAttempted: {
             ...prevValue.questionsAttempted,
-            [currentQuestion?._id]: { answerMarked: "", timeTaken: 0 },
+            [currentQuestion?._id]: {
+              ...prevValue.questionsAttempted[currentQuestion?._id],
+              answerMarked: "",
+              timeTaken: 0,
+            },
           },
         };
       });
@@ -85,7 +95,11 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
         ...prevValue,
         questionsAttempted: {
           ...prevValue.questionsAttempted,
-          [currentQuestion?._id]: { answerMarked: value, timeTaken: 0 },
+          [currentQuestion?._id]: {
+            ...prevValue.questionsAttempted[currentQuestion?._id],
+            answerMarked: value,
+            timeTaken: 0,
+          },
         },
       };
     });
@@ -102,7 +116,11 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
         ...prevValue,
         questionsAttempted: {
           ...prevValue.questionsAttempted,
-          [currentQuestion?._id]: { answerMarked: "", timeTaken: 0 },
+          [currentQuestion?._id]: {
+            ...prevValue.questionsAttempted[currentQuestion?._id],
+            answerMarked: "",
+            timeTaken: 0,
+          },
         },
       };
     });
@@ -120,6 +138,38 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
     )
       return "#FF6F61";
     else return "#BDD5D6";
+  };
+
+  const handleMarkedForReview = () => {
+    setAttempt((prevValue) => {
+      return {
+        ...prevValue,
+        questionsAttempted: {
+          ...prevValue.questionsAttempted,
+          [currentQuestion?._id]: {
+            ...prevValue.questionsAttempted[currentQuestion?._id],
+            review: true,
+          },
+        },
+      };
+    });
+    nextQuestion();
+  };
+
+  const handleUnMarkedForReview = () => {
+    setAttempt((prevValue) => {
+      return {
+        ...prevValue,
+        questionsAttempted: {
+          ...prevValue.questionsAttempted,
+          [currentQuestion?._id]: {
+            ...prevValue.questionsAttempted[currentQuestion?._id],
+            review: false,
+          },
+        },
+      };
+    });
+    nextQuestion();
   };
 
   return (
@@ -189,6 +239,27 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
             >
               Clear
             </Button>
+            {attempt.questionsAttempted[currentQuestion?._id] &&
+            attempt.questionsAttempted[currentQuestion?._id].review === true ? (
+              <Button
+                onClick={handleUnMarkedForReview}
+                className="w-36 rounded-full"
+                size={"sm"}
+                style={{ backgroundColor: "#7B7B7B", color: "#fff" }}
+              >
+                Unmark
+              </Button>
+            ) : (
+              <Button
+                onClick={handleMarkedForReview}
+                className="w-36 rounded-full"
+                size={"sm"}
+                style={{ backgroundColor: "#7B7B7B", color: "#fff" }}
+              >
+                Mark For review
+              </Button>
+            )}
+
             <Button
               onClick={prevQuestion}
               className="w-32 rounded-full"
@@ -276,6 +347,12 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
                 }}
                 onClick={() => setQuestionNumber(index)}
               >
+                {/* {showIfMarkedForReview()} */}
+                {attempt.questionsAttempted[ques?._id] &&
+                  attempt.questionsAttempted[ques?._id].review === true && (
+                    <>R</>
+                  )}
+                {/* {attempt.questionsAttempted[ques?._id].review && <>R</>} */}
                 {index + 1}
               </Button>
             );
