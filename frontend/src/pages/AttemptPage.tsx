@@ -7,6 +7,7 @@ import { Label } from "@radix-ui/react-label";
 import { useState } from "react";
 
 import { FaClock } from "react-icons/fa";
+import { RiFileMarkedFill } from "react-icons/ri";
 
 type AttemptType = {
   quiz_id: string | undefined;
@@ -136,8 +137,8 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
       ques._id in attempt.questionsAttempted &&
       attempt.questionsAttempted[ques._id].answerMarked === ""
     )
-      return "#FF6F61";
-    else return "#BDD5D6";
+      return "#ed4e1f";
+    else return "#B7CdCE";
   };
 
   const handleMarkedForReview = () => {
@@ -233,9 +234,10 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
           <div className="py-8 px-8 flex gap-4 items-end  justify-end">
             <Button
               onClick={handleClearQuestion}
-              className="w-24 rounded-full"
+              className="w-24 rounded-full border-2 border-gray-300"
               size={"sm"}
-              style={{ backgroundColor: "#38A3A5", color: "#fff" }}
+              variant={"outline"}
+              style={{ backgroundColor: "#8C9C9C", color: "#FFF" }}
             >
               Clear
             </Button>
@@ -272,7 +274,7 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
               onClick={nextQuestion}
               className="w-24 rounded-full"
               size={"sm"}
-              style={{ backgroundColor: "#358935", color: "#fff" }}
+              style={{ backgroundColor: "#38A3A5", color: "#fff" }}
             >
               Next
             </Button>
@@ -280,20 +282,13 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
               onClick={handleFinishTest}
               className="w-32 rounded-full"
               size={"sm"}
-              style={{ backgroundColor: "#FF6F61", color: "#fff" }}
+              style={{ backgroundColor: "#358935", color: "#fff" }}
             >
-              Finish
+              Submit
             </Button>
           </div>
 
-          <div className="flex gap-8 items-center mx-2 py-8 justify-center">
-            <div className="flex items-center gap-2 text-xs">
-              <div
-                className="w-4 h-4 rounded-full"
-                style={{ backgroundColor: "#22577A" }}
-              />
-              <span>Answered & Marked for review</span>
-            </div>
+          <div className="flex gap-8 items-center mr-10 py-8 justify-end">
             <div className="flex items-center gap-2 text-xs">
               <div
                 className="w-4 h-4 rounded-full"
@@ -304,16 +299,16 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
             <div className="flex items-center gap-2 text-xs">
               <div
                 className="w-4 h-4 rounded-full"
-                style={{ backgroundColor: "#FF6F61" }}
+                style={{ backgroundColor: "#ed4e1f" }}
               />
               <span>Not Answered</span>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <div
                 className="w-4 h-4 rounded-full"
-                style={{ backgroundColor: "#38A3A5" }}
+                style={{ backgroundColor: "#B7CDCE" }}
               />
-              <span>Not Answered & Marked for Review</span>
+              <span>Not Visited</span>
             </div>
           </div>
         </div>
@@ -340,6 +335,7 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
             return (
               <Button
                 variant={"outline"}
+                className="relative"
                 key={index}
                 style={{
                   color: "#fff",
@@ -347,13 +343,25 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
                 }}
                 onClick={() => setQuestionNumber(index)}
               >
-                {/* {showIfMarkedForReview()} */}
                 {attempt.questionsAttempted[ques?._id] &&
                   attempt.questionsAttempted[ques?._id].review === true && (
-                    <>R</>
+                    <div className="absolute right-0 top-0">
+                      <RiFileMarkedFill className="text-sm" />
+                    </div>
                   )}
-                {/* {attempt.questionsAttempted[ques?._id].review && <>R</>} */}
-                {index + 1}
+                <div className="relative">
+                  <span> {index + 1}</span>
+                  {ques._id === currentQuestion?._id && (
+                    <div
+                      className="rounded-full absolute "
+                      style={{
+                        backgroundColor: "#fff",
+                        width: "9px",
+                        height: "3px",
+                      }}
+                    ></div>
+                  )}
+                </div>
               </Button>
             );
           })}
