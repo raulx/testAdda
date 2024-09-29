@@ -42,6 +42,31 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
         return (prev += 1);
       }
     });
+    if (!(currentQuestion?._id in attempt.questionsAttempted)) {
+      setAttempt((prevValue) => {
+        return {
+          ...prevValue,
+          questionsAttempted: {
+            ...prevValue.questionsAttempted,
+            [currentQuestion?._id]: { answerMarked: "", timeTaken: 0 },
+          },
+        };
+      });
+    }
+    if (
+      currentQuestion?._id in attempt.questionsAttempted &&
+      attempt.questionsAttempted[currentQuestion?._id].answerMarked === ""
+    ) {
+      setAttempt((prevValue) => {
+        return {
+          ...prevValue,
+          questionsAttempted: {
+            ...prevValue.questionsAttempted,
+            [currentQuestion?._id]: { answerMarked: "", timeTaken: 0 },
+          },
+        };
+      });
+    }
   };
 
   const prevQuestion = () => {
@@ -89,6 +114,11 @@ export const AttemptRoot = ({ windowRef }: { windowRef: Window }) => {
       attempt.questionsAttempted[ques._id].answerMarked != ""
     )
       return "#358935";
+    else if (
+      ques._id in attempt.questionsAttempted &&
+      attempt.questionsAttempted[ques._id].answerMarked === ""
+    )
+      return "#FF6F61";
     else return "#BDD5D6";
   };
 
