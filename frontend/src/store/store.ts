@@ -6,7 +6,6 @@ import userApis from "./apis/userApis";
 import authApis from "./apis/authApis";
 import quizApis from "./apis/quizApis";
 import quizesSlice from "./slices/quizesSlice";
-import quizSlice from "./slices/quizSlice";
 
 const store = configureStore({
   reducer: {
@@ -16,7 +15,6 @@ const store = configureStore({
     auth: authSlice.reducer,
     user: userSlice.reducer,
     quizes: quizesSlice.reducer,
-    quiz: quizSlice.reducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware()
@@ -40,6 +38,5 @@ export * from "./apis/quizApis";
 export * from "./slices/authSlice";
 export * from "./slices/userSlice";
 export * from "./slices/quizesSlice";
-export * from "./slices/quizSlice";
 
 export default store;

@@ -10,17 +10,11 @@ import {
   CardContent,
 } from "./ui/card";
 import { QuizData, QuizQuestionsType } from "@/utils/types";
-import store, {
-  RootState,
-  setCurrentQuiz,
-  useLazyGetQuizQuery,
-} from "@/store/store";
-import { RingLoader } from "./Loaders";
+import store from "@/store/store";
 import { AttemptRoot } from "@/pages/AttemptPage";
-import { UseDispatchHook } from "@/hooks/UseDispatchHook";
-import { Provider, useSelector } from "react-redux";
+import { Provider } from "react-redux";
 
-const openQuizInNewWindow = (title: string) => {
+const openQuizInNewWindow = (title: string, _id: string) => {
   // Get the screen width and height
   const screenWidth = window.screen.width;
   const screenHeight = window.screen.height;
@@ -56,7 +50,7 @@ const openQuizInNewWindow = (title: string) => {
     const root = createRoot(quizDiv);
     root.render(
       <Provider store={store}>
-        <AttemptRoot windowRef={quizWindow} />
+        <AttemptRoot windowRef={quizWindow} quizId={_id} />
       </Provider>
     );
 
@@ -68,26 +62,8 @@ const openQuizInNewWindow = (title: string) => {
 };
 
 const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
-  const [getQuiz, { isFetching }] = useLazyGetQuizQuery();
-  const dispatch = UseDispatchHook();
-  const quiz = useSelector((store: RootState) => {
-    return store.quiz;
-  });
-
   const handleQuizStart = async (_id: string, title: string) => {
-    if (quiz.data?._id != _id) {
-      try {
-        const res = await getQuiz(_id);
-        const quizData = res.data?.data[0];
-        if (quizData) {
-          dispatch(setCurrentQuiz(quizData));
-        } else throw Error(`Error : ${res}`);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    openQuizInNewWindow(title);
+    openQuizInNewWindow(title, _id);
   };
 
   return (
@@ -124,7 +100,6 @@ const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
           </div>
         </CardFooter>
       </Card>
-      {isFetching && <RingLoader />}
     </>
   );
 };

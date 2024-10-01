@@ -46,6 +46,7 @@ const QuizesBox = ({
                   duration={q.duration}
                   questions={q.questions}
                   difficulty_level={q.difficulty_level}
+                  number_of_questions={q.number_of_questions}
                 />
               );
             })}

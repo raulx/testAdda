@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { QuizResponseType } from "@/utils/types";
+import { QuizesResponseType } from "@/utils/types";
 
 interface quizesSliceType {
-  data: QuizResponseType | null;
+  data: QuizesResponseType | null;
 }
 
 const quizesInitialState: quizesSliceType = {
@@ -13,7 +13,7 @@ const quizesSlice = createSlice({
   name: "quizes",
   initialState: quizesInitialState,
   reducers: {
-    setQuizes(state, action: PayloadAction<QuizResponseType>) {
+    setQuizes(state, action: PayloadAction<QuizesResponseType>) {
       state.data = action.payload;
     },
   },

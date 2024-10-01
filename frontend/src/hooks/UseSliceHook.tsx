@@ -12,8 +12,3 @@ export const UseQuizesHook = () => {
     return store.quizes;
   });
 };
-export const UseQuizHook = () => {
-  return useSelector((store: RootState) => {
-    return store.quiz;
-  });
-};
