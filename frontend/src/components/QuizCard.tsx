@@ -16,14 +16,14 @@ import { Provider } from "react-redux";
 
 const openQuizInNewWindow = (title: string, _id: string) => {
   // Get the screen width and height
-  const screenWidth = window.screen.width;
+  const screenWidth = window.screen.width - 20;
   const screenHeight = window.screen.height;
 
   // Open a new window with full width and height of the screen
   const quizWindow = window.open(
     "",
     "_blank",
-    `width=${screenWidth},height=${screenHeight},top=0,left=0`
+    `width=${screenWidth},height=${screenHeight},top=4,left=0`
   );
 
   if (quizWindow) {
