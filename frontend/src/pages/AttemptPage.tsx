@@ -10,17 +10,6 @@ import { FaClock } from "react-icons/fa";
 import { RiFileMarkedFill } from "react-icons/ri";
 
 type AttemptType = {
-  quiz_id: string | undefined;
-  questionsAttempted: {
-    [questionId: string]: {
-      answerMarked: string | undefined;
-      timeTaken: number | undefined;
-      review: boolean;
-    };
-  };
-};
-
-type AttemptType2 = {
   quizId: string;
   questionsAttempted: {
     questionId: string;
@@ -28,6 +17,8 @@ type AttemptType2 = {
     timeTaken: number;
     review: boolean;
   }[];
+  onQuestionNumber: number;
+  timeRemaining: number;
 };
 
 export const AttemptRoot = ({
@@ -38,78 +29,48 @@ export const AttemptRoot = ({
   windowRef: Window;
 }) => {
   const [questionNumber, setQuestionNumber] = useState<number>(0);
-  // const [getQuiz, { data, isLoading, isError }] = useLazyGetQuizQuery();
   const { data, isLoading, isError } = useGetQuizQuery(quizId);
 
   const quiz = data?.data[0];
-  const quizQuestions = data?.data[0].questions;
-
-  const [attempt2, setAttempt2] = useState<AttemptType2>({
-    quizId: "",
-    questionsAttempted: [],
-  });
 
   const [attempt, setAttempt] = useState<AttemptType>({
-    quiz_id: quiz?._id,
-    questionsAttempted: {
-      questionId: {
-        answerMarked: "",
-        timeTaken: 0,
-        review: false,
-      },
-    },
+    quizId: "",
+    questionsAttempted: [
+      { questionId: "", answerMarked: "", timeTaken: 0, review: false },
+    ],
+    onQuestionNumber: 0,
+    timeRemaining: 0,
   });
 
   const currentQuestion = quiz?.questions[questionNumber];
 
   const nextQuestion = () => {
+    if (attempt.questionsAttempted[questionNumber].answerMarked === "") {
+      setAttempt((prevValue) => {
+        return {
+          ...prevValue,
+          questionsAttempted: prevValue.questionsAttempted.map((ques) => {
+            return ques.questionId === currentQuestion?._id
+              ? { ...ques, answerMarked: "unattempted" }
+              : ques;
+          }),
+        };
+      });
+    }
     setQuestionNumber((prev) => {
-      if (prev + 1 === quizQuestions?.length) {
+      if (prev + 1 === quiz?.questions?.length) {
         return 0;
       } else {
         return (prev += 1);
       }
     });
-    if (!(currentQuestion?._id in attempt.questionsAttempted)) {
-      setAttempt((prevValue) => {
-        return {
-          ...prevValue,
-          questionsAttempted: {
-            ...prevValue.questionsAttempted,
-            [currentQuestion?._id]: {
-              ...prevValue.questionsAttempted[currentQuestion?._id],
-              answerMarked: "",
-              timeTaken: 0,
-            },
-          },
-        };
-      });
-    }
-    if (
-      currentQuestion?._id in attempt.questionsAttempted &&
-      attempt.questionsAttempted[currentQuestion?._id].answerMarked === ""
-    ) {
-      setAttempt((prevValue) => {
-        return {
-          ...prevValue,
-          questionsAttempted: {
-            ...prevValue.questionsAttempted,
-            [currentQuestion?._id]: {
-              ...prevValue.questionsAttempted[currentQuestion?._id],
-              answerMarked: "",
-              timeTaken: 0,
-            },
-          },
-        };
-      });
-    }
   };
 
   const prevQuestion = () => {
     setQuestionNumber((prev) => {
       if (prev === 0) {
-        if (quizQuestions?.length != undefined)
-          return quizQuestions?.length - 1;
+        if (quiz?.questions?.length != undefined)
+          return quiz?.questions?.length - 1;
         else return prev;
       } else return (prev -= 1);
     });
@@ -119,14 +80,11 @@ export const AttemptRoot = ({
     setAttempt((prevValue) => {
       return {
         ...prevValue,
-        questionsAttempted: {
-          ...prevValue.questionsAttempted,
-          [currentQuestion?._id]: {
-            ...prevValue.questionsAttempted[currentQuestion?._id],
-            answerMarked: value,
-            timeTaken: 0,
-          },
-        },
+        questionsAttempted: prevValue.questionsAttempted.map((ques) => {
+          return ques.questionId === currentQuestion?._id
+            ? { ...ques, answerMarked: value }
+            : ques;
+        }),
       };
     });
   };
@@ -140,29 +98,22 @@ export const AttemptRoot = ({
     setAttempt((prevValue) => {
       return {
         ...prevValue,
-        questionsAttempted: {
-          ...prevValue.questionsAttempted,
-          [currentQuestion?._id]: {
-            ...prevValue.questionsAttempted[currentQuestion?._id],
-            answerMarked: "",
-            timeTaken: 0,
-          },
-        },
+        questionsAttempted: prevValue.questionsAttempted.map((ques) => {
+          return ques.questionId === currentQuestion?._id
+            ? { ...ques, answerMarked: "unattempted" }
+            : ques;
+        }),
       };
     });
   };
 
   const handleButtonColor = (ques: QuizQuestionsType): string => {
-    if (
-      ques._id in attempt.questionsAttempted &&
-      attempt.questionsAttempted[ques._id].answerMarked != ""
-    )
-      return "#358935";
-    else if (
-      ques._id in attempt.questionsAttempted &&
-      attempt.questionsAttempted[ques._id].answerMarked === ""
-    )
-      return "#ed4e1f";
+    const targetQues = attempt.questionsAttempted.find(
+      (q) => q.questionId === ques._id
+    );
+
+    if (targetQues?.answerMarked === "unattempted") return "#ed4e1f";
+    else if (targetQues?.answerMarked != "") return "#358935";
     else return "#B7CdCE";
   };
 
@@ -170,15 +121,14 @@ export const AttemptRoot = ({
     setAttempt((prevValue) => {
       return {
         ...prevValue,
-        questionsAttempted: {
-          ...prevValue.questionsAttempted,
-          [currentQuestion?._id]: {
-            ...prevValue.questionsAttempted[currentQuestion?._id],
-            review: true,
-          },
-        },
+        questionsAttempted: prevValue.questionsAttempted.map((ques) => {
+          return ques.questionId === currentQuestion?._id
+            ? { ...ques, review: true }
+            : ques;
+        }),
       };
     });
+
     nextQuestion();
   };
 
@@ -186,13 +136,11 @@ export const AttemptRoot = ({
     setAttempt((prevValue) => {
       return {
         ...prevValue,
-        questionsAttempted: {
-          ...prevValue.questionsAttempted,
-          [currentQuestion?._id]: {
-            ...prevValue.questionsAttempted[currentQuestion?._id],
-            review: false,
-          },
-        },
+        questionsAttempted: prevValue.questionsAttempted.map((ques) => {
+          return ques.questionId === currentQuestion?._id
+            ? { ...ques, review: false }
+            : ques;
+        }),
       };
     });
     nextQuestion();
@@ -202,7 +150,7 @@ export const AttemptRoot = ({
 
   useEffect(() => {
     if (data)
-      setAttempt2((prevValue) => {
+      setAttempt((prevValue) => {
         return {
           ...prevValue,
           quizId: data?.data[0]._id,
@@ -218,39 +166,10 @@ export const AttemptRoot = ({
       });
   }, [data]);
 
-  // useEffect(() => {
-  //   const getNewQuiz = async () => {
-  //     try {
-  //       const res = await getQuiz(quizId);
-
-  //       const newQuizData = res.data?.data[0];
-  //       if (newQuizData) {
-  //         setAttempt2((prevValue) => {
-  //           return {
-  //             ...prevValue,
-  //             quizId: newQuizData?._id,
-  //             questionsAttempted: newQuizData?.questions.map((q) => {
-  //               return {
-  //                 questionId: q._id,
-  //                 answerMarked: "",
-  //                 timeTaken: 0,
-  //                 review: false,
-  //               };
-  //             }),
-  //           };
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   getNewQuiz();
-  // }, [getQuiz, quizId]);
-
   if (data) {
     render = (
       <div className="w-screen h-screen flex bg-white font-semibold">
-        <div className=" w-3/4 flex flex-col ">
+        <div className="w-3/4 flex flex-col ">
           <div
             className="flex w-full justify-center items-center p-2"
             style={{ backgroundColor: "#BDD5D6" }}
@@ -269,9 +188,7 @@ export const AttemptRoot = ({
             </TypographyP>
             <div className="mx-4 mt-10">
               <RadioGroup
-                value={`${
-                  attempt.questionsAttempted[currentQuestion?._id]?.answerMarked
-                }`}
+                value={`${attempt.questionsAttempted[questionNumber]?.answerMarked}`}
                 onValueChange={(value) => handleQuestionMarked(value)}
                 className="flex flex-col gap-4"
               >
@@ -316,9 +233,7 @@ export const AttemptRoot = ({
               >
                 Clear
               </Button>
-              {attempt.questionsAttempted[currentQuestion?._id] &&
-              attempt.questionsAttempted[currentQuestion?._id].review ===
-                true ? (
+              {attempt.questionsAttempted[questionNumber]?.review === true ? (
                 <Button
                   onClick={handleUnMarkedForReview}
                   className="w-36 rounded-full"
@@ -407,7 +322,7 @@ export const AttemptRoot = ({
             Attempts
           </div>
           <div className="px-4 py-8 flex flex-wrap gap-2">
-            {quizQuestions?.map((ques, index) => {
+            {quiz?.questions?.map((ques, index) => {
               return (
                 <Button
                   variant={"outline"}
@@ -419,12 +334,11 @@ export const AttemptRoot = ({
                   }}
                   onClick={() => setQuestionNumber(index)}
                 >
-                  {attempt.questionsAttempted[ques?._id] &&
-                    attempt.questionsAttempted[ques?._id].review === true && (
-                      <div className="absolute right-0 top-0">
-                        <RiFileMarkedFill className="text-sm" />
-                      </div>
-                    )}
+                  {attempt.questionsAttempted[index]?.review === true && (
+                    <div className="absolute right-0 top-0">
+                      <RiFileMarkedFill className="text-sm" />
+                    </div>
+                  )}
                   <div className="relative">
                     <span> {index + 1}</span>
                     {ques._id === currentQuestion?._id && (
@@ -445,7 +359,6 @@ export const AttemptRoot = ({
         </div>
       </div>
     );
-    console.log(attempt2);
   } else if (isLoading) render = <RingLoader />;
   else if (isError)
     render = <div className="text-2xl font-bold">Error occured ...</div>;
