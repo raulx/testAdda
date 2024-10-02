@@ -405,6 +405,7 @@ const SetAvatar = () => {
 const VerifyOtpAndLogin = () => {
   const { email, navigate } = useOutletContext<SharedLoginPageContext>();
   const [verifyEmailOtp, { isLoading }] = useVerifyEmailOtpMutation();
+  const [time, setTime] = useState<number>(300);
   const dispatch = UseDispatchHook();
   const form = useForm<z.infer<typeof OtpFormSchema>>({
     resolver: zodResolver(OtpFormSchema),
@@ -514,7 +515,8 @@ const VerifyOtpAndLogin = () => {
       </div>
       <div className="mx-auto">
         <CountDownTimer
-          seconds={600}
+          time={time}
+          setTime={setTime}
           message="OTP Expires In"
           onTimerEnd={onTimerEnd}
         />

@@ -31,7 +31,8 @@ export const AttemptRoot = ({
 }) => {
   const [questionNumber, setQuestionNumber] = useState<number>(0);
   const { data, isLoading, isError } = useGetQuizQuery(quizId);
-  const [time, setTime] = useState<number>(10); // default is 10 before quiz get loaded
+  const [timer, setTimer] = useState<number>(10); // default is 10 before quiz get loaded
+  const [lastAttemptAt, setLastAttemptAt] = useState<number>(0);
 
   const quiz = data?.data[0];
 
@@ -58,6 +59,31 @@ export const AttemptRoot = ({
           }),
         };
       });
+    }
+    if (attempt.questionsAttempted[questionNumber].timeTaken === 0) {
+      setAttempt((prevValue) => {
+        return {
+          ...prevValue,
+          questionsAttempted: prevValue.questionsAttempted.map((ques) => {
+            return ques.questionId === currentQuestion?._id
+              ? { ...ques, timeTaken: lastAttemptAt - timer }
+              : ques;
+          }),
+        };
+      });
+      setLastAttemptAt(timer);
+    } else if (attempt.questionsAttempted[questionNumber].timeTaken > 0) {
+      setAttempt((prevValue) => {
+        return {
+          ...prevValue,
+          questionsAttempted: prevValue.questionsAttempted.map((ques) => {
+            return ques.questionId === currentQuestion?._id
+              ? { ...ques, timeTaken: ques.timeTaken + (lastAttemptAt - timer) }
+              : ques;
+          }),
+        };
+      });
+      setLastAttemptAt(timer);
     }
     setQuestionNumber((prev) => {
       if (prev + 1 === quiz?.questions?.length) {
@@ -171,7 +197,8 @@ export const AttemptRoot = ({
         };
       });
 
-      setTime(quiz?.duration);
+      setTimer(quiz?.duration);
+      setLastAttemptAt(quiz?.duration);
     }
   }, [quiz]);
 
@@ -324,9 +351,8 @@ export const AttemptRoot = ({
           <div className="flex justify-center items-center p-6 bg-white">
             <CountDownTimer
               className=" uppercase text-xl"
-              // seconds={quiz ? quiz?.duration : 0}
-              time={time}
-              setTime={setTime}
+              time={timer}
+              setTime={setTimer}
               onTimerEnd={handleFinishTest}
             />
           </div>
