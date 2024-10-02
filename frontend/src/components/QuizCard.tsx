@@ -56,13 +56,15 @@ const openQuizInNewWindow = (title: string, _id: string) => {
 
     // Unmount component when the new window is closed or refreshed
     quizWindow.addEventListener("beforeunload", () => {
-      root.unmount();
+      setTimeout(() => {
+        root.unmount();
+      }, 0); // Delay the unmount to ensure it's after render cycle
     });
   }
 };
 
 const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
-  const handleQuizStart = async (_id: string, title: string) => {
+  const handleQuizStart = (_id: string, title: string) => {
     openQuizInNewWindow(title, _id);
   };
 

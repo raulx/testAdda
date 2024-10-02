@@ -1,3 +1,4 @@
+import CountDownTimer from "@/components/CountDownTimer";
 import RingLoader from "@/components/RingLoader";
 import { TypographyP } from "@/components/Typography";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ export const AttemptRoot = ({
 }) => {
   const [questionNumber, setQuestionNumber] = useState<number>(0);
   const { data, isLoading, isError } = useGetQuizQuery(quizId);
+  const [time, setTime] = useState<number>(10); // default is 10 before quiz get loaded
 
   const quiz = data?.data[0];
 
@@ -113,7 +115,11 @@ export const AttemptRoot = ({
     );
 
     if (targetQues?.answerMarked === "unattempted") return "#ed4e1f";
-    else if (targetQues?.answerMarked != "") return "#358935";
+    else if (
+      targetQues?.answerMarked != undefined &&
+      targetQues?.answerMarked != ""
+    )
+      return "#358935";
     else return "#B7CdCE";
   };
 
@@ -149,12 +155,12 @@ export const AttemptRoot = ({
   let render;
 
   useEffect(() => {
-    if (data)
+    if (quiz) {
       setAttempt((prevValue) => {
         return {
           ...prevValue,
-          quizId: data?.data[0]._id,
-          questionsAttempted: data?.data[0].questions.map((q) => {
+          quizId: quiz?._id,
+          questionsAttempted: quiz?.questions.map((q) => {
             return {
               questionId: q._id,
               answerMarked: "",
@@ -164,7 +170,10 @@ export const AttemptRoot = ({
           }),
         };
       });
-  }, [data]);
+
+      setTime(quiz?.duration);
+    }
+  }, [quiz]);
 
   if (data) {
     render = (
@@ -313,7 +322,13 @@ export const AttemptRoot = ({
             Time Left
           </div>
           <div className="flex justify-center items-center p-6 bg-white">
-            Time Box
+            <CountDownTimer
+              className=" uppercase text-xl"
+              // seconds={quiz ? quiz?.duration : 0}
+              time={time}
+              setTime={setTime}
+              onTimerEnd={handleFinishTest}
+            />
           </div>
           <div
             style={{ backgroundColor: "#B7CDCE" }}
@@ -326,7 +341,7 @@ export const AttemptRoot = ({
               return (
                 <Button
                   variant={"outline"}
-                  className="relative"
+                  className="relative "
                   key={index}
                   style={{
                     color: "#fff",

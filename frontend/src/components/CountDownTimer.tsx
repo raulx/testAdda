@@ -1,17 +1,20 @@
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect } from "react";
 
 const CountDownTimer = ({
   message,
-  seconds,
   className,
   onTimerEnd,
+  time,
+  setTime,
 }: {
-  message: string;
-  seconds: number;
+  message?: string;
+  // seconds: number;
   className?: string;
+  time: number;
+  setTime: React.Dispatch<SetStateAction<number>>;
   onTimerEnd: () => void;
 }) => {
-  const [time, setTime] = useState(seconds);
+  // const [time, setTime] = useState(seconds);
   const timerEnded = time === 0;
 
   useEffect(() => {
@@ -28,12 +31,13 @@ const CountDownTimer = ({
     return () => {
       clearInterval(timer);
     };
-  }, []);
+  }, [setTime]);
 
   return (
     <div className={className}>
       <p>
-        {message}: {`${Math.floor(time / 60)}`}:{`${time % 60}`}
+        {message} {message && <>:</>} {`${Math.floor(time / 60)}`}:
+        {time % 60 < 10 ? `0${time % 60}` : `${time % 60}`}
       </p>
     </div>
   );
