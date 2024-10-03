@@ -12,7 +12,7 @@ const attemptQuiz = asyncHandler(async (req, res) => {
     const { quizId, questionsAttempted } = req.body;
 
     if (!quizId || !questionsAttempted)
-        throw new ApiError(401, 'All fields are required !');
+        throw new ApiError(400, 'All fields are required !');
 
     const attemptExists = await Attempt.findOne({
         user_id: userId,
@@ -52,11 +52,13 @@ const attemptQuiz = asyncHandler(async (req, res) => {
 
     //save the time taken by user to solve each question in questionTime model.
 
-    questionsAttempted.forEach(async (value) => {
-        await QuestionTime.create({
-            question_id: value.questionId,
-            time_taken: value.timeTaken,
-        });
+    questionsAttempted.forEach(async (ques) => {
+        if (ques.answerMarked != 'unattempted') {
+            await QuestionTime.create({
+                question_id: ques.questionId,
+                time_taken: ques.timeTaken,
+            });
+        }
     });
 
     //generate the result and save it to result collection.

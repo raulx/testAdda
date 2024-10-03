@@ -3,14 +3,18 @@ import RingLoader from "@/components/RingLoader";
 import { TypographyP } from "@/components/Typography";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useGetQuizQuery } from "@/store/store";
+import {
+  useGetQuizQuery,
+  useSaveQuizMutation,
+  useSubmitQuizMutation,
+} from "@/store/store";
 import { QuizQuestionsType } from "@/utils/types";
 import { Label } from "@radix-ui/react-label";
 import { useEffect, useState } from "react";
 import { FaClock } from "react-icons/fa";
 import { RiFileMarkedFill } from "react-icons/ri";
 
-type AttemptType = {
+export type AttemptProgressType = {
   quizId: string;
   questionsAttempted: {
     questionId: string;
@@ -33,10 +37,13 @@ export const AttemptRoot = ({
   const { data, isLoading, isError } = useGetQuizQuery(quizId);
   const [timer, setTimer] = useState<number>(10); // default is 10 before quiz get loaded
   const [lastAttemptAt, setLastAttemptAt] = useState<number>(0);
+  const [submitQuiz, { isLoading: isSubmitting }] = useSubmitQuizMutation();
+
+  const [saveQuiz] = useSaveQuizMutation();
 
   const quiz = data?.data[0];
 
-  const [attempt, setAttempt] = useState<AttemptType>({
+  const [attempt, setAttempt] = useState<AttemptProgressType>({
     quizId: "",
     questionsAttempted: [
       { questionId: "", answerMarked: "", timeTaken: 0, review: false },
@@ -117,8 +124,31 @@ export const AttemptRoot = ({
     });
   };
 
-  const handleFinishTest = () => {
-    console.log(attempt);
+  const handleFinishTest = async () => {
+    const updatedData = attempt.questionsAttempted.map((ques) => {
+      const returnData = {
+        questionId: ques.questionId,
+        timeTaken: ques.timeTaken,
+        answerMarked: ques.answerMarked,
+      };
+
+      if (ques.answerMarked === "") {
+        returnData.answerMarked = "unattempted";
+      }
+      return returnData;
+    });
+
+    const attemptData = {
+      quizId: attempt.quizId,
+      questionsAttempted: updatedData,
+    };
+    try {
+      const res = await submitQuiz(attemptData);
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
+
     windowRef?.close();
   };
 
@@ -176,6 +206,20 @@ export const AttemptRoot = ({
       };
     });
     nextQuestion();
+  };
+
+  const saveProgress = async () => {
+    const attemptData = {
+      ...attempt,
+      onQuestionNumber: questionNumber,
+      timeRemaining: timer,
+    };
+    try {
+      const res = await saveQuiz(attemptData);
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   let render;
@@ -268,6 +312,15 @@ export const AttemptRoot = ({
                 style={{ backgroundColor: "#8C9C9C", color: "#FFF" }}
               >
                 Clear
+              </Button>
+              <Button
+                onClick={saveProgress}
+                className="w-24 rounded-full border-2 border-gray-300"
+                size={"sm"}
+                variant={"outline"}
+                style={{ backgroundColor: "#8C9C", color: "#FFF" }}
+              >
+                Save Quiz
               </Button>
               {attempt.questionsAttempted[questionNumber]?.review === true ? (
                 <Button
@@ -398,6 +451,7 @@ export const AttemptRoot = ({
             })}
           </div>
         </div>
+        {isSubmitting && <RingLoader />}
       </div>
     );
   } else if (isLoading) render = <RingLoader />;

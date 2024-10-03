@@ -4,6 +4,7 @@ import Quiz from '../models/quiz.model.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import Question from '../models/question.model.js';
 import mongoose from 'mongoose';
+import TestProgress from '../models/testprogress.model.js';
 
 const addQuiz = asynchandler(async (req, res) => {
     const {
@@ -120,4 +121,38 @@ const getQuiz = asynchandler(async (req, res) => {
     res.json(new ApiResponse(200, quiz, 'Quiz Data successfully sent'));
 });
 
-export { addQuiz, removeQuiz, getQuizes, getQuiz };
+const saveQuizProgress = asynchandler(async (req, res) => {
+    const data = req.body;
+    const user = req.user;
+    if (!data) throw new ApiError(400, 'All Fields are required');
+
+    const testProgress = await TestProgress.findOne({
+        quizId: data.quizId,
+        userId: user._id,
+    });
+    console.log(testProgress);
+    if (testProgress) {
+        testProgress.questionsAttempted = data.questionsAttempted;
+        testProgress.onQuestionNumber = data.onQuestionNumber;
+        testProgress.timeRemaining = data.timeRemaining;
+        await testProgress.save();
+    } else {
+        await TestProgress.create({ userId: user._id, ...data });
+    }
+    res.json(new ApiResponse(200, {}, 'quiz save successfully'));
+});
+
+const getQuizProgress = asynchandler(async (req, res) => {
+    const data = req.body;
+
+    res.json(new ApiResponse(200, data, 'get quiz successfully '));
+});
+
+export {
+    addQuiz,
+    removeQuiz,
+    getQuizes,
+    getQuiz,
+    saveQuizProgress,
+    getQuizProgress,
+};

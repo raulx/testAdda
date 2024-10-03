@@ -5,9 +5,12 @@ import {
     getQuizes,
     getQuiz,
     removeQuiz,
+    saveQuizProgress,
+    getQuizProgress,
 } from '../controllers/quiz.controllers.js';
 
 import verifyJwt from '../middlewares/auth.middleware.js';
+import { attemptQuiz } from '../controllers/attempt.controllers.js';
 
 const router = Router();
 
@@ -18,5 +21,8 @@ router.route('/removeQuiz').delete(verifyAdminJwt, removeQuiz);
 // for application
 router.route('/getQuizes').get(verifyJwt, getQuizes);
 router.route('/getQuiz').get(verifyJwt, getQuiz);
+router.route('/saveQuizProgress').post(verifyJwt, saveQuizProgress);
+router.route('/getQuizProgress').get(verifyJwt, getQuizProgress);
+router.route('/attempt/new').post(verifyJwt, attemptQuiz);
 
 export default router;
