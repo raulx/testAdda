@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   useGetQuizQuery,
+  useLazyGetQuizProgressQuery,
   useSaveQuizMutation,
   useSubmitQuizMutation,
 } from "@/store/store";
@@ -33,11 +34,11 @@ export const AttemptRoot = ({
   quizId: string;
   windowRef: Window;
 }) => {
-  const [questionNumber, setQuestionNumber] = useState<number>(0);
   const { data, isLoading, isError } = useGetQuizQuery(quizId);
   const [timer, setTimer] = useState<number>(10); // default is 10 before quiz get loaded
   const [lastAttemptAt, setLastAttemptAt] = useState<number>(0);
   const [submitQuiz, { isLoading: isSubmitting }] = useSubmitQuizMutation();
+  const [getQuizProgress] = useLazyGetQuizProgressQuery();
 
   const [saveQuiz] = useSaveQuizMutation();
 
@@ -51,6 +52,9 @@ export const AttemptRoot = ({
     onQuestionNumber: 0,
     timeRemaining: 0,
   });
+  const [questionNumber, setQuestionNumber] = useState<number>(
+    attempt.onQuestionNumber
+  );
 
   const currentQuestion = quiz?.questions[questionNumber];
 
@@ -222,6 +226,20 @@ export const AttemptRoot = ({
     }
   };
 
+  const loadProgess = async () => {
+    try {
+      const res = await getQuizProgress(quizId);
+      if (res.data) {
+        const progressData = res.data?.data;
+        setAttempt(progressData);
+        setQuestionNumber(progressData.onQuestionNumber);
+        setTimer(progressData.timeRemaining);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   let render;
 
   useEffect(() => {
@@ -321,6 +339,15 @@ export const AttemptRoot = ({
                 style={{ backgroundColor: "#8C9C", color: "#FFF" }}
               >
                 Save Quiz
+              </Button>
+              <Button
+                onClick={loadProgess}
+                className="w-24 rounded-full border-2 border-gray-300"
+                size={"sm"}
+                variant={"outline"}
+                style={{ backgroundColor: "#7777", color: "#FFF" }}
+              >
+                Load
               </Button>
               {attempt.questionsAttempted[questionNumber]?.review === true ? (
                 <Button

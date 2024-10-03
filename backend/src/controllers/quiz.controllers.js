@@ -130,7 +130,7 @@ const saveQuizProgress = asynchandler(async (req, res) => {
         quizId: data.quizId,
         userId: user._id,
     });
-    console.log(testProgress);
+
     if (testProgress) {
         testProgress.questionsAttempted = data.questionsAttempted;
         testProgress.onQuestionNumber = data.onQuestionNumber;
@@ -143,9 +143,23 @@ const saveQuizProgress = asynchandler(async (req, res) => {
 });
 
 const getQuizProgress = asynchandler(async (req, res) => {
-    const data = req.body;
+    const { quizId } = req.query;
+    const user = req.user;
 
-    res.json(new ApiResponse(200, data, 'get quiz successfully '));
+    const testProgress = await TestProgress.findOne({
+        quizId,
+        userId: user._id,
+    });
+
+    if (testProgress)
+        res.json(
+            new ApiResponse(
+                200,
+                testProgress,
+                'quiz progress fetched successfully'
+            )
+        );
+    else throw new ApiError(404, 'Quiz Progess Not Found !');
 });
 
 export {

@@ -11,7 +11,7 @@ const testProgressSchema = new Schema({
             review: Boolean,
         },
     ],
-    onQuestion: Number,
+    onQuestionNumber: Number,
     timeRemaining: Number,
 });
 

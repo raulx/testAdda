@@ -42,6 +42,17 @@ const quizApis = createApi({
         };
       },
     }),
+    getQuizProgress: builder.query<
+      ApiResponseType<AttemptProgressType>,
+      string
+    >({
+      query: (quizId) => {
+        return {
+          url: `/getQuizProgress?quizId=${quizId}`,
+          method: "GET",
+        };
+      },
+    }),
     getQuiz: builder.query<ApiResponseType<QuizResponseType>, string>({
       query: (_id) => {
         return {
@@ -67,6 +78,8 @@ export const {
   useGetQuizQuery,
   useSubmitQuizMutation,
   useSaveQuizMutation,
+  useGetQuizProgressQuery,
+  useLazyGetQuizProgressQuery,
 } = quizApis;
 
 export default quizApis;
