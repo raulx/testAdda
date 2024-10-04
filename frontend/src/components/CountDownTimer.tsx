@@ -21,7 +21,7 @@ const CountDownTimer = ({
     if (timerEnded) {
       onTimerEnd();
     }
-  }, [timerEnded, onTimerEnd]);
+  }, [timerEnded]);
 
   useEffect(() => {
     const timer = setInterval(() => {

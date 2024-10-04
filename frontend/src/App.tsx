@@ -46,7 +46,7 @@ function App() {
       };
       getUser();
     } else if (refreshAvailable) {
-      // refresh the user login automatically if refreshToken is available
+      // if user is loggesOut but refresh  token is available then login user automatically
       const refreshAccessToken = async () => {
         const res = await refreshLogin(null);
         if (res.error && isFetchBaseQueryError(res.error)) {
@@ -63,6 +63,7 @@ function App() {
         if (res.error && !isFetchBaseQueryError(res.error)) {
           return toast.error("Error : Client side Error !");
         }
+        // on sucess
         if (res.data?.statusCode === 200) {
           dispatch(logInUser(res.data?.data._id));
         }

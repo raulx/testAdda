@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import CountDownTimer from "@/components/CountDownTimer";
 import RingLoader from "@/components/RingLoader";
 import { TypographyP } from "@/components/Typography";
@@ -11,7 +12,7 @@ import {
 } from "@/store/store";
 import { QuizQuestionsType } from "@/utils/types";
 import { Label } from "@radix-ui/react-label";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaClock } from "react-icons/fa";
 import { RiFileMarkedFill } from "react-icons/ri";
 
@@ -38,24 +39,27 @@ export const AttemptRoot = ({
   const [timer, setTimer] = useState<number>(10); // default is 10 before quiz get loaded
   const [lastAttemptAt, setLastAttemptAt] = useState<number>(0);
   const [submitQuiz, { isLoading: isSubmitting }] = useSubmitQuizMutation();
-  const [getQuizProgress] = useLazyGetQuizProgressQuery();
+  const [getQuizProgress, { isFetching: gettingSavedProgress }] =
+    useLazyGetQuizProgressQuery();
 
   const [saveQuiz] = useSaveQuizMutation();
 
   const quiz = data?.data[0];
 
   const [attempt, setAttempt] = useState<AttemptProgressType>({
-    quizId: "",
+    quizId: quizId,
     questionsAttempted: [
       { questionId: "", answerMarked: "", timeTaken: 0, review: false },
     ],
     onQuestionNumber: 0,
     timeRemaining: 0,
   });
+
   const [questionNumber, setQuestionNumber] = useState<number>(
     attempt.onQuestionNumber
   );
 
+  const attemptData = useRef(attempt);
   const currentQuestion = quiz?.questions[questionNumber];
 
   const nextQuestion = () => {
@@ -212,59 +216,68 @@ export const AttemptRoot = ({
     nextQuestion();
   };
 
-  const saveProgress = async () => {
-    const attemptData = {
+  let render;
+
+  useEffect(() => {
+    attemptData.current = {
       ...attempt,
       onQuestionNumber: questionNumber,
       timeRemaining: timer,
     };
-    try {
-      const res = await saveQuiz(attemptData);
-      console.log(res);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const loadProgess = async () => {
-    try {
-      const res = await getQuizProgress(quizId);
-      if (res.data) {
-        const progressData = res.data?.data;
-        setAttempt(progressData);
-        setQuestionNumber(progressData.onQuestionNumber);
-        setTimer(progressData.timeRemaining);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  let render;
+  }, [attempt, timer, questionNumber]);
 
   useEffect(() => {
-    if (quiz) {
-      setAttempt((prevValue) => {
-        return {
-          ...prevValue,
-          quizId: quiz?._id,
-          questionsAttempted: quiz?.questions.map((q) => {
-            return {
-              questionId: q._id,
-              answerMarked: "",
-              timeTaken: 0,
-              review: false,
-            };
-          }),
-        };
-      });
+    const saveProgress = async () => {
+      try {
+        await saveQuiz(attemptData.current);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    const intervalId = setInterval(saveProgress, 5000); // Sync every 5 seconds
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, []);
 
-      setTimer(quiz?.duration);
-      setLastAttemptAt(quiz?.duration);
-    }
+  useEffect(() => {
+    const loadAttemtData = async () => {
+      try {
+        const res = await getQuizProgress(quizId);
+        if (res.data) {
+          const progressData = res.data?.data;
+          setAttempt(progressData);
+          setQuestionNumber(progressData.onQuestionNumber);
+          setTimer(progressData.timeRemaining);
+        } else {
+          if (quiz) {
+            setAttempt((prevValue) => {
+              return {
+                ...prevValue,
+                quizId: quiz?._id,
+                questionsAttempted: quiz?.questions.map((q) => {
+                  return {
+                    questionId: q._id,
+                    answerMarked: "",
+                    timeTaken: 0,
+                    review: false,
+                  };
+                }),
+              };
+            });
+            setTimer(quiz?.duration);
+            setLastAttemptAt(quiz?.duration);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    loadAttemtData();
   }, [quiz]);
 
-  if (data) {
+  if (isLoading || gettingSavedProgress) render = <RingLoader />;
+  else if (isError)
+    render = <div className="text-2xl font-bold">Error occured ...</div>;
+  else {
     render = (
       <div className="w-screen h-screen flex bg-white font-semibold">
         <div className="w-3/4 flex flex-col ">
@@ -331,24 +344,7 @@ export const AttemptRoot = ({
               >
                 Clear
               </Button>
-              <Button
-                onClick={saveProgress}
-                className="w-24 rounded-full border-2 border-gray-300"
-                size={"sm"}
-                variant={"outline"}
-                style={{ backgroundColor: "#8C9C", color: "#FFF" }}
-              >
-                Save Quiz
-              </Button>
-              <Button
-                onClick={loadProgess}
-                className="w-24 rounded-full border-2 border-gray-300"
-                size={"sm"}
-                variant={"outline"}
-                style={{ backgroundColor: "#7777", color: "#FFF" }}
-              >
-                Load
-              </Button>
+
               {attempt.questionsAttempted[questionNumber]?.review === true ? (
                 <Button
                   onClick={handleUnMarkedForReview}
@@ -481,8 +477,6 @@ export const AttemptRoot = ({
         {isSubmitting && <RingLoader />}
       </div>
     );
-  } else if (isLoading) render = <RingLoader />;
-  else if (isError)
-    render = <div className="text-2xl font-bold">Error occured ...</div>;
+  }
   return <>{render}</>;
 };

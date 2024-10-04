@@ -3,7 +3,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { SERVER_BASE_URL } from "@/utils/constants";
 import { ApiResponseType, QuizesResponseType } from "@/utils/types";
 import { QuizResponseType } from "@/utils/types";
-import { pause } from "@/utils/helpers";
+// import { pause } from "@/utils/helpers";
+
 import { AttemptProgressType } from "@/pages/AttemptPage";
 interface AttemptType {
   quizId: string;
@@ -13,13 +14,14 @@ interface AttemptType {
     answerMarked: string;
   }[];
 }
+
 const quizApis = createApi({
   reducerPath: "quizApis",
   baseQuery: fetchBaseQuery({
     baseUrl: `${SERVER_BASE_URL}/quiz`,
     fetchFn: async (...args) => {
       // remove in Production
-      await pause(2000);
+      // await pause(2000);
       return fetch(...args);
     },
   }),

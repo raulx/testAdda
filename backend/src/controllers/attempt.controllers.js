@@ -6,6 +6,7 @@ import Quiz from '../models/quiz.model.js';
 import QuestionTime from '../models/question.time.model.js';
 import { generateResult } from './result.controllers.js';
 import Result from '../models/result.model.js';
+import TestProgress from '../models/testprogress.model.js';
 
 const attemptQuiz = asyncHandler(async (req, res) => {
     const userId = req.user._id;
@@ -71,6 +72,9 @@ const attemptQuiz = asyncHandler(async (req, res) => {
         result: resultGenerated,
     };
     await Result.create(newResult);
+
+    //remove test progress
+    await TestProgress.deleteOne({ userId, quizId });
 
     res.json(new ApiResponse(200, newAttempt, 'Quiz attempted successfully !'));
 });
