@@ -13,6 +13,7 @@ import { QuizData, QuizQuestionsType } from "@/utils/types";
 import store from "@/store/store";
 import { AttemptRoot } from "@/pages/AttemptPage";
 import { Provider } from "react-redux";
+import UseGetUserDataHook from "@/hooks/UseGetUserDataHook";
 
 const openQuizInNewWindow = (title: string, _id: string) => {
   // Get the screen width and height
@@ -64,6 +65,7 @@ const openQuizInNewWindow = (title: string, _id: string) => {
 };
 
 const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
+  const user = UseGetUserDataHook();
   const handleQuizStart = (_id: string, title: string) => {
     openQuizInNewWindow(title, _id);
   };
@@ -80,23 +82,45 @@ const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
         <CardContent>Difficulty Level : {props.difficulty_level}</CardContent>
         <CardFooter>
           <div className="flex justify-between w-full items-center gap-4 text-sm">
-            <p>Questions : {props.questions.length}</p>
-            <p>Duration : {Math.floor(props.duration / 60)}min</p>
-            {props.access_type === "free" ? (
-              <>
-                <Button
-                  variant={"lightseagreen"}
-                  className="flex gap-2"
-                  onClick={() => handleQuizStart(props._id, props.title)}
-                >
-                  <FaRocket /> Start
-                </Button>
-              </>
+            {user.data.test_attempted.includes(props._id) ? (
+              <Button variant={"outline"}>Show Result</Button>
             ) : (
               <>
-                <Button variant={"lightseagreen"} className="flex gap-2">
-                  <FaLock /> Unlock
-                </Button>
+                <p>Questions : {props.questions.length}</p>
+                <p>Duration : {Math.floor(props.duration / 60)}min</p>
+                {user.data.paused_tests.includes(props._id) ? (
+                  <Button
+                    variant={"celadon"}
+                    onClick={() => handleQuizStart(props._id, props.title)}
+                  >
+                    Continue
+                  </Button>
+                ) : (
+                  <>
+                    {props.access_type === "free" ? (
+                      <>
+                        <Button
+                          variant={"lightseagreen"}
+                          className="flex gap-2"
+                          onClick={() =>
+                            handleQuizStart(props._id, props.title)
+                          }
+                        >
+                          <FaRocket /> Start
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          variant={"lightseagreen"}
+                          className="flex gap-2"
+                        >
+                          <FaLock /> Unlock
+                        </Button>
+                      </>
+                    )}
+                  </>
+                )}
               </>
             )}
           </div>

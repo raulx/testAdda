@@ -86,7 +86,9 @@ const router = createBrowserRouter([
   { path: "*", element: <NotFoundPage /> },
 ]);
 
-createRoot(document.getElementById("root")!).render(
+const root = createRoot(document.getElementById("root")!);
+
+root.render(
   <Provider store={store}>
     <RouterProvider router={router} />
   </Provider>

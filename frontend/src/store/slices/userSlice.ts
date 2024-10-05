@@ -1,8 +1,18 @@
 import { UserData } from "@/utils/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const userInitialState: { data: UserData | null } = {
-  data: null,
+const userInitialState: { data: UserData } = {
+  data: {
+    _id: "",
+    email: "",
+    username: "",
+    avatar_url: "",
+    is_subscribed: false,
+    test_attempted: [],
+    paused_tests: [],
+    createdAt: "",
+    updatedAt: "",
+  },
 };
 
 const userSlice = createSlice({

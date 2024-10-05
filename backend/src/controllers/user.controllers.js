@@ -2,18 +2,44 @@ import asyncHandler from 'express-async-handler';
 import User from '../models/user.model.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
+import Attempt from '../models/attempt.model.js';
 import {
     uploadOnCloudinary,
     getPublicId,
     deleteOnCloudinary,
 } from '../services/cloudinary.js';
+import TestProgress from '../models/testprogress.model.js';
 
 const getUser = asyncHandler(async (req, res) => {
     const user = req.user;
 
-    if (!user) throw new ApiError(404, 'User NotFound');
+    const testAttempted = await Attempt.aggregate([
+        {
+            $match: {
+                user_id: user._id,
+            },
+        },
+        { $project: { quiz_id: 1 } },
+    ]);
 
-    res.json(new ApiResponse(200, user, 'user data fetched successfully'));
+    const pausedTests = await TestProgress.aggregate([
+        { $match: { userId: user._id } },
+        { $project: { quizId: 1 } },
+    ]);
+
+    const userData = {
+        _id: user._id,
+        email: user.email,
+        username: user.username,
+        avatar_url: user.avatar_url,
+        is_subscribed: user.is_subscribed,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        test_attempted: testAttempted.map((attempt) => attempt.quiz_id),
+        paused_tests: pausedTests.map((test) => test.quizId),
+    };
+
+    res.json(new ApiResponse(200, userData, 'user data fetched successfully'));
 });
 
 const updateUserName = asyncHandler(async (req, res) => {

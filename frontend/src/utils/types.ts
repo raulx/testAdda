@@ -5,6 +5,8 @@ interface UserData {
   username: string;
   avatar_url: string;
   is_subscribed: boolean;
+  test_attempted: string[];
+  paused_tests: string[];
   createdAt: string;
   updatedAt: string;
 }
