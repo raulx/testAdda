@@ -8,6 +8,7 @@ import store from "./store/store.ts";
 import { Suspense, lazy } from "react";
 import ProtectedRoute from "./hooks/UseProtectRouteHook.tsx";
 import { RingCutLoader } from "./components/Loaders.tsx";
+import ResultPage from "./pages/ResultPage.tsx";
 
 //pages imports
 const LoginPage = lazy(() => import("./pages/LoginPage.tsx"));
@@ -74,7 +75,10 @@ const router = createBrowserRouter([
       {
         path: "/quizes",
         element: <ProtectedRoute />,
-        children: [{ path: "/quizes", element: <QuizesPage /> }],
+        children: [
+          { path: "/quizes", element: <QuizesPage /> },
+          { path: "/quizes/result/:id", element: <ResultPage /> },
+        ],
       },
       {
         path: "/mocks",

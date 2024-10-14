@@ -28,7 +28,7 @@ export type AttemptProgressType = {
   timeRemaining: number;
 };
 
-export const AttemptRoot = ({
+export const AttemptWindow = ({
   quizId,
   windowRef,
 }: {
@@ -158,6 +158,7 @@ export const AttemptRoot = ({
     }
 
     windowRef?.close();
+    window.location.reload();
   };
 
   const handleClearQuestion = () => {

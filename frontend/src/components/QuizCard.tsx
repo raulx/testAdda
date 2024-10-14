@@ -11,7 +11,7 @@ import {
 } from "./ui/card";
 import { QuizData, QuizQuestionsType } from "@/utils/types";
 import store from "@/store/store";
-import { AttemptRoot } from "@/pages/AttemptPage";
+import { AttemptWindow } from "@/pages/AttemptWindow";
 import { Provider } from "react-redux";
 import UseGetUserDataHook from "@/hooks/UseGetUserDataHook";
 
@@ -51,7 +51,7 @@ const openQuizInNewWindow = (title: string, _id: string) => {
     const root = createRoot(quizDiv);
     root.render(
       <Provider store={store}>
-        <AttemptRoot windowRef={quizWindow} quizId={_id} />
+        <AttemptWindow windowRef={quizWindow} quizId={_id} />
       </Provider>
     );
 
@@ -59,6 +59,7 @@ const openQuizInNewWindow = (title: string, _id: string) => {
     quizWindow.addEventListener("beforeunload", () => {
       setTimeout(() => {
         root.unmount();
+        // window.location.reload();
       }, 0); // Delay the unmount to ensure it's after render cycle
     });
   }
@@ -68,6 +69,10 @@ const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
   const user = UseGetUserDataHook();
   const handleQuizStart = (_id: string, title: string) => {
     openQuizInNewWindow(title, _id);
+  };
+
+  const handleViewResult = ({ _id }: { _id: string }) => {
+    window.open(`/quizes/result/${_id}`, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -83,14 +88,19 @@ const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
         <CardFooter>
           <div className="flex justify-between w-full items-center gap-4 text-sm">
             {user.data.test_attempted.includes(props._id) ? (
-              <Button variant={"outline"}>Show Result</Button>
+              <Button
+                variant={"default"}
+                onClick={() => handleViewResult({ _id: props._id })}
+              >
+                Show Result
+              </Button>
             ) : (
               <>
                 <p>Questions : {props.questions.length}</p>
                 <p>Duration : {Math.floor(props.duration / 60)}min</p>
                 {user.data.paused_tests.includes(props._id) ? (
                   <Button
-                    variant={"celadon"}
+                    variant={"mediumseagreen"}
                     onClick={() => handleQuizStart(props._id, props.title)}
                   >
                     Continue

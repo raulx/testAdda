@@ -12,7 +12,6 @@ import {
   logInUser,
 } from "./store/store";
 import { isFetchBaseQueryError } from "./utils/helpers";
-import { ApiResponseType, UserData } from "./utils/types";
 
 import RingLoader from "./components/RingLoader";
 
@@ -51,8 +50,8 @@ function App() {
         const res = await refreshLogin(null);
         if (res.error && isFetchBaseQueryError(res.error)) {
           localStorage.removeItem("refresh"); // remove refresh item
-          const serverError = res.error.data as ApiResponseType<UserData>;
-          toast.error(`Error : ${serverError.message}`, {
+          // const serverError = res.error.data as ApiResponseType<UserData>;
+          toast.error(`Session Expired !`, {
             autoClose: 3000,
             hideProgressBar: true,
           });

@@ -5,7 +5,7 @@ import { ApiResponseType, QuizesResponseType } from "@/utils/types";
 import { QuizResponseType } from "@/utils/types";
 // import { pause } from "@/utils/helpers";
 
-import { AttemptProgressType } from "@/pages/AttemptPage";
+import { AttemptProgressType } from "@/pages/AttemptWindow";
 interface AttemptType {
   quizId: string;
   questionsAttempted: {
@@ -63,6 +63,15 @@ const quizApis = createApi({
         };
       },
     }),
+    getResult: builder.mutation({
+      query: (data) => {
+        return {
+          url: "/result",
+          body: data,
+          method: "POST",
+        };
+      },
+    }),
     getQuizes: builder.query<ApiResponseType<QuizesResponseType>, null>({
       query: () => {
         return {
@@ -82,6 +91,7 @@ export const {
   useSaveQuizMutation,
   useGetQuizProgressQuery,
   useLazyGetQuizProgressQuery,
+  useGetResultMutation,
 } = quizApis;
 
 export default quizApis;
