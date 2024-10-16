@@ -19,7 +19,7 @@ const getUser = asyncHandler(async (req, res) => {
                 user_id: user._id,
             },
         },
-        { $project: { quiz_id: 1 } },
+        { $project: { quiz_id: 1, updatedAt: 1 } },
     ]);
 
     const pausedTests = await TestProgress.aggregate([
@@ -35,7 +35,9 @@ const getUser = asyncHandler(async (req, res) => {
         is_subscribed: user.is_subscribed,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-        test_attempted: testAttempted.map((attempt) => attempt.quiz_id),
+        test_attempted: testAttempted.map((attempt) => {
+            return { id: attempt.quiz_id, attempted_on: attempt.updatedAt };
+        }),
         paused_tests: pausedTests.map((test) => test.quizId),
     };
 
