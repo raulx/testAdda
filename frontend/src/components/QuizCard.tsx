@@ -1,4 +1,11 @@
-import { FaLock, FaRocket, FaTimes, FaTrophy } from "react-icons/fa";
+import {
+  FaLightbulb,
+  FaLock,
+  FaRocket,
+  FaSpinner,
+  FaTimes,
+  FaTrophy,
+} from "react-icons/fa";
 import { Button } from "./ui/button";
 import { createRoot } from "react-dom/client";
 import {
@@ -10,7 +17,7 @@ import {
   CardContent,
 } from "./ui/card";
 import { QuizData, QuizQuestionsType } from "@/utils/types";
-import { IoAnalytics } from "react-icons/io5";
+// import { IoAnalytics } from "react-icons/io5";
 import store, { useGetResultMutation } from "@/store/store";
 import { AttemptWindow } from "@/pages/AttemptWindow";
 import { Provider } from "react-redux";
@@ -75,27 +82,28 @@ const openQuizInNewWindow = (title: string, _id: string) => {
 
 const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
   const user = UseGetUserDataHook();
-  const [getResult, { data }] = useGetResultMutation();
+  const [getResult, { data, isLoading }] = useGetResultMutation();
 
   const handleQuizStart = (_id: string, title: string) => {
     openQuizInNewWindow(title, _id);
   };
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
   const quizAttempted = user.data.test_attempted.find(
     (test) => test.id === props._id
   );
 
-  const afterOpenModel = () => {
-    console.log("model open");
+  const afterOpenReportModel = async () => {
+    await getResult({ quizId: props._id, userId: user.data._id });
   };
-  const handleViewResult = async () => {
-    // window.open(`/quizes/result/${_id}`, "_blank", "noopener,noreferrer");
-    const res = await getResult({ quizId: props._id, userId: user.data._id });
-    console.log(res);
-    setIsOpen(true);
+  const handleViewReport = async () => {
+    setIsReportOpen(true);
   };
-  const closeModal = () => setIsOpen(false);
+
+  const handleViewSolution = async ({ id }: { id: string }) => {
+    window.open(`/quizes/solutions/${id}`, "_blank", "noopener,noreferrer");
+  };
+  const closeReportModal = () => setIsReportOpen(false);
 
   return (
     <>
@@ -121,7 +129,7 @@ const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
                   className="flex gap-2 text-sm"
                   variant={"lightseagreen"}
                   size={"sm"}
-                  onClick={() => handleViewResult()}
+                  onClick={() => handleViewReport()}
                 >
                   <TbReportAnalytics />
                   View Report
@@ -173,53 +181,66 @@ const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
       </Card>
 
       <Modal
-        isOpen={isOpen}
-        onAfterOpen={afterOpenModel}
-        onRequestClose={closeModal}
-        className="bg-white p-6 rounded-2xl shadow-lg max-w-lg mx-auto my-10 relative flex flex-col gap-6 w-[28rem]"
-        overlayClassName="fixed w-screen h-screen inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+        isOpen={isReportOpen}
+        onAfterOpen={afterOpenReportModel}
+        onRequestClose={closeReportModal}
+        className="bg-white p-6 rounded-2xl shadow-lg max-w-lg mx-auto my-10 relative flex flex-col gap-6 w-[28rem] border-[#555555] border"
+        overlayClassName="fixed w-screen h-screen inset-0 bg-black bg-opacity-30 flex justify-center items-center"
       >
-        <div className="text-2xl text-center mb-4 tracking-widest font-montserrat flex items-center justify-center gap-2">
-          <span className="uppercase font-semibold border-b border-black">
-            Standings
-          </span>
-          <FaTrophy className="text-[#F7E383] text-4xl" />
-        </div>
-        <div className="mx-auto p-4 rounded-2xl border border-[#9A4D45] text-2xl">
-          <p>
-            Rank : {data?.data.standing.current_rank}/
-            {data?.data.standing.out_of}
-          </p>
-          <p>Percentile : {data?.data.percentile_obtained}</p>
-        </div>
-        <div className="p-4 bg-jetstream text-lg flex flex-col gap-2 rounded-2xl border border-[#555555]">
-          <p className="font-semibold text-[#22577A]">
-            Attempted :{" "}
-            {data?.data.report.length - data?.data.result.unattempted}/
-            {data?.data.report.length}
-          </p>
-          <p className="font-semibold text-[#22577A]">
-            Marks Obtained : {data?.data.result.marks_obtained}
-          </p>
-          <div className="flex gap-4">
-            <span className="text-[#3AA074]">
-              Correct : {data?.data.result.correct}/{data?.data.report.length}
-            </span>
-            <span className="text-[#9A4D45]">
-              Wrong : {data?.data.result.wrong}/{data?.data.report.length}
-            </span>
+        {isLoading ? (
+          <div className="h-96 flex justify-center items-center">
+            <FaSpinner className="text-3xl animate-spin" />
           </div>
-        </div>
-        <Button
-          className="mx-auto rounded-full text-lg flex gap-2 border border-bordergray bg-[#F5F5F5] text-black hover:bg-slate-100"
-          size={"lg"}
-        >
-          <IoAnalytics />
-          Analysis
-        </Button>
-        <button onClick={closeModal} className="absolute right-2 top-2 ">
-          <FaTimes />
-        </button>
+        ) : (
+          <>
+            <div className="text-2xl text-center mb-4 tracking-widest font-montserrat flex items-center justify-center gap-2">
+              <span className="uppercase font-semibold border-b border-black">
+                Standings
+              </span>
+              <FaTrophy className="text-[#eed03c] text-4xl" />
+            </div>
+            <div className="mx-auto p-4 rounded-2xl border border-[#9A4D45] text-2xl">
+              <p>
+                Rank : {data?.data.standing.current_rank}/
+                {data?.data.standing.out_of}
+              </p>
+              <p>Percentile : {data?.data.percentile_obtained}</p>
+            </div>
+            <div className="p-4 bg-jetstream text-lg flex flex-col gap-2 rounded-2xl border border-[#555555]">
+              <p className="font-semibold text-[#22577A]">
+                Attempted :{" "}
+                {data?.data.report.length - data?.data.result.unattempted}/
+                {data?.data.report.length}
+              </p>
+              <p className="font-semibold text-[#22577A]">
+                Marks Obtained : {data?.data.result.marks_obtained}
+              </p>
+              <div className="flex gap-4">
+                <span className="text-[#3AA074]">
+                  Correct : {data?.data.result.correct}/
+                  {data?.data.report.length}
+                </span>
+                <span className="text-[#9A4D45]">
+                  Wrong : {data?.data.result.wrong}/{data?.data.report.length}
+                </span>
+              </div>
+            </div>
+            <Button
+              className="mx-auto rounded-full text-lg flex gap-2 border border-bordergray bg-[#F5F5F5] text-black hover:bg-slate-100"
+              size={"lg"}
+              onClick={() => handleViewSolution({ id: props._id })}
+            >
+              Solution
+              <FaLightbulb className="text-[#eed03c]" />
+            </Button>
+            <button
+              onClick={closeReportModal}
+              className="absolute right-2 top-2 "
+            >
+              <FaTimes />
+            </button>
+          </>
+        )}
       </Modal>
     </>
   );
