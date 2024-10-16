@@ -1,4 +1,4 @@
-import { FaLock, FaRocket } from "react-icons/fa";
+import { FaLock, FaRocket, FaTimes } from "react-icons/fa";
 import { Button } from "./ui/button";
 import { createRoot } from "react-dom/client";
 import {
@@ -14,6 +14,11 @@ import store from "@/store/store";
 import { AttemptWindow } from "@/pages/AttemptWindow";
 import { Provider } from "react-redux";
 import UseGetUserDataHook from "@/hooks/UseGetUserDataHook";
+import { TbReportAnalytics } from "react-icons/tb";
+import { RxResume } from "react-icons/rx";
+import Modal from "react-modal";
+import DisplayDate from "./Date";
+import { useState } from "react";
 
 const openQuizInNewWindow = (title: string, _id: string) => {
   // Get the screen width and height
@@ -71,13 +76,23 @@ const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
     openQuizInNewWindow(title, _id);
   };
 
-  const handleViewResult = ({ _id }: { _id: string }) => {
-    window.open(`/quizes/result/${_id}`, "_blank", "noopener,noreferrer");
+  const [isOpen, setIsOpen] = useState(false);
+  const quizAttempted = user.data.test_attempted.find(
+    (test) => test.id === props._id
+  );
+
+  const afterOpenModel = () => {
+    console.log("model open");
   };
+  const handleViewResult = () => {
+    // window.open(`/quizes/result/${_id}`, "_blank", "noopener,noreferrer");
+    setIsOpen(true);
+  };
+  const closeModal = () => setIsOpen(false);
 
   return (
     <>
-      <Card className="w-[380px] min-h-[280px]  py-2 border border-bordergray flex flex-col justify-between">
+      <Card className="w-[400px] min-h-[280px] rounded-2xl  py-2 border border-bordergray flex flex-col justify-between">
         <CardHeader className="flex flex-col gap-4">
           <CardTitle className="text-darkcerulean">{props.title}</CardTitle>
           <CardDescription className="text-darkcerulean ">
@@ -87,23 +102,36 @@ const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
         <CardContent>Difficulty Level : {props.difficulty_level}</CardContent>
         <CardFooter>
           <div className="flex justify-between w-full items-center gap-4 text-sm">
-            {user.data.test_attempted.includes(props._id) ? (
-              <Button
-                variant={"default"}
-                onClick={() => handleViewResult({ _id: props._id })}
-              >
-                Show Result
-              </Button>
+            {quizAttempted ? (
+              <>
+                <div>
+                  <span className="font-bold border-b border-black">
+                    Attempted On
+                  </span>
+                  <DisplayDate dateString={quizAttempted.attempted_on} />
+                </div>
+                <Button
+                  className="flex gap-2 text-sm"
+                  variant={"lightseagreen"}
+                  size={"sm"}
+                  onClick={() => handleViewResult()}
+                >
+                  <TbReportAnalytics />
+                  View Report
+                </Button>
+              </>
             ) : (
               <>
                 <p>Questions : {props.questions.length}</p>
                 <p>Duration : {Math.floor(props.duration / 60)}min</p>
                 {user.data.paused_tests.includes(props._id) ? (
                   <Button
-                    variant={"mediumseagreen"}
+                    variant={"lightseagreen"}
+                    className="flex gap-2 items-center justify-center"
                     onClick={() => handleQuizStart(props._id, props.title)}
                   >
-                    Continue
+                    Resume
+                    <RxResume className="text-xl" />
                   </Button>
                 ) : (
                   <>
@@ -136,6 +164,21 @@ const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
           </div>
         </CardFooter>
       </Card>
+      <Modal
+        isOpen={isOpen}
+        onAfterOpen={afterOpenModel}
+        onRequestClose={closeModal}
+        className="bg-white p-6 rounded-2xl shadow-lg max-w-lg mx-auto my-10 relative"
+        overlayClassName="fixed w-screen h-screen inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+      >
+        <h2 className="text-xl font-bold mb-4">Standing</h2>
+        <p className="text-gray-700">
+          This is a modal styled with Tailwind CSS!
+        </p>
+        <button onClick={closeModal} className=" absolute right-2 top-2 ">
+          <FaTimes />
+        </button>
+      </Modal>
     </>
   );
 };

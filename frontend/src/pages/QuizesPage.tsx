@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDispatch, useSelector } from "react-redux";
 import { DoubleRingLoader } from "@/components/Loaders";
 
-const QuizesBox = ({
+const QuizesContainer = ({
   dataLoading,
   accessType,
 }: {
@@ -26,7 +26,7 @@ const QuizesBox = ({
     return store.quizes;
   });
   return (
-    <div className=" flex flex-wrap gap-4 justify-center my-6">
+    <div className="flex flex-wrap gap-8 justify-center my-6 bg-jetstream py-12">
       {dataLoading ? (
         <div className="h-96 flex justify-center items-center">
           <DoubleRingLoader />
@@ -107,11 +107,12 @@ const QuizesPage = () => {
               </TabsTrigger>
             </div>
           </TabsList>
+
           <TabsContent value="free">
-            <QuizesBox accessType="free" dataLoading={isLoading} />
+            <QuizesContainer accessType="free" dataLoading={isLoading} />
           </TabsContent>
           <TabsContent value="paid">
-            <QuizesBox accessType="paid" dataLoading={isLoading} />
+            <QuizesContainer accessType="paid" dataLoading={isLoading} />
           </TabsContent>
         </Tabs>
       </main>
