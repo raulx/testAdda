@@ -6,6 +6,11 @@ import { useGetResultMutation } from "@/store/store";
 import { useEffect, useState } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { useParams } from "react-router-dom";
+import {
+  BsEmojiDizzy,
+  BsEmojiExpressionless,
+  BsEmojiGrin,
+} from "react-icons/bs";
 
 const SolutionsPage = () => {
   const [getResult, { isLoading, data }] = useGetResultMutation();
@@ -13,6 +18,8 @@ const SolutionsPage = () => {
   const { id } = useParams();
   const [questionNumber, setQuestionNumber] = useState<number>(0);
   const currentQuestion = data?.data.report[questionNumber];
+  const answerCorrect =
+    currentQuestion?.correct_answer === currentQuestion?.answer_marked;
 
   useEffect(() => {
     const getresult = async () => {
@@ -52,13 +59,40 @@ const SolutionsPage = () => {
       ) : (
         <div className="w-screen h-screen flex overflow-hidden">
           <div className="w-3/4 flex flex-col">
-            <h1 className="text-center p-4 bg-[#BDD5D6]">Solutions</h1>
+            <h1 className="text-center p-4 bg-[#BDD5D6] font-semibold">
+              Solutions
+            </h1>
             <div className="p-4 flex-1 h-3/4">
-              <div className="border-b p-2 text-lg flex items-center gap-2">
+              <div className="border-b p-2  justify-between text-lg flex items-center gap-2 font-semibold">
                 Question {questionNumber + 1}
+                <div className="flex justify-center gap-4 items-center text-sm mr-4">
+                  {answerCorrect && (
+                    <div className="text-[#358935] flex justify-center items-center gap-2">
+                      <BsEmojiGrin />
+                      Correct + 1
+                    </div>
+                  )}
+                  {currentQuestion?.answer_marked === "unattempted" && (
+                    <div className="text-[#777] flex justify-center items-center gap-2">
+                      <BsEmojiExpressionless />
+                      Unattempted
+                    </div>
+                  )}
+                  {currentQuestion?.answer_marked != "unattempted" &&
+                    !answerCorrect && (
+                      <div className="text-[#ed4e1f] flex justify-center items-center gap-2">
+                        <BsEmojiDizzy /> Wrong -0.25
+                      </div>
+                    )}
+
+                  <div>Time Taken : {currentQuestion?.time_taken}s</div>
+                  <div>
+                    Avg Ques Time : {currentQuestion?.average_question_time}s
+                  </div>
+                </div>
               </div>
               <div>
-                <TypographyP className="py-2 px-4">
+                <TypographyP className="py-2 px-4 h-16 font-semibold">
                   {currentQuestion?.question}
                 </TypographyP>
                 <div className="my-4 flex flex-col gap-2 px-4">
@@ -69,7 +103,11 @@ const SolutionsPage = () => {
                         className={`${
                           currentQuestion?.correct_answer === opt &&
                           "border border-green-600"
-                        } p-2 rounded `}
+                        } ${
+                          !answerCorrect &&
+                          currentQuestion?.answer_marked === opt &&
+                          "border border-red-600"
+                        } p-2 rounded font-semibold `}
                       >
                         {opt}) {currentQuestion?.options[opt]}
                       </div>
@@ -80,14 +118,14 @@ const SolutionsPage = () => {
               <div className="flex justify-end px-4 gap-4">
                 <Button
                   onClick={handlePrev}
-                  className="bg-[#22577A] rounded-full w-32"
+                  className="bg-[#22577A] rounded-full w-32 hover:bg-[#225679]"
                   size={"sm"}
                 >
                   Previous
                 </Button>
                 <Button
                   onClick={handleNext}
-                  className="bg-[#38A3A5] rounded-full w-32"
+                  className="bg-[#38A3A5] rounded-full w-32 hover:bg-[#389c9e]"
                   size={"sm"}
                 >
                   Next
@@ -95,9 +133,9 @@ const SolutionsPage = () => {
               </div>
             </div>
 
-            <div className="my-4 p-4 border-t border-bordergray flex-1 overflow-y-scroll">
+            <div className="my-4 p-4 border-t border-bordergray flex-1 ">
               <Tabs defaultValue="solution">
-                <TabsList className="bg-white ">
+                <TabsList className="bg-white font-semibold ">
                   <TabsTrigger
                     value="solution"
                     className="data-[state=active]:border-b border-bordergray "
@@ -117,7 +155,7 @@ const SolutionsPage = () => {
                     Raise Objection
                   </TabsTrigger>
                 </TabsList>
-                <div className="mt-2 px-4">
+                <div className="mt-2 px-4 font-semibold">
                   <TabsContent value="solution">
                     {currentQuestion?.explaination}
                   </TabsContent>
@@ -132,15 +170,20 @@ const SolutionsPage = () => {
             </div>
           </div>
           <div className="w-1/4 flex flex-col border-l">
-            <div className="p-4 bg-[#B7CDCE]">Attempts</div>
+            <div className="p-4 bg-[#B7CDCE] font-semibold">Attempts</div>
             <div className="px-4 py-8 grow ">
               <div className="flex flex-wrap gap-2">
                 {data?.data?.report.map(
                   (
                     {
+                      questionId,
                       answer_marked,
                       correct_answer,
-                    }: { answer_marked: string; correct_answer: string },
+                    }: {
+                      questionId: string;
+                      answer_marked: string;
+                      correct_answer: string;
+                    },
                     index: number
                   ) => {
                     return (
@@ -152,9 +195,20 @@ const SolutionsPage = () => {
                             correct_answer,
                           }),
                         }}
+                        className="relative"
                         onClick={() => setQuestionNumber(index)}
                       >
                         {index + 1}
+                        {questionId === currentQuestion?.questionId && (
+                          <div
+                            className="rounded-full absolute translate-y-1/2 bottom-1/4 left-1/2 -translate-x-1/2"
+                            style={{
+                              backgroundColor: "#fff",
+                              width: "9px",
+                              height: "3px",
+                            }}
+                          ></div>
+                        )}
                       </Button>
                     );
                   }
