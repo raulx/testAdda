@@ -281,7 +281,7 @@ export const AttemptWindow = ({
   else {
     render = (
       <div className="w-screen h-screen flex bg-white font-semibold">
-        <div className="w-3/4 flex flex-col ">
+        <div className="w-3/4 flex flex-col">
           <div
             className="flex w-full justify-center items-center p-2"
             style={{ backgroundColor: "#BDD5D6" }}
@@ -290,7 +290,7 @@ export const AttemptWindow = ({
           </div>
           <div className="flex-1 flex-col bg-white p-4">
             <div className="flex gap-2  items-center mx-4 mb-2">
-              <h1 className="" style={{ color: "#22577A" }}>
+              <h1 style={{ color: "#22577A" }}>
                 Question {questionNumber + 1}
               </h1>
             </div>

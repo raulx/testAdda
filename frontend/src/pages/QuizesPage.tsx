@@ -28,7 +28,7 @@ const QuizesContainer = ({
   return (
     <div className="flex flex-wrap gap-8 justify-center my-6 bg-jetstream py-12">
       {dataLoading ? (
-        <div className="h-96 flex justify-center items-center">
+        <div className="h-96 flex justify-center items-center bg-jetstream">
           <DoubleRingLoader />
         </div>
       ) : (
