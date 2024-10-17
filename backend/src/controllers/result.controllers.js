@@ -108,6 +108,7 @@ const generateReport = asyncHandler(async (attemptId) => {
                         question: '$question.question',
                         topic: '$question.topic',
                         average_question_time: '$question.avg_solving_time',
+                        options: '$question.options',
                         correct_answer: '$question.correct_option',
                         answer_marked: '$questions_attempted.answerMarked',
                         time_taken: '$questions_attempted.timeTaken',
