@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
-import Question from '../models/question.model.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { ApiError } from '../utils/ApiError.js';
+import Question from '../models/question.model.js';
 
 const addQuestion = asyncHandler(async (req, res) => {
     const {

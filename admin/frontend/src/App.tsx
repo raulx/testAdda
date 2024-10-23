@@ -3,6 +3,7 @@ import "./App.css";
 import Logo from "./components/Logo";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { MdOutlineQuiz } from "react-icons/md";
+import { Toaster } from "./components/ui/toaster";
 
 function App() {
   const location = useLocation().pathname;
@@ -46,6 +47,7 @@ function App() {
           <Outlet />
         </div>
       </main>
+      <Toaster />
     </>
   );
 }

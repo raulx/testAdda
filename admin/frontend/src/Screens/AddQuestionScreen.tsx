@@ -20,6 +20,12 @@ import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { HiOutlineDocumentAdd } from "react-icons/hi";
 
+import { useAddQuestionMutation } from "@/store/store";
+import { Loader1 } from "@/components/Loaders";
+import { useToast } from "@/hooks/use-toast";
+import { isFetchBaseQueryError } from "@/utils/helpers";
+import ApiResponseType from "@/utils/types";
+
 const questionSchema = z.object({
   question: z.string().min(2, {
     message: "question must be at least 2 characters.",
@@ -42,6 +48,9 @@ const questionSchema = z.object({
 });
 
 const AddQuestionScreen = () => {
+  const [addQuestion, { isLoading }] = useAddQuestionMutation();
+  const { toast } = useToast();
+
   const form = useForm<z.infer<typeof questionSchema>>({
     resolver: zodResolver(questionSchema),
     defaultValues: {
@@ -55,7 +64,32 @@ const AddQuestionScreen = () => {
     },
   });
 
-  function handleFormSubmit(values: z.infer<typeof questionSchema>) {
+  async function handleFormSubmit(values: z.infer<typeof questionSchema>) {
+    try {
+      const res = await addQuestion(values);
+      if (res.data) {
+        return toast({
+          title: "Sucessfully added",
+          description: res.data?.data.message,
+        });
+      }
+      if (res.error && isFetchBaseQueryError(res.error)) {
+        const serverError = res.error.data as ApiResponseType<object>;
+        return toast({
+          title: "Error",
+          description: serverError.message,
+          variant: "destructive",
+        });
+      } else {
+        return toast({
+          title: "Error Adding Test",
+          description: "err",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
     console.log(values);
   }
 
@@ -238,9 +272,15 @@ const AddQuestionScreen = () => {
                   </FormItem>
                 )}
               />
-              <Button className="bg-lightseagreen font-bold">
-                <HiOutlineDocumentAdd />
-                Add
+              <Button className="bg-lightseagreen font-bold hover:bg-lightseagreen">
+                {isLoading ? (
+                  <Loader1 className="loader h-4 w-4" />
+                ) : (
+                  <>
+                    <HiOutlineDocumentAdd />
+                    Add
+                  </>
+                )}
               </Button>
             </form>
           </Form>
