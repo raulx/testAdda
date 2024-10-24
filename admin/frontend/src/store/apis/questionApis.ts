@@ -1,12 +1,13 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { SERVER_BASE_URL } from "@/utils/constants";
-import { pause } from "@/utils/helpers";
+// import { pause } from "@/utils/helpers";
+
 const questionApis = createApi({
   reducerPath: "questionApis",
   baseQuery: fetchBaseQuery({
     baseUrl: `${SERVER_BASE_URL}/question`,
     fetchFn: async (...args) => {
-      await pause(3000);
+      // await pause(3000);
       return fetch(...args);
     },
   }),
@@ -20,8 +21,20 @@ const questionApis = createApi({
         };
       },
     }),
+    getAllQuestion: builder.query({
+      query: () => {
+        return {
+          url: "/getAllQuestions",
+          method: "GET",
+        };
+      },
+    }),
   }),
 });
 
-export const { useAddQuestionMutation } = questionApis;
+export const {
+  useAddQuestionMutation,
+  useGetAllQuestionQuery,
+  useLazyGetAllQuestionQuery,
+} = questionApis;
 export default questionApis;

@@ -20,7 +20,7 @@ function App() {
       </header>
 
       <main className="flex min-h-screen">
-        <aside className="flex flex-col gap-4 p-4 border-r border-gray-300">
+        <aside className="flex flex-col gap-4 p-4 border-r border-gray-300 min-w-44">
           <Link to={"/"}>
             <div
               className={`text-sm  rounded-lg p-2 cursor-pointer flex items-center gap-2 transition-all duration-300 ${

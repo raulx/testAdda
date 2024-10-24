@@ -46,4 +46,9 @@ const addQuestion = asyncHandler(async (req, res) => {
     res.json(new ApiResponse(200, newQuestion, 'Question added successfully'));
 });
 
-export { addQuestion };
+const getAllQuestions = asyncHandler(async (req, res) => {
+    const question = await Question.find({});
+
+    res.json(new ApiResponse(200, question, 'All questions'));
+});
+export { addQuestion, getAllQuestions };

@@ -19,12 +19,23 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { HiOutlineDocumentAdd } from "react-icons/hi";
-
-import { useAddQuestionMutation } from "@/store/store";
+import { useAddQuestionMutation, useGetAllQuestionQuery } from "@/store/store";
 import { Loader1 } from "@/components/Loaders";
 import { useToast } from "@/hooks/use-toast";
-import { isFetchBaseQueryError } from "@/utils/helpers";
+import { formatDate, isFetchBaseQueryError } from "@/utils/helpers";
 import ApiResponseType from "@/utils/types";
+import { Label } from "@/components/ui/label";
+import { Key, useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { FaSearch, FaTrash } from "react-icons/fa";
 
 const questionSchema = z.object({
   question: z.string().min(2, {
@@ -49,7 +60,10 @@ const questionSchema = z.object({
 
 const AddQuestionScreen = () => {
   const [addQuestion, { isLoading }] = useAddQuestionMutation();
+  const { data, isFetching } = useGetAllQuestionQuery(null);
   const { toast } = useToast();
+  const [value, setValue] = useState("All");
+  const [questionNumber, setQuestionNumber] = useState(0);
 
   const form = useForm<z.infer<typeof questionSchema>>({
     resolver: zodResolver(questionSchema),
@@ -93,11 +107,12 @@ const AddQuestionScreen = () => {
     console.log(values);
   }
 
+  if (data) console.log(data);
   return (
     <div className="h-full w-full flex p-4 gap-3">
-      <div className="bg-white rounded shadow-custom-2 flex flex-col gap-4 p-4 w-1/2">
+      <div className="bg-white rounded shadow-custom-2 flex flex-col gap-4 p-4 w-[45%]">
         <h1 className="text-center">Add New Question</h1>
-        <div className=" bg-gray-50 px-4 py-6 ">
+        <div className="bg-gray-50 px-4 py-6 ">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleFormSubmit)}
@@ -286,7 +301,107 @@ const AddQuestionScreen = () => {
           </Form>
         </div>
       </div>
-      <div className="border rounded border-gray-300 w-1/2">Form 2</div>
+      <div className="border rounded border-gray-300 w-[55%] p-2 flex flex-col gap-4">
+        <div className="p-6 text-sm border rounded-xl shadow-custom-2 border-gray-300 flex flex-col gap-4 bg-white">
+          <h1>Q) {data?.data[questionNumber].question}</h1>
+          <div className="flex gap-4 ">
+            <div>a) {data?.data[questionNumber].options.a}</div>
+            <div>b) {data?.data[questionNumber].options.b}</div>
+          </div>
+          <div className="flex gap-4">
+            <div>c) {data?.data[questionNumber].options.c}</div>
+            <div>d) {data?.data[questionNumber].options.d}</div>
+          </div>
+        </div>
+        <div className="p-6 text-sm border rounded-xl border-gray-300 bg-white shadow-custom-2 max-h-[700px] overflow-y-scroll ">
+          <div className="flex gap-4">
+            <div className="grow flex flex-col gap-2">
+              <Label htmlFor="question input">Search By Question</Label>
+              <div className="flex gap-2 grow">
+                <Input id="question input" placeholder="Enter Question" />
+                <Button className="bg-lightseagreen hover:bg-lightseagreen">
+                  <FaSearch />
+                </Button>
+              </div>
+            </div>
+            <div className="min-w-48 flex flex-col gap-2">
+              <Label>Select Subject</Label>
+              <Select value={value} onValueChange={setValue}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All</SelectItem>
+                  <SelectItem value="English">English</SelectItem>
+                  <SelectItem value="Reasoning">Reasoning</SelectItem>
+                  <SelectItem value="Mathematics">Mathematics</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <hr className="h-[2px] bg-gray-300 my-6" />
+          {isFetching ? (
+            <div>Fetching...</div>
+          ) : (
+            <Table className="text-xs">
+              <TableCaption>All Questions Present in the Database</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Added On</TableHead>
+                  <TableHead>Quiz Id</TableHead>
+                  <TableHead>Difficulty</TableHead>
+                  <TableHead>Subject</TableHead>
+                  <TableHead>Topic</TableHead>
+                  <TableHead>Delete</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data?.data.map(
+                  (
+                    d: {
+                      quiz_id: string | null | undefined;
+                      _id: Key | null | undefined;
+                      difficulty: string;
+                      subject: string;
+                      topic: string;
+                      createdAt: string;
+                    },
+                    index: number
+                  ) => {
+                    return (
+                      <TableRow
+                        key={d._id}
+                        onClick={() => setQuestionNumber(index)}
+                        className={`cursor-pointer ${
+                          questionNumber === index &&
+                          "border-2  rounded-2xl border-black"
+                        }`}
+                      >
+                        <TableCell>{formatDate(d.createdAt)}</TableCell>
+                        <TableCell>
+                          {d.quiz_id ? (
+                            d.quiz_id
+                          ) : (
+                            <span className="w-full flex justify-center items-center text-xl">
+                              -
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>{d.difficulty}</TableCell>
+                        <TableCell>{d.subject}</TableCell>
+                        <TableCell>{d.topic}</TableCell>
+                        <TableCell>
+                          <FaTrash />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }
+                )}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
