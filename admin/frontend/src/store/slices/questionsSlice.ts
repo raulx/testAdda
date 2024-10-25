@@ -23,6 +23,8 @@ const initialState: InitialStateType = {
     },
   ],
 };
+
+
 const questionsSlice = createSlice({
   name: "Questions",
   initialState: initialState,
@@ -34,7 +36,7 @@ const questionsSlice = createSlice({
       state.data.push(action.payload);
     },
     dropQuestion(state, action: PayloadAction<string>) {
-      state.data.filter((d) => d._id != action.payload);
+      state.data = state.data.filter((d) => d._id != action.payload);
     },
   },
 });

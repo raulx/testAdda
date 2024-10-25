@@ -32,7 +32,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDate, isFetchBaseQueryError } from "@/utils/helpers";
 import ApiResponseType from "@/utils/types";
 import { Label } from "@/components/ui/label";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -69,7 +69,13 @@ const questionSchema = z.object({
   }),
 });
 
-const DeleteButton = ({ _id }: { _id: string }) => {
+const DeleteButton = ({
+  _id,
+  setQuestionNumber,
+}: {
+  _id: string;
+  setQuestionNumber: React.Dispatch<SetStateAction<number>>;
+}) => {
   const { toast } = useToast();
   const [removeQuestion, { isLoading: isDeleting }] =
     useRemoveQuestionMutation();
@@ -78,13 +84,13 @@ const DeleteButton = ({ _id }: { _id: string }) => {
   const handleDeleteQuestion = async () => {
     try {
       const res = await removeQuestion({ _id });
-      console.log(res);
       if (res.data) {
         dispatch(dropQuestion(res.data?.data._id));
-        return toast({
-          title: "Success",
-          description: "Sucessfully Deleted Question",
+        setQuestionNumber((prevValue) => {
+          if (prevValue === 0) return 0;
+          else return (prevValue -= 1);
         });
+        return;
       }
 
       if (res.error && isFetchBaseQueryError(res.error)) {
@@ -96,8 +102,8 @@ const DeleteButton = ({ _id }: { _id: string }) => {
         });
       } else {
         return toast({
-          title: "Error Adding Test",
-          description: "err",
+          title: "Error Deleting Question",
+          description: "Client Error !",
           variant: "destructive",
         });
       }
@@ -105,12 +111,14 @@ const DeleteButton = ({ _id }: { _id: string }) => {
       console.log(error);
     }
   };
+
   return (
     <button onClick={handleDeleteQuestion} disabled={isDeleting}>
       {isDeleting ? <FaSpinner className="animate-spin" /> : <FaTrash />}
     </button>
   );
 };
+
 const AddQuestionScreen = () => {
   const [addQuestion, { isLoading }] = useAddQuestionMutation();
   const [getAllQuestions, { isLoading: isFetching }] =
@@ -123,7 +131,7 @@ const AddQuestionScreen = () => {
   const dispatch = UseAppDispatch();
   const { toast } = useToast();
   const [value, setValue] = useState("All");
-  const [questionNumber, setQuestionNumber] = useState(0);
+  const [questionNumber, setQuestionNumber] = useState<number>(0);
 
   const form = useForm<z.infer<typeof questionSchema>>({
     resolver: zodResolver(questionSchema),
@@ -143,10 +151,7 @@ const AddQuestionScreen = () => {
       const res = await addQuestion(values);
       if (res.data) {
         dispatch(addNewQuestion(res.data.data));
-        return toast({
-          title: "Sucessfully added",
-          description: res.data?.message,
-        });
+        return;
       }
       if (res.error && isFetchBaseQueryError(res.error)) {
         const serverError = res.error.data as ApiResponseType<object>;
@@ -157,8 +162,8 @@ const AddQuestionScreen = () => {
         });
       } else {
         return toast({
-          title: "Error Adding Test",
-          description: "err",
+          title: "Error Adding Question",
+          description: "Client Error !",
           variant: "destructive",
         });
       }
@@ -383,14 +388,14 @@ const AddQuestionScreen = () => {
       ) : (
         <div className=" w-[60%] flex flex-col gap-4">
           <div className="p-6 text-sm border min-h-48 rounded-xl shadow-custom-2 border-gray-300 flex flex-col gap-4 bg-white">
-            <h1>Q) {questions.data[questionNumber].question}</h1>
+            <h1>Q) {questions.data[questionNumber]?.question}</h1>
             <div className="flex gap-4 ">
-              <div>a) {questions.data[questionNumber].options.a}</div>
-              <div>b) {questions.data[questionNumber].options.b}</div>
+              <div>a) {questions.data[questionNumber]?.options.a}</div>
+              <div>b) {questions.data[questionNumber]?.options.b}</div>
             </div>
             <div className="flex gap-4">
-              <div>c) {questions.data[questionNumber].options.c}</div>
-              <div>d) {questions.data[questionNumber].options.d}</div>
+              <div>c) {questions.data[questionNumber]?.options.c}</div>
+              <div>d) {questions.data[questionNumber]?.options.d}</div>
             </div>
           </div>
           <div className="p-6 text-sm border rounded-xl border-gray-300 bg-white shadow-custom-2">
@@ -459,7 +464,10 @@ const AddQuestionScreen = () => {
                         <TableCell>{d.subject}</TableCell>
                         <TableCell>{d.topic}</TableCell>
                         <TableCell>
-                          <DeleteButton _id={d._id} />
+                          <DeleteButton
+                            _id={d._id}
+                            setQuestionNumber={setQuestionNumber}
+                          />
                         </TableCell>
                       </TableRow>
                     );
