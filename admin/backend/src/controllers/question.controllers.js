@@ -51,4 +51,23 @@ const getAllQuestions = asyncHandler(async (req, res) => {
 
     res.json(new ApiResponse(200, question, 'All questions'));
 });
-export { addQuestion, getAllQuestions };
+
+const removeQuestion = asyncHandler(async (req, res) => {
+    const { _id } = req.body;
+
+    if (!_id) new ApiError(400, 'Question Id is required');
+
+    const question = await Question.findById({ _id: _id });
+
+    if (question.quiz_id)
+        throw new ApiError(
+            409,
+            "Question is present in a quiz, can't be deleted"
+        );
+
+    await Question.findByIdAndDelete({ _id: _id });
+
+    res.json(new ApiResponse(200, question, 'question deleted successfully'));
+});
+
+export { addQuestion, getAllQuestions, removeQuestion };

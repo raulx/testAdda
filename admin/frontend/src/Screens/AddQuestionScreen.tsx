@@ -19,13 +19,20 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { HiOutlineDocumentAdd } from "react-icons/hi";
-import { useAddQuestionMutation, useGetAllQuestionQuery } from "@/store/store";
-import { Loader1 } from "@/components/Loaders";
+import {
+  addNewQuestion,
+  dropQuestion,
+  RootState,
+  setQuestions,
+  useAddQuestionMutation,
+  useLazyGetAllQuestionQuery,
+  useRemoveQuestionMutation,
+} from "@/store/store";
 import { useToast } from "@/hooks/use-toast";
 import { formatDate, isFetchBaseQueryError } from "@/utils/helpers";
 import ApiResponseType from "@/utils/types";
 import { Label } from "@/components/ui/label";
-import { Key, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -35,7 +42,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FaSearch, FaTrash } from "react-icons/fa";
+import { FaSearch, FaSpinner, FaTrash } from "react-icons/fa";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ImSpinner9 } from "react-icons/im";
+import { UseAppDispatch } from "@/hooks/useAppDispatch";
+import { useSelector } from "react-redux";
 
 const questionSchema = z.object({
   question: z.string().min(2, {
@@ -58,9 +69,58 @@ const questionSchema = z.object({
   }),
 });
 
+const DeleteButton = ({ _id }: { _id: string }) => {
+  const { toast } = useToast();
+  const [removeQuestion, { isLoading: isDeleting }] =
+    useRemoveQuestionMutation();
+
+  const dispatch = UseAppDispatch();
+  const handleDeleteQuestion = async () => {
+    try {
+      const res = await removeQuestion({ _id });
+      console.log(res);
+      if (res.data) {
+        dispatch(dropQuestion(res.data?.data._id));
+        return toast({
+          title: "Success",
+          description: "Sucessfully Deleted Question",
+        });
+      }
+
+      if (res.error && isFetchBaseQueryError(res.error)) {
+        const serverError = res.error.data as ApiResponseType<object>;
+        return toast({
+          title: "Error",
+          description: serverError.message,
+          variant: "destructive",
+        });
+      } else {
+        return toast({
+          title: "Error Adding Test",
+          description: "err",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  return (
+    <button onClick={handleDeleteQuestion} disabled={isDeleting}>
+      {isDeleting ? <FaSpinner className="animate-spin" /> : <FaTrash />}
+    </button>
+  );
+};
 const AddQuestionScreen = () => {
   const [addQuestion, { isLoading }] = useAddQuestionMutation();
-  const { data, isFetching } = useGetAllQuestionQuery(null);
+  const [getAllQuestions, { isLoading: isFetching }] =
+    useLazyGetAllQuestionQuery();
+
+  const questions = useSelector((store: RootState) => {
+    return store.questions;
+  });
+
+  const dispatch = UseAppDispatch();
   const { toast } = useToast();
   const [value, setValue] = useState("All");
   const [questionNumber, setQuestionNumber] = useState(0);
@@ -82,9 +142,10 @@ const AddQuestionScreen = () => {
     try {
       const res = await addQuestion(values);
       if (res.data) {
+        dispatch(addNewQuestion(res.data.data));
         return toast({
           title: "Sucessfully added",
-          description: res.data?.data.message,
+          description: res.data?.message,
         });
       }
       if (res.error && isFetchBaseQueryError(res.error)) {
@@ -107,10 +168,24 @@ const AddQuestionScreen = () => {
     console.log(values);
   }
 
-  if (data) console.log(data);
+  useEffect(() => {
+    const fetchAllQuestion = async () => {
+      try {
+        const res = await getAllQuestions(null);
+        console.log(res);
+        if (res.data) {
+          dispatch(setQuestions(res.data?.data));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchAllQuestion();
+  }, [dispatch, getAllQuestions]);
+
   return (
     <div className="h-full w-full flex p-4 gap-3">
-      <div className="bg-white rounded shadow-custom-2 flex flex-col gap-4 p-4 w-[45%]">
+      <div className="bg-white rounded shadow-custom-2 flex flex-col gap-4 p-4 w-[40%] max-h-fit">
         <h1 className="text-center">Add New Question</h1>
         <div className="bg-gray-50 px-4 py-6 ">
           <Form {...form}>
@@ -289,7 +364,7 @@ const AddQuestionScreen = () => {
               />
               <Button className="bg-lightseagreen font-bold hover:bg-lightseagreen">
                 {isLoading ? (
-                  <Loader1 className="loader h-4 w-4" />
+                  <span className="loader h-4 w-4"></span>
                 ) : (
                   <>
                     <HiOutlineDocumentAdd />
@@ -301,80 +376,73 @@ const AddQuestionScreen = () => {
           </Form>
         </div>
       </div>
-      <div className="border rounded border-gray-300 w-[55%] p-2 flex flex-col gap-4">
-        <div className="p-6 text-sm border rounded-xl shadow-custom-2 border-gray-300 flex flex-col gap-4 bg-white">
-          <h1>Q) {data?.data[questionNumber].question}</h1>
-          <div className="flex gap-4 ">
-            <div>a) {data?.data[questionNumber].options.a}</div>
-            <div>b) {data?.data[questionNumber].options.b}</div>
-          </div>
-          <div className="flex gap-4">
-            <div>c) {data?.data[questionNumber].options.c}</div>
-            <div>d) {data?.data[questionNumber].options.d}</div>
-          </div>
+      {isFetching ? (
+        <div className="w-[60%] h-[600px] flex justify-center items-center">
+          <ImSpinner9 className="animate-spin text-3xl text-lightseagreen" />
         </div>
-        <div className="p-6 text-sm border rounded-xl border-gray-300 bg-white shadow-custom-2 max-h-[700px] overflow-y-scroll ">
-          <div className="flex gap-4">
-            <div className="grow flex flex-col gap-2">
-              <Label htmlFor="question input">Search By Question</Label>
-              <div className="flex gap-2 grow">
-                <Input id="question input" placeholder="Enter Question" />
-                <Button className="bg-lightseagreen hover:bg-lightseagreen">
-                  <FaSearch />
-                </Button>
+      ) : (
+        <div className=" w-[60%] flex flex-col gap-4">
+          <div className="p-6 text-sm border min-h-48 rounded-xl shadow-custom-2 border-gray-300 flex flex-col gap-4 bg-white">
+            <h1>Q) {questions.data[questionNumber].question}</h1>
+            <div className="flex gap-4 ">
+              <div>a) {questions.data[questionNumber].options.a}</div>
+              <div>b) {questions.data[questionNumber].options.b}</div>
+            </div>
+            <div className="flex gap-4">
+              <div>c) {questions.data[questionNumber].options.c}</div>
+              <div>d) {questions.data[questionNumber].options.d}</div>
+            </div>
+          </div>
+          <div className="p-6 text-sm border rounded-xl border-gray-300 bg-white shadow-custom-2">
+            <div className="flex gap-4">
+              <div className="grow flex flex-col gap-2">
+                <Label htmlFor="question input">Search By Question</Label>
+                <div className="flex gap-2 grow">
+                  <Input id="question input" placeholder="Enter Question" />
+                  <Button className="bg-lightseagreen hover:bg-lightseagreen">
+                    <FaSearch />
+                  </Button>
+                </div>
+              </div>
+              <div className="min-w-48 flex flex-col gap-2">
+                <Label>Select Subject</Label>
+                <Select value={value} onValueChange={setValue}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">All</SelectItem>
+                    <SelectItem value="English">English</SelectItem>
+                    <SelectItem value="Reasoning">Reasoning</SelectItem>
+                    <SelectItem value="Mathematics">Mathematics</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            <div className="min-w-48 flex flex-col gap-2">
-              <Label>Select Subject</Label>
-              <Select value={value} onValueChange={setValue}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">All</SelectItem>
-                  <SelectItem value="English">English</SelectItem>
-                  <SelectItem value="Reasoning">Reasoning</SelectItem>
-                  <SelectItem value="Mathematics">Mathematics</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <hr className="h-[2px] bg-gray-300 my-6" />
-          {isFetching ? (
-            <div>Fetching...</div>
-          ) : (
-            <Table className="text-xs">
-              <TableCaption>All Questions Present in the Database</TableCaption>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Added On</TableHead>
-                  <TableHead>Quiz Id</TableHead>
-                  <TableHead>Difficulty</TableHead>
-                  <TableHead>Subject</TableHead>
-                  <TableHead>Topic</TableHead>
-                  <TableHead>Delete</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data?.data.map(
-                  (
-                    d: {
-                      quiz_id: string | null | undefined;
-                      _id: Key | null | undefined;
-                      difficulty: string;
-                      subject: string;
-                      topic: string;
-                      createdAt: string;
-                    },
-                    index: number
-                  ) => {
+            <hr className="h-[2px] bg-gray-300 my-6" />
+            <ScrollArea className="  h-[600px] px-2">
+              <Table className="text-xs">
+                <TableCaption>
+                  All Questions Present in the Database
+                </TableCaption>
+                <TableHeader>
+                  <TableRow className="bg-lightseagreen hover:bg-lightseagreen">
+                    <TableHead className="text-white">Added On</TableHead>
+                    <TableHead className="text-white">Quiz Id</TableHead>
+                    <TableHead className="text-white">Difficulty</TableHead>
+                    <TableHead className="text-white">Subject</TableHead>
+                    <TableHead className="text-white">Topic</TableHead>
+                    <TableHead className="text-white">Delete</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {questions?.data.map((d, index: number) => {
                     return (
                       <TableRow
                         key={d._id}
                         onClick={() => setQuestionNumber(index)}
-                        className={`cursor-pointer ${
-                          questionNumber === index &&
-                          "border-2  rounded-2xl border-black"
+                        className={`cursor-pointer  my-2 ${
+                          questionNumber === index && "bg-gray-100"
                         }`}
                       >
                         <TableCell>{formatDate(d.createdAt)}</TableCell>
@@ -391,17 +459,17 @@ const AddQuestionScreen = () => {
                         <TableCell>{d.subject}</TableCell>
                         <TableCell>{d.topic}</TableCell>
                         <TableCell>
-                          <FaTrash />
+                          <DeleteButton _id={d._id} />
                         </TableCell>
                       </TableRow>
                     );
-                  }
-                )}
-              </TableBody>
-            </Table>
-          )}
+                  })}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
