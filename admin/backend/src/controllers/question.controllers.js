@@ -70,4 +70,21 @@ const removeQuestion = asyncHandler(async (req, res) => {
     res.json(new ApiResponse(200, question, 'question deleted successfully'));
 });
 
-export { addQuestion, getAllQuestions, removeQuestion };
+const questionSearch = asyncHandler(async (req, res) => {
+    const { questionText } = req.query;
+
+    let foundQuestion;
+    if (questionText === '') {
+        foundQuestion = await Question.find({});
+    } else {
+        foundQuestion = await Question.aggregate([
+            {
+                $match: {
+                    question: { $regex: questionText, $options: 'i' },
+                },
+            },
+        ]);
+    }
+    res.json(new ApiResponse(200, foundQuestion, 'questions present by query'));
+});
+export { addQuestion, getAllQuestions, removeQuestion, questionSearch };

@@ -26,13 +26,14 @@ import {
   setQuestions,
   useAddQuestionMutation,
   useLazyGetAllQuestionQuery,
+  useLazyQuestionSearchQuery,
   useRemoveQuestionMutation,
 } from "@/store/store";
 import { useToast } from "@/hooks/use-toast";
 import { formatDate, isFetchBaseQueryError } from "@/utils/helpers";
 import ApiResponseType from "@/utils/types";
 import { Label } from "@/components/ui/label";
-import { SetStateAction, useEffect, useState } from "react";
+import { ChangeEvent, SetStateAction, useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -42,7 +43,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FaSearch, FaSpinner, FaTrash } from "react-icons/fa";
+import { FaSpinner, FaTrash } from "react-icons/fa";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ImSpinner9 } from "react-icons/im";
 import { UseAppDispatch } from "@/hooks/useAppDispatch";
@@ -123,15 +124,16 @@ const AddQuestionScreen = () => {
   const [addQuestion, { isLoading }] = useAddQuestionMutation();
   const [getAllQuestions, { isLoading: isFetching }] =
     useLazyGetAllQuestionQuery();
-
   const questions = useSelector((store: RootState) => {
     return store.questions;
   });
 
   const dispatch = UseAppDispatch();
   const { toast } = useToast();
-  const [value, setValue] = useState("All");
+  const [value, setValue] = useState("all");
   const [questionNumber, setQuestionNumber] = useState<number>(0);
+  const [questionSearch, { isFetching: isQuestionSearching }] =
+    useLazyQuestionSearchQuery();
 
   const form = useForm<z.infer<typeof questionSchema>>({
     resolver: zodResolver(questionSchema),
@@ -151,6 +153,7 @@ const AddQuestionScreen = () => {
       const res = await addQuestion(values);
       if (res.data) {
         dispatch(addNewQuestion(res.data.data));
+        form.reset();
         return;
       }
       if (res.error && isFetchBaseQueryError(res.error)) {
@@ -170,14 +173,37 @@ const AddQuestionScreen = () => {
     } catch (error) {
       console.log(error);
     }
-    console.log(values);
   }
 
+  const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    try {
+      const res = await questionSearch(e.target.value);
+      if (res.data) {
+        dispatch(setQuestions(res.data?.data));
+        return;
+      }
+      if (res.error && isFetchBaseQueryError(res.error)) {
+        const serverError = res.error.data as ApiResponseType<object>;
+        return toast({
+          title: "Error",
+          description: serverError.message,
+          variant: "destructive",
+        });
+      } else {
+        return toast({
+          title: "Error Adding Question",
+          description: "Client Error !",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
     const fetchAllQuestion = async () => {
       try {
         const res = await getAllQuestions(null);
-        console.log(res);
         if (res.data) {
           dispatch(setQuestions(res.data?.data));
         }
@@ -187,6 +213,11 @@ const AddQuestionScreen = () => {
     };
     fetchAllQuestion();
   }, [dispatch, getAllQuestions]);
+
+  const data = questions.data.filter((q) => {
+    if (value === "all") return q;
+    else return q.subject === value;
+  });
 
   return (
     <div className="h-full w-full flex p-4 gap-3">
@@ -387,7 +418,7 @@ const AddQuestionScreen = () => {
         </div>
       ) : (
         <div className=" w-[60%] flex flex-col gap-4">
-          <div className="p-6 text-sm border min-h-48 rounded-xl shadow-custom-2 border-gray-300 flex flex-col gap-4 bg-white">
+          <div className="p-6 text-sm border min-h-56 rounded-xl shadow-custom-2 border-gray-300 flex flex-col gap-4 bg-white">
             <h1>Q) {questions.data[questionNumber]?.question}</h1>
             <div className="flex gap-4 ">
               <div>a) {questions.data[questionNumber]?.options.a}</div>
@@ -403,10 +434,11 @@ const AddQuestionScreen = () => {
               <div className="grow flex flex-col gap-2">
                 <Label htmlFor="question input">Search By Question</Label>
                 <div className="flex gap-2 grow">
-                  <Input id="question input" placeholder="Enter Question" />
-                  <Button className="bg-lightseagreen hover:bg-lightseagreen">
-                    <FaSearch />
-                  </Button>
+                  <Input
+                    id="question input"
+                    placeholder="Enter Question"
+                    onChange={(e) => handleChange(e)}
+                  />
                 </div>
               </div>
               <div className="min-w-48 flex flex-col gap-2">
@@ -416,65 +448,77 @@ const AddQuestionScreen = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="All">All</SelectItem>
-                    <SelectItem value="English">English</SelectItem>
-                    <SelectItem value="Reasoning">Reasoning</SelectItem>
-                    <SelectItem value="Mathematics">Mathematics</SelectItem>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="english">English</SelectItem>
+                    <SelectItem value="reasoning">Reasoning</SelectItem>
+                    <SelectItem value="mathematics">Mathematics</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <hr className="h-[2px] bg-gray-300 my-6" />
-            <ScrollArea className="  h-[600px] px-2">
-              <Table className="text-xs">
-                <TableCaption>
-                  All Questions Present in the Database
-                </TableCaption>
-                <TableHeader>
-                  <TableRow className="bg-lightseagreen hover:bg-lightseagreen">
-                    <TableHead className="text-white">Added On</TableHead>
-                    <TableHead className="text-white">Quiz Id</TableHead>
-                    <TableHead className="text-white">Difficulty</TableHead>
-                    <TableHead className="text-white">Subject</TableHead>
-                    <TableHead className="text-white">Topic</TableHead>
-                    <TableHead className="text-white">Delete</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {questions?.data.map((d, index: number) => {
-                    return (
-                      <TableRow
-                        key={d._id}
-                        onClick={() => setQuestionNumber(index)}
-                        className={`cursor-pointer  my-2 ${
-                          questionNumber === index && "bg-gray-100"
-                        }`}
-                      >
-                        <TableCell>{formatDate(d.createdAt)}</TableCell>
-                        <TableCell>
-                          {d.quiz_id ? (
-                            d.quiz_id
-                          ) : (
-                            <span className="w-full flex justify-center items-center text-xl">
-                              -
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell>{d.difficulty}</TableCell>
-                        <TableCell>{d.subject}</TableCell>
-                        <TableCell>{d.topic}</TableCell>
-                        <TableCell>
-                          <DeleteButton
-                            _id={d._id}
-                            setQuestionNumber={setQuestionNumber}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </ScrollArea>
+            {isQuestionSearching ? (
+              <div className="h-[300px] flex justify-center items-center">
+                <ImSpinner9 className="text-lightseagreen text-3xl animate-spin" />
+              </div>
+            ) : (
+              <ScrollArea className="  h-[600px] px-2">
+                <Table className="text-xs">
+                  <TableCaption>
+                    All Questions Present in the Database
+                  </TableCaption>
+                  <TableHeader>
+                    <TableRow className="bg-lightseagreen hover:bg-lightseagreen">
+                      <TableHead className="text-white">Added On</TableHead>
+                      <TableHead className="text-white">Quiz Id</TableHead>
+                      <TableHead className="text-white">Difficulty</TableHead>
+                      <TableHead className="text-white">Subject</TableHead>
+                      <TableHead className="text-white">Topic</TableHead>
+                      <TableHead className="text-white">Delete</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {data.map((d, index: number) => {
+                      return (
+                        <TableRow
+                          key={d._id}
+                          onClick={() => setQuestionNumber(index)}
+                          className={`cursor-pointer  my-2 ${
+                            questionNumber === index && "bg-gray-100"
+                          }`}
+                        >
+                          <TableCell>{formatDate(d.createdAt)}</TableCell>
+                          <TableCell>
+                            {d.quiz_id ? (
+                              d.quiz_id
+                            ) : (
+                              <span className="w-full flex justify-center items-center text-xl">
+                                -
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell className="capitalize">
+                            {d.difficulty}
+                          </TableCell>
+                          <TableCell className=" capitalize">
+                            {d.subject}
+                          </TableCell>
+                          <TableCell className="capitalize">
+                            {d.topic}
+                          </TableCell>
+                          <TableCell>
+                            <DeleteButton
+                              _id={d._id}
+                              setQuestionNumber={setQuestionNumber}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            )}
           </div>
         </div>
       )}

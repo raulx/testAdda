@@ -6,7 +6,6 @@ const questionSchema = new Schema(
             type: String,
             required: true,
             unique: true,
-            lowercase: true,
         },
 
         topic: { type: String, required: true, lowercase: true },

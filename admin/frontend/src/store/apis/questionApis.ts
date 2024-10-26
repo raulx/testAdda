@@ -58,6 +58,14 @@ const questionApis = createApi({
         };
       },
     }),
+    questionSearch: builder.query({
+      query: (text) => {
+        return {
+          url: `/questionSearch?questionText=${text}`,
+          method: "GET",
+        };
+      },
+    }),
     removeQuestion: builder.mutation<
       ApiResponse<QuestionData>,
       { _id: string }
@@ -78,5 +86,6 @@ export const {
   useGetAllQuestionQuery,
   useLazyGetAllQuestionQuery,
   useRemoveQuestionMutation,
+  useLazyQuestionSearchQuery,
 } = questionApis;
 export default questionApis;
