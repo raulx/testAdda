@@ -24,7 +24,6 @@ const initialState: InitialStateType = {
   ],
 };
 
-
 const questionsSlice = createSlice({
   name: "Questions",
   initialState: initialState,
