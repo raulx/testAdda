@@ -12,6 +12,7 @@ const addQuestion = asyncHandler(async (req, res) => {
         options,
         correct_option,
         explaination,
+        exam,
     } = req.body;
 
     if (
@@ -20,8 +21,8 @@ const addQuestion = asyncHandler(async (req, res) => {
             topic,
             subject,
             difficulty,
-
             correct_option,
+            exam,
             explaination,
         ].some((field) => field?.trim() === '') ||
         options == {}
@@ -40,6 +41,7 @@ const addQuestion = asyncHandler(async (req, res) => {
         subject: subject,
         difficulty: difficulty,
         options: options,
+        exam: exam,
         correct_option: correct_option,
         explaination: explaination,
     });

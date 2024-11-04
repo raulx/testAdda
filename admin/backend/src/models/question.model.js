@@ -15,7 +15,7 @@ const questionSchema = new Schema(
             required: true,
             enum: ['mathematics', 'reasoning', 'english'],
         },
-
+        exam: { type: String, required: true },
         difficulty: {
             type: String,
             required: true,

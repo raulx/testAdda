@@ -11,6 +11,9 @@ export type QuestionData = {
   explaination: string;
   options: { a: string; b: string; c: string; d: string };
   question: string;
+  exam:string;
+
+  
   subject: string;
   topic: string;
   quiz_id: string | null | undefined;

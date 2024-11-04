@@ -63,6 +63,7 @@ const questionSchema = z.object({
     message: "Topic must be at least 2 characters",
   }),
   difficulty: z.string().min(2, { message: "Select a  Difficulty" }),
+  exam: z.string().min(2, { message: "Enter exam that question appeared for" }),
   correct_option: z.string().min(1, { message: "Select Correct Option" }),
   subject: z.string().min(2, { message: "Select Subject" }),
   explaination: z.string().min(2, {
@@ -250,78 +251,78 @@ const QuestionsDisplay = () => {
                 </Select>
               </div>
             </div>
-            <hr className="h-[2px] bg-gray-300 my-6" />
+            <hr className="h-[2px] bg-gray-300 my-4" />
             {isQuestionSearching ? (
               <div className="h-[600px] flex justify-center items-center">
                 <ImSpinner9 className="text-lightseagreen text-3xl animate-spin" />
               </div>
             ) : (
-              <div className="h-[600px] overflow-y-scroll overflow-x-hidden  scrollbar-thin">
-                <Table className="text-xs">
-                  <TableCaption
-                    onClick={handleClick}
-                    className="cursor-pointer"
-                  >
-                    {noQuestion ? (
-                      <>No Question Found</>
-                    ) : (
-                      <div className="flex flex-col gap-1 hover:gap-2 transition-all duration-200 p-4 w-1/4 items-center justify-center my-4">
-                        Load More <FaArrowDown />
-                      </div>
-                    )}
-                  </TableCaption>
-                  <TableHeader>
-                    <TableRow className="bg-lightseagreen hover:bg-lightseagreen">
-                      <TableHead className="text-white">Added On</TableHead>
-                      <TableHead className="text-white">Quiz Id</TableHead>
-                      <TableHead className="text-white">Difficulty</TableHead>
-                      <TableHead className="text-white">Subject</TableHead>
-                      <TableHead className="text-white">Topic</TableHead>
-                      <TableHead className="text-white">Delete</TableHead>
-                    </TableRow>
-                  </TableHeader>
+              <div className="flex flex-col gap-2">
+                <span className=" self-end mr-4 font-semibold text-darkcerulean">
+                  Total : {data.length}
+                </span>
+                <div className="max-h-[600px] overflow-y-scroll overflow-x-hidden scrollbar-thin">
+                  <Table className="text-xs">
+                    <TableCaption
+                      onClick={handleClick}
+                      className="cursor-pointer"
+                    >
+                      {noQuestion ? (
+                        <>No Question Found</>
+                      ) : (
+                        <div className="flex flex-col gap-1 transition-all duration-200 w-1/4 items-center justify-center">
+                          Load More <FaArrowDown />
+                        </div>
+                      )}
+                    </TableCaption>
+                    <TableHeader>
+                      <TableRow className="bg-lightseagreen hover:bg-lightseagreen">
+                        <TableHead className="text-white">Added On</TableHead>
+                        {/* <TableHead className="text-white">Quiz Id</TableHead> */}
+                        <TableHead className="text-white">Exam</TableHead>
+                        <TableHead className="text-white">Difficulty</TableHead>
+                        <TableHead className="text-white">Subject</TableHead>
+                        <TableHead className="text-white">Topic</TableHead>
+                        <TableHead className="text-white">Delete</TableHead>
+                      </TableRow>
+                    </TableHeader>
 
-                  <TableBody>
-                    {!noQuestion &&
-                      data?.slice(0, 10 * pageNumber).map((d, index) => {
-                        return (
-                          <TableRow
-                            key={d?._id}
-                            onClick={() => setQuestionNumber(index)}
-                            className={`cursor-pointer  my-2 ${
-                              questionNumber === index && "bg-gray-100"
-                            }`}
-                          >
-                            <TableCell>{formatDate(d?.createdAt)}</TableCell>
-                            <TableCell>
-                              {d?.quiz_id ? (
-                                d?.quiz_id
-                              ) : (
-                                <span className="w-full flex justify-center items-center text-xl">
-                                  -
-                                </span>
-                              )}
-                            </TableCell>
-                            <TableCell className="capitalize">
-                              {d?.difficulty}
-                            </TableCell>
-                            <TableCell className=" capitalize">
-                              {d?.subject}
-                            </TableCell>
-                            <TableCell className="capitalize">
-                              {d?.topic}
-                            </TableCell>
-                            <TableCell>
-                              <DeleteButton
-                                _id={d?._id}
-                                setQuestionNumber={setQuestionNumber}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                  </TableBody>
-                </Table>
+                    <TableBody>
+                      {!noQuestion &&
+                        data?.slice(0, 10 * pageNumber).map((d, index) => {
+                          return (
+                            <TableRow
+                              key={d?._id}
+                              onClick={() => setQuestionNumber(index)}
+                              className={`cursor-pointer  my-2 ${
+                                questionNumber === index && "bg-gray-100"
+                              }`}
+                            >
+                              <TableCell>{formatDate(d?.createdAt)}</TableCell>
+                              <TableCell className="capitalize">
+                                {d?.exam}
+                              </TableCell>
+                              <TableCell className="capitalize">
+                                {d?.difficulty}
+                              </TableCell>
+                              <TableCell className=" capitalize">
+                                {d?.subject}
+                              </TableCell>
+                              <TableCell className="capitalize">
+                                {d?.topic}
+                              </TableCell>
+                              <TableCell>
+                                <DeleteButton
+                                  _id={d?._id}
+                                  setQuestionNumber={setQuestionNumber}
+                                />
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             )}
           </div>
@@ -345,6 +346,7 @@ const QuestionScreenMain = () => {
       topic: "",
       subject: "",
       difficulty: "",
+      exam: "",
       correct_option: "",
       explaination: "",
     },
@@ -357,7 +359,8 @@ const QuestionScreenMain = () => {
         dispatch(addNewQuestion(res.data.data));
 
         form.reset();
-        return;
+
+        return toast({ title: "Question Added Successfully" });
       }
       if (res.error && isFetchBaseQueryError(res.error)) {
         const serverError = res.error.data as ApiResponseType<object>;
@@ -515,6 +518,19 @@ const QuestionScreenMain = () => {
                         <SelectItem value="reasoning">Reasoning</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="exam"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Exam</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

@@ -12,6 +12,7 @@ const addQuestion = asyncHandler(async (req, res) => {
         options,
         correct_option,
         explaination,
+        exam,
     } = req.body;
 
     if (
@@ -20,7 +21,7 @@ const addQuestion = asyncHandler(async (req, res) => {
             topic,
             subject,
             difficulty,
-
+            exam,
             correct_option,
             explaination,
         ].some((field) => field?.trim() === '') ||
@@ -42,6 +43,7 @@ const addQuestion = asyncHandler(async (req, res) => {
         options: options,
         correct_option: correct_option,
         explaination: explaination,
+        exam: exam,
     });
     res.json(new ApiResponse(200, newQuestion, 'Question added successfully'));
 });
