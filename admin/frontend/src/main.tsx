@@ -3,10 +3,11 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import AddQuestionScreen from "./Screens/AddQuestionScreen.tsx";
-import AddQuizScreen from "./Screens/AddQuizScreen.tsx";
+import AddQuestionScreen from "./Screens/QuestionsScreen.tsx";
+import { AddNewQuizScreen } from "./Screens/QuizesScreen.tsx";
 import { Provider } from "react-redux";
 import store from "./store/store.ts";
+import QuizScreenMain from "./Screens/QuizesScreen.tsx";
 
 const router = createBrowserRouter([
   {
@@ -14,8 +15,23 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       { index: true, element: <AddQuestionScreen /> },
-      { path: "addQuiz", element: <AddQuizScreen /> },
+      {
+        path: "/quizes",
+        element: <QuizScreenMain />,
+        children: [{ path: "/quizes/add/new", element: <AddNewQuizScreen /> }],
+      },
     ],
+  },
+  {
+    path: "*",
+    element: (
+      <div>
+        404 Page not Found{" "}
+        <a href="/" className="text-blue-500">
+          Home
+        </a>
+      </div>
+    ),
   },
 ]);
 

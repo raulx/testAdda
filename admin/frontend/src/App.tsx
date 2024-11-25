@@ -20,26 +20,26 @@ function App() {
       </header>
 
       <main className="flex min-h-screen">
-        <aside className="flex flex-col gap-4 p-4 border-r border-gray-300 min-w-44">
+        <aside className="flex flex-col gap-4 p-4 border-r border-gray-300 min-w-fit">
           <Link to={"/"}>
             <div
               className={`text-sm  rounded-lg p-2 cursor-pointer flex items-center gap-2 transition-all duration-300 ${
-                location === "/" && " shadow-custom-2"
+                location === "/" && "shadow-custom-2"
               }`}
             >
               <FaRegQuestionCircle />
-              Add Question
+              Questions
             </div>
           </Link>
 
-          <Link to={"/addQuiz"}>
+          <Link to={"/quizes"}>
             <div
               className={`text-sm  rounded-lg p-2 cursor-pointer flex items-center transition-all duration-300 gap-2 ${
-                location === "/addQuiz" && " shadow-custom-2"
+                location.includes("/quizes") && " shadow-custom-2"
               }`}
             >
               <MdOutlineQuiz />
-              Add Quiz
+              Quizes
             </div>
           </Link>
         </aside>
