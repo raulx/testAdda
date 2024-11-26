@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup } from "@radix-ui/react-radio-group";
 import { RadioGroupItem } from "@/components/ui/radio-group";
+import { HiOutlineDocumentAdd } from "react-icons/hi";
 
 const quizSchema = z.object({
   title: z
@@ -30,9 +31,11 @@ const quizSchema = z.object({
   description: z
     .string()
     .min(2, { message: "description must be of atleast 2 characters." }),
-  duration: z
-    .string()
-    .min(2, { message: "duration must be atleast of 60 seconds" }),
+  duration: z.preprocess(
+    (val) => (typeof val === "string" ? parseInt(val, 10) : val),
+    z.number().positive("Duration must be a positive number.")
+  ),
+
   difficulty: z.string().min(2, { message: "difficulty must be selected" }),
   access_type: z.enum(["free", "paid"], {
     required_error: "You need to select an access type",
@@ -63,23 +66,26 @@ const AddNewQuizScreen = () => {
     defaultValues: {
       title: "",
       description: "",
-      duration: "60",
+      duration: 0,
       difficulty: "",
     },
   });
 
   async function handleFormSubmit(values: z.infer<typeof quizSchema>) {
-    console.log("hello world");
     console.log(values);
+    form.reset();
   }
 
   return (
-    <div className="flex flex-col bg-[#F6F3F3] m-4 rounded-xl py-2 px-4">
+    <div className="flex flex-col gap-4 bg-[#F6F3F3] m-4 rounded-xl px-4 py-8">
       <div className="max-w-fit mx-auto">Add New Quiz</div>
-      <div>
-        <div>
+      <div className="flex gap-2">
+        <div className="w-1/2 mt-4">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleFormSubmit)}>
+            <form
+              onSubmit={form.handleSubmit(handleFormSubmit)}
+              className="flex flex-col gap-8 bg-[#E6F3F3]  p-8 border rounded-xl"
+            >
               <FormField
                 control={form.control}
                 name="title"
@@ -152,36 +158,141 @@ const AddNewQuizScreen = () => {
                   </FormItem>
                 )}
               />
-              <FormField
-                name="access_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Select Access Type</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormItem>
-                          <FormLabel>Free</FormLabel>
-                          <FormControl>
-                            <RadioGroupItem value="free" />
-                          </FormControl>
-                        </FormItem>
-                        <FormItem>
-                          <FormLabel>Paid</FormLabel>
-                          <FormControl>
-                            <RadioGroupItem value="paid" />
-                          </FormControl>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <Button>Add Quiz</Button>
+              <div className="mt-4">
+                <FormField
+                  name="access_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex gap-2">
+                        <FormLabel>Select Access Type : </FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <div className="flex gap-4  items-center ">
+                              <FormItem>
+                                <div className="flex gap-2 items-center">
+                                  <FormLabel>Free</FormLabel>
+                                  <FormControl>
+                                    <RadioGroupItem value="free" />
+                                  </FormControl>
+                                </div>
+                              </FormItem>
+                              <FormItem>
+                                <div className="flex gap-2 items-center">
+                                  <FormLabel>Paid</FormLabel>
+                                  <FormControl>
+                                    <RadioGroupItem value="paid" />
+                                  </FormControl>
+                                </div>
+                              </FormItem>
+                            </div>
+                          </RadioGroup>
+                        </FormControl>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <Button className="bg-lightseagreen font-bold hover:bg-lightseagreen">
+                <HiOutlineDocumentAdd />
+                Add Quiz
+              </Button>
             </form>
           </Form>
+        </div>
+        <div className="w-1/2  flex flex-col p-4 justify-between gap-4">
+          <div className=" h-[400px] border bg-white w-full rounded-lg py-2">
+            <div className="p-2 max-w-fit mx-auto">Questions Selected</div>
+            <div className="text-sm   max-w-fit ml-auto mr-8">
+              Total Selected : 4
+            </div>
+            <div className="p-4 flex flex-col gap-2 h-[320px] overflow-x-hidden overflow-y-scroll">
+              <div className="flex gap-4 bg-lightseagreen text-white justify-evenly rounded">
+                <div>S.No</div>
+                <div>Exam</div>
+                <div>Difficulty</div>
+                <div>Subject</div>
+                <div>Topic</div>
+                <div>Remove</div>
+              </div>
+              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
+                <div>S.No</div>
+                <div>Exam</div>
+                <div>Difficulty</div>
+                <div>Subject</div>
+                <div>Topic</div>
+                <div>Remove</div>
+              </div>
+              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
+                <div>S.No</div>
+                <div>Exam</div>
+                <div>Difficulty</div>
+                <div>Subject</div>
+                <div>Topic</div>
+                <div>Remove</div>
+              </div>{" "}
+              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
+                <div>S.No</div>
+                <div>Exam</div>
+                <div>Difficulty</div>
+                <div>Subject</div>
+                <div>Topic</div>
+                <div>Remove</div>
+              </div>{" "}
+              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
+                <div>S.No</div>
+                <div>Exam</div>
+                <div>Difficulty</div>
+                <div>Subject</div>
+                <div>Topic</div>
+                <div>Remove</div>
+              </div>{" "}
+              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
+                <div>S.No</div>
+                <div>Exam</div>
+                <div>Difficulty</div>
+                <div>Subject</div>
+                <div>Topic</div>
+                <div>Remove</div>
+              </div>{" "}
+              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
+                <div>S.No</div>
+                <div>Exam</div>
+                <div>Difficulty</div>
+                <div>Subject</div>
+                <div>Topic</div>
+                <div>Remove</div>
+              </div>{" "}
+              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
+                <div>S.No</div>
+                <div>Exam</div>
+                <div>Difficulty</div>
+                <div>Subject</div>
+                <div>Topic</div>
+                <div>Remove</div>
+              </div>{" "}
+              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
+                <div>S.No</div>
+                <div>Exam</div>
+                <div>Difficulty</div>
+                <div>Subject</div>
+                <div>Topic</div>
+                <div>Remove</div>
+              </div>{" "}
+              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
+                <div>S.No</div>
+                <div>Exam</div>
+                <div>Difficulty</div>
+                <div>Subject</div>
+                <div>Topic</div>
+                <div>Remove</div>
+              </div>
+            </div>
+          </div>
+          <div className="border h-[500px] w-full bg-white rounded-lg"></div>
         </div>
       </div>
     </div>
