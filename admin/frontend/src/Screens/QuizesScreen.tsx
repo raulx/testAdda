@@ -120,13 +120,7 @@ const AddNewQuizScreen = () => {
     setOpenedQuestion(ques);
     setViewQuestionModel(true);
   };
-  const handleViewQuestionModel = () => {
-    console.log("model is opened");
-  };
 
-  const handleCloseQuestionModel = () => {
-    console.log("model is closed");
-  };
   return (
     <>
       <div className="flex flex-col gap-4 bg-[#F6F3F3] m-4 rounded-xl px-4 py-8">
@@ -136,7 +130,7 @@ const AddNewQuizScreen = () => {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleFormSubmit)}
-                className="flex flex-col gap-8 bg-[#E6F3F3]  p-8 border rounded-xl"
+                className="flex flex-col gap-16 bg-[#E6F3F3]  px-8 py-16 border rounded-xl"
               >
                 <FormField
                   control={form.control}
@@ -215,7 +209,7 @@ const AddNewQuizScreen = () => {
                     name="access_type"
                     render={({ field }) => (
                       <FormItem>
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-8">
                           <FormLabel>Select Access Type : </FormLabel>
                           <FormControl>
                             <RadioGroup
@@ -261,34 +255,58 @@ const AddNewQuizScreen = () => {
               <div className="text-sm max-w-fit ml-auto mr-8">
                 Total Selected : {selectedQuestions.length}
               </div>
-              <div className="p-4 flex flex-col gap-2 h-[320px] overflow-x-hidden overflow-y-scroll">
-                <div className="flex gap-4 bg-lightseagreen text-white justify-between px-2 rounded">
-                  <div>S.No</div>
-                  <div>Exam</div>
-                  <div>Difficulty</div>
-                  <div>Subject</div>
-                  <div>Topic</div>
-                  <div>View</div>
-                  <div>Remove</div>
+              <div className="p-4 flex flex-col gap-2 h-[320px] overflow-x-hidden overflow-y-scroll scrollbar-thin">
+                <div className="flex  bg-lightseagreen text-white justify-between  rounded">
+                  <div className="flex w-12 justify-center items-center">
+                    S.No
+                  </div>
+                  <div className="flex w-24 justify-center items-center">
+                    Exam
+                  </div>
+                  <div className="flex w-24 justify-center items-center">
+                    Difficulty
+                  </div>
+                  <div className="flex w-24 justify-center items-center">
+                    Subject
+                  </div>
+                  <div className="flex w-24 justify-center items-center">
+                    Topic
+                  </div>
+                  <div className="flex w-16 justify-center items-center">
+                    View
+                  </div>
+                  <div className="flex w-20 justify-center items-center">
+                    Remove
+                  </div>
                 </div>
                 {selectedQuestions.map((ques, index) => {
                   return (
                     <div>
-                      <div className="flex gap-4 border border-gray-400 justify-between px-2 items-center rounded">
-                        <div>{index + 1}.</div>
-                        <div>{ques.exam}</div>
-                        <div>{ques.difficulty}</div>
-                        <div>{ques.subject}</div>
-                        <div>{ques.topic}</div>
+                      <div className="flex  border border-gray-400  rounded">
+                        <div className="w-12 flex justify-center items-center">
+                          {index + 1}.
+                        </div>
+                        <div className="w-24 flex justify-center items-center">
+                          {ques.exam}
+                        </div>
+                        <div className="w-24 flex justify-center items-center">
+                          {ques.difficulty}
+                        </div>
+                        <div className="w-24 flex justify-center items-center">
+                          {ques.subject}
+                        </div>
+                        <div className="w-24 flex justify-center items-center">
+                          {ques.topic}
+                        </div>
                         <div
                           onClick={() => openViewQuestionModel(ques)}
-                          className="cursor-pointer"
+                          className="cursor-pointer w-16 flex justify-center items-center"
                         >
                           <FaEye />
                         </div>
                         <div
                           onClick={() => handleQuestionRemove(ques._id)}
-                          className="cursor-pointer"
+                          className="cursor-pointer w-20 flex justify-center items-center"
                         >
                           <FaTimes />
                         </div>
@@ -296,6 +314,11 @@ const AddNewQuizScreen = () => {
                     </div>
                   );
                 })}
+                {selectedQuestions.length === 0 && (
+                  <div className="my-4 max-w-fit mx-auto text-gray-500">
+                    Please Select Questions From Below Available Questions
+                  </div>
+                )}
               </div>
             </div>
             <div className="border h-[500px] w-full bg-white rounded-lg">
@@ -307,38 +330,62 @@ const AddNewQuizScreen = () => {
                 <Button className="bg-lightseagreen text-white">Search</Button>
               </div>
               <hr className="h-2" />
-              <div className="p-4 flex flex-col gap-2 h-[360px] overflow-x-hidden overflow-y-scroll">
-                <div className="flex gap-4 bg-lightseagreen text-white justify-between px-2 rounded">
-                  <div>S.No</div>
-                  <div>Exam</div>
-                  <div>Difficulty</div>
-                  <div>Subject</div>
-                  <div>Topic</div>
-                  <div>View</div>
-                  <div>Add</div>
+              <div className="p-4 flex flex-col gap-2 h-[360px] overflow-x-hidden overflow-y-scroll scrollbar-thin">
+                <div className="flex bg-lightseagreen text-white justify-between rounded">
+                  <div className="w-12 flex justify-center items-center">
+                    S.No
+                  </div>
+                  <div className="w-24 flex justify-center items-center">
+                    Exam
+                  </div>
+                  <div className="w-24 flex justify-center items-center">
+                    Difficulty
+                  </div>
+                  <div className="w-24 flex justify-center items-center">
+                    Subject
+                  </div>
+                  <div className="w-24 flex justify-center items-center">
+                    Topic
+                  </div>
+                  <div className="w-16 flex justify-center items-center">
+                    View
+                  </div>
+                  <div className="w-20 flex justify-center items-center">
+                    Add
+                  </div>
                 </div>
                 {availableQuestions.map((ques, index) => {
                   return (
-                    <div className="flex gap-4 border border-gray-400 bg-white justify-between px-2 items-center rounded">
-                      <div>Q.{index + 1}</div>
-                      <div>{ques.exam}</div>
-                      <div>{ques.difficulty}</div>
-                      <div>{ques.subject}</div>
-                      <div>{ques.topic}</div>
+                    <div className="flex  border border-gray-400 bg-white justify-between  items-center rounded">
+                      <div className="w-12 flex justify-center items-center">
+                        Q.{index + 1}
+                      </div>
+                      <div className="w-24 flex justify-center items-center">
+                        {ques.exam}
+                      </div>
+                      <div className="w-24 flex justify-center items-center">
+                        {ques.difficulty}
+                      </div>
+                      <div className="w-24 flex justify-center items-center">
+                        {ques.subject}
+                      </div>
+                      <div className="w-24 flex justify-center items-center">
+                        {ques.topic}
+                      </div>
                       <div
                         onClick={() => openViewQuestionModel(ques)}
-                        className="cursor-pointer"
+                        className="cursor-pointer w-16 flex justify-center items-center"
                       >
                         <FaEye />
                       </div>
                       {selectedQuestions.find((q) => q._id === ques._id) ? (
-                        <div>
+                        <div className="flex justify-center items-center w-20">
                           <ImCheckmark />
                         </div>
                       ) : (
                         <div
                           onClick={() => handleQuestionAdd(ques)}
-                          className="cursor-pointer"
+                          className="cursor-pointer flex justify-center items-center w-20"
                         >
                           <FaPlus />
                         </div>
@@ -353,12 +400,34 @@ const AddNewQuizScreen = () => {
       </div>
       <Modal
         isOpen={viewQuestionModel}
-        onAfterOpen={handleViewQuestionModel}
-        onRequestClose={handleCloseQuestionModel}
-        className=" bg-white p-6 rounded-2xl border border-black relative"
+        className="bg-white py-6 px-4 w-[600px] rounded-2xl border border-[#E6F3F3] relative"
         overlayClassName="fixed h-screen w-screen inset-0 bg-black bg-opacity-30 flex justify-center items-center"
       >
-        <div>Hello there,i am a modal {openedQuestion._id}</div>
+        <div className="flex flex-col gap-6">
+          <div className="max-w-fit text-2xl uppercase mx-auto font-semibold border-b border-black text-[#38A3A5]">
+            {openedQuestion.exam}
+          </div>
+          <hr className="h-1  bg-[#E6F3F3]" />
+          <div className="flex gap-2">
+            <div>Question:- </div>
+            <div>{openedQuestion.question}</div>
+          </div>
+          <div className="flex gap-2">
+            <div>Options:-</div>
+            <div className="flex flex-col gap-2">
+              <div>a) {openedQuestion.options.a}</div>
+              <div>b) {openedQuestion.options.b}</div>
+              <div>c) {openedQuestion.options.c}</div>
+              <div>d) {openedQuestion.options.d}</div>
+            </div>
+          </div>
+          <div>Correct Option : {openedQuestion.correct_option}</div>
+          <hr className="h-1 bg-[#E6F3F3]" />
+          <div className="flex gap-2 border-4 border-[#E6F3F3] rounded-lg p-2">
+            <div>Explaination:-</div>
+            <div>{openedQuestion.explaination}</div>
+          </div>
+        </div>
         <button
           onClick={() => setViewQuestionModel(false)}
           className="absolute right-2 top-2 "
