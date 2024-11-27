@@ -26,7 +26,7 @@ import { HiOutlineDocumentAdd } from "react-icons/hi";
 import { FaEye, FaPlus, FaTimes } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { AllQuestion, QuestionData, RootState } from "@/store/store";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { ImCheckmark } from "react-icons/im";
 import Modal from "react-modal";
 
@@ -70,9 +70,11 @@ const QuizScreenMain = () => {
 
 const AddNewQuizScreen = () => {
   const questions = useSelector((store: RootState) => {
-    return store.questions;
-  });
-  const availableQuestions = questions.data.filter((d) => !d.quiz_id);
+    return store.questions.data;
+  }).filter((d) => !d.quiz_id);
+  const [availableQuestions, setAvalableQuestions] =
+    useState<AllQuestion>(questions);
+
   const [selectedQuestions, setSelectedQuestions] = useState<AllQuestion>([]);
   const [viewQuestionModel, setViewQuestionModel] = useState(false);
   const [openedQuestion, setOpenedQuestion] = useState<QuestionData>({
@@ -116,6 +118,12 @@ const AddNewQuizScreen = () => {
     form.reset();
   }
 
+  const handleSearchByExam = (e: ChangeEvent<HTMLInputElement>) => {
+    const filteredByExamQuestions = questions.filter((ques) =>
+      ques.exam.includes(e.target.value)
+    );
+    setAvalableQuestions(filteredByExamQuestions);
+  };
   const openViewQuestionModel = (ques: QuestionData) => {
     setOpenedQuestion(ques);
     setViewQuestionModel(true);
@@ -326,8 +334,10 @@ const AddNewQuizScreen = () => {
                 Available Questions
               </div>
               <div className="flex items-center gap-4 p-4">
-                <Input placeholder="Search By Exam" />
-                <Button className="bg-lightseagreen text-white">Search</Button>
+                <Input
+                  placeholder="Search By Exam"
+                  onChange={(e) => handleSearchByExam(e)}
+                />
               </div>
               <hr className="h-2" />
               <div className="p-4 flex flex-col gap-2 h-[360px] overflow-x-hidden overflow-y-scroll scrollbar-thin">
@@ -393,6 +403,11 @@ const AddNewQuizScreen = () => {
                     </div>
                   );
                 })}
+                {availableQuestions.length === 0 && (
+                  <div className="my-4 max-w-fit mx-auto text-gray-500">
+                    No Question Available For this Exam
+                  </div>
+                )}
               </div>
             </div>
           </div>
