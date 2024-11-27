@@ -17,6 +17,7 @@ const initialState: InitialStateType = {
       subject: "",
       topic: "",
       quiz_id: "",
+      exam: "",
       updatedAt: "",
       _id: "",
       __v: 0,
@@ -25,7 +26,7 @@ const initialState: InitialStateType = {
 };
 
 const questionsSlice = createSlice({
-  name: "Questions",
+  name: "questions",
   initialState: initialState,
   reducers: {
     setQuestions(state, action: PayloadAction<AllQuestion>) {

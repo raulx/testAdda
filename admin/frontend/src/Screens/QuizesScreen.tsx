@@ -23,6 +23,11 @@ import {
 import { RadioGroup } from "@radix-ui/react-radio-group";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import { HiOutlineDocumentAdd } from "react-icons/hi";
+import { FaEye, FaPlus, FaTimes } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { AllQuestion, QuestionData, RootState } from "@/store/store";
+import { useState } from "react";
+import { ImCheckmark } from "react-icons/im";
 
 const quizSchema = z.object({
   title: z
@@ -61,6 +66,12 @@ const QuizScreenMain = () => {
 };
 
 const AddNewQuizScreen = () => {
+  const questions = useSelector((store: RootState) => {
+    return store.questions;
+  });
+  const availableQuestions = questions.data.filter((d) => !d.quiz_id);
+  const [selectedQuestions, setSelectedQuestions] = useState<AllQuestion>([]);
+
   const form = useForm<z.infer<typeof quizSchema>>({
     resolver: zodResolver(quizSchema),
     defaultValues: {
@@ -71,6 +82,16 @@ const AddNewQuizScreen = () => {
     },
   });
 
+  const handleQuestionAdd = (ques: QuestionData) => {
+    setSelectedQuestions((prevValue) => {
+      return [...prevValue, ques];
+    });
+  };
+  const handleQuestionRemove = (id: string) => {
+    setSelectedQuestions((prevValue) => {
+      return [...prevValue].filter((d) => d._id != id);
+    });
+  };
   async function handleFormSubmit(values: z.infer<typeof quizSchema>) {
     console.log(values);
     form.reset();
@@ -206,93 +227,90 @@ const AddNewQuizScreen = () => {
         <div className="w-1/2  flex flex-col p-4 justify-between gap-4">
           <div className=" h-[400px] border bg-white w-full rounded-lg py-2">
             <div className="p-2 max-w-fit mx-auto">Questions Selected</div>
-            <div className="text-sm   max-w-fit ml-auto mr-8">
-              Total Selected : 4
+            <div className="text-sm max-w-fit ml-auto mr-8">
+              Total Selected : {selectedQuestions.length}
             </div>
             <div className="p-4 flex flex-col gap-2 h-[320px] overflow-x-hidden overflow-y-scroll">
-              <div className="flex gap-4 bg-lightseagreen text-white justify-evenly rounded">
+              <div className="flex gap-4 bg-lightseagreen text-white justify-between px-2 rounded">
                 <div>S.No</div>
                 <div>Exam</div>
                 <div>Difficulty</div>
                 <div>Subject</div>
                 <div>Topic</div>
+                <div>View</div>
                 <div>Remove</div>
               </div>
-              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
-                <div>S.No</div>
-                <div>Exam</div>
-                <div>Difficulty</div>
-                <div>Subject</div>
-                <div>Topic</div>
-                <div>Remove</div>
-              </div>
-              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
-                <div>S.No</div>
-                <div>Exam</div>
-                <div>Difficulty</div>
-                <div>Subject</div>
-                <div>Topic</div>
-                <div>Remove</div>
-              </div>{" "}
-              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
-                <div>S.No</div>
-                <div>Exam</div>
-                <div>Difficulty</div>
-                <div>Subject</div>
-                <div>Topic</div>
-                <div>Remove</div>
-              </div>{" "}
-              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
-                <div>S.No</div>
-                <div>Exam</div>
-                <div>Difficulty</div>
-                <div>Subject</div>
-                <div>Topic</div>
-                <div>Remove</div>
-              </div>{" "}
-              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
-                <div>S.No</div>
-                <div>Exam</div>
-                <div>Difficulty</div>
-                <div>Subject</div>
-                <div>Topic</div>
-                <div>Remove</div>
-              </div>{" "}
-              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
-                <div>S.No</div>
-                <div>Exam</div>
-                <div>Difficulty</div>
-                <div>Subject</div>
-                <div>Topic</div>
-                <div>Remove</div>
-              </div>{" "}
-              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
-                <div>S.No</div>
-                <div>Exam</div>
-                <div>Difficulty</div>
-                <div>Subject</div>
-                <div>Topic</div>
-                <div>Remove</div>
-              </div>{" "}
-              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
-                <div>S.No</div>
-                <div>Exam</div>
-                <div>Difficulty</div>
-                <div>Subject</div>
-                <div>Topic</div>
-                <div>Remove</div>
-              </div>{" "}
-              <div className="flex gap-4 justify-evenly rounded border border-gray-400">
-                <div>S.No</div>
-                <div>Exam</div>
-                <div>Difficulty</div>
-                <div>Subject</div>
-                <div>Topic</div>
-                <div>Remove</div>
-              </div>
+              {selectedQuestions.map((ques, index) => {
+                return (
+                  <div>
+                    <div className="flex gap-4 border border-gray-400 justify-between px-2 items-center rounded">
+                      <div>{index + 1}.</div>
+                      <div>{ques.exam}</div>
+                      <div>{ques.difficulty}</div>
+                      <div>{ques.subject}</div>
+                      <div>{ques.topic}</div>
+                      <div>
+                        <FaEye />
+                      </div>
+                      <div
+                        onClick={() => handleQuestionRemove(ques._id)}
+                        className="cursor-pointer"
+                      >
+                        <FaTimes />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-          <div className="border h-[500px] w-full bg-white rounded-lg"></div>
+          <div className="border h-[500px] w-full bg-white rounded-lg">
+            <div className="font-bold text-xl max-w-fit mx-auto mt-4">
+              Available Questions
+            </div>
+            <div className="flex items-center gap-4 p-4">
+              <Input placeholder="Search By Exam" />
+              <Button className="bg-lightseagreen text-white">Search</Button>
+            </div>
+            <hr className="h-2" />
+            <div className="p-4 flex flex-col gap-2 h-[360px] overflow-x-hidden overflow-y-scroll">
+              <div className="flex gap-4 bg-lightseagreen text-white justify-between px-2 rounded">
+                <div>S.No</div>
+                <div>Exam</div>
+                <div>Difficulty</div>
+                <div>Subject</div>
+                <div>Topic</div>
+                <div>View</div>
+                <div>Add</div>
+              </div>
+              {availableQuestions.map((ques, index) => {
+                return (
+                  <div className="flex gap-4 border border-gray-400 bg-white justify-between px-2 items-center rounded">
+                    <div>Q.{index + 1}</div>
+                    <div>{ques.exam}</div>
+                    <div>{ques.difficulty}</div>
+                    <div>{ques.subject}</div>
+                    <div>{ques.topic}</div>
+                    <div>
+                      <FaEye />
+                    </div>
+                    {selectedQuestions.find((q) => q._id === ques._id) ? (
+                      <div>
+                        <ImCheckmark />
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => handleQuestionAdd(ques)}
+                        className="cursor-pointer"
+                      >
+                        <FaPlus />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>
