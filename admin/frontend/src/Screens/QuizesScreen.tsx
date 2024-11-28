@@ -25,11 +25,18 @@ import { RadioGroupItem } from "@/components/ui/radio-group";
 import { HiOutlineDocumentAdd } from "react-icons/hi";
 import { FaEye, FaPlus, FaTimes } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { AllQuestion, QuestionData, RootState } from "@/store/store";
+import {
+  AllQuestion,
+  QuestionData,
+  RootState,
+  useAddQuizMutation,
+} from "@/store/store";
 import { ChangeEvent, useState } from "react";
 import { ImCheckmark } from "react-icons/im";
 import Modal from "react-modal";
 import { useToast } from "@/hooks/use-toast";
+import ApiResponse from "@/utils/types";
+import { isFetchBaseQueryError } from "@/utils/helpers";
 
 Modal.setAppElement("#root");
 
@@ -45,7 +52,9 @@ const quizSchema = z.object({
     z.number().positive("Duration must be a positive number.")
   ),
 
-  difficulty: z.string().min(2, { message: "difficulty must be selected" }),
+  difficulty_level: z.enum(["beginner", "intermediate", "advanced"], {
+    message: "difficulty must be selected",
+  }),
   access_type: z.enum(["free", "paid"], {
     required_error: "You need to select an access type",
   }),
@@ -75,6 +84,7 @@ const AddNewQuizScreen = () => {
   }).filter((d) => !d.quiz_id);
   const [availableQuestions, setAvalableQuestions] =
     useState<AllQuestion>(questions);
+  const [addQuiz, { isLoading }] = useAddQuizMutation();
   const { toast } = useToast();
   const [selectedQuestions, setSelectedQuestions] = useState<AllQuestion>([]);
   const [viewQuestionModel, setViewQuestionModel] = useState(false);
@@ -100,7 +110,7 @@ const AddNewQuizScreen = () => {
       title: "",
       description: "",
       duration: 0,
-      difficulty: "",
+      difficulty_level: "beginner",
     },
   });
 
@@ -124,7 +134,35 @@ const AddNewQuizScreen = () => {
     else {
       const questionsIds = selectedQuestions.map((ques) => ques._id);
       const quizData = { ...values, questions: questionsIds };
-      console.log(quizData);
+      try {
+        const res = await addQuiz(quizData);
+        if (res.data) {
+          toast({ title: "Success", description: "Quiz Added Successfully" });
+          setAvalableQuestions((prevValue) =>
+            prevValue.filter((ques) => !questionsIds.includes(ques._id))
+          );
+          setSelectedQuestions([]);
+          form.reset();
+          return;
+        }
+        if (res.error && isFetchBaseQueryError(res.error)) {
+          const serverError = res.error.data as ApiResponse<object>;
+
+          return toast({
+            title: "Error",
+            description: serverError.message,
+            variant: "destructive",
+          });
+        } else {
+          return toast({
+            title: "Error Adding Question",
+            description: "Client Error !",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
 
@@ -198,7 +236,7 @@ const AddNewQuizScreen = () => {
                   )}
                 />
                 <FormField
-                  name="difficulty"
+                  name="difficulty_level"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Difficulty</FormLabel>
@@ -262,8 +300,14 @@ const AddNewQuizScreen = () => {
                 </div>
 
                 <Button className="bg-lightseagreen font-bold hover:bg-lightseagreen">
-                  <HiOutlineDocumentAdd />
-                  Add Quiz
+                  {isLoading ? (
+                    <span className="loader h-4 w-4"></span>
+                  ) : (
+                    <>
+                      <HiOutlineDocumentAdd />
+                      Add Quiz
+                    </>
+                  )}
                 </Button>
               </form>
             </Form>
@@ -355,7 +399,7 @@ const AddNewQuizScreen = () => {
                 />
               </div>
               <div className="max-w-fit ml-auto mr-8 text-sm">
-                Total Available Questions : {questions.length}
+                Total Available Questions : {availableQuestions.length}
               </div>
               <hr className="h-2" />
               <div className="p-4 flex flex-col gap-2 h-[360px] overflow-x-hidden overflow-y-scroll scrollbar-thin">

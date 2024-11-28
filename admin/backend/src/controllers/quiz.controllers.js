@@ -9,13 +9,13 @@ const addQuiz = asynchandler(async (req, res) => {
         title,
         description,
         duration,
-        difficultyLevel,
+        difficulty_level,
         questions,
-        accessType,
+        access_type,
     } = req.body;
 
     if (
-        [title, description, difficultyLevel, accessType].some(
+        [title, description, difficulty_level, access_type].some(
             (field) => field?.trim() === ''
         ) ||
         questions?.length === 0 ||
@@ -27,16 +27,16 @@ const addQuiz = asynchandler(async (req, res) => {
         const question = await Question.findById({ _id: questions[i] });
         if (!question) throw new ApiError(409, 'Questions are not available');
         else if (question.quiz_id)
-            throw new ApiError(400, 'Question is already present in a quiz.');
+            throw new ApiError(409, 'Question is already present in a quiz.');
     }
 
     const newQuiz = await Quiz.create({
         title,
         description,
         duration,
-        difficulty_level: difficultyLevel,
+        difficulty_level,
         questions,
-        access_type: accessType,
+        access_type,
     });
 
     const newQuizQuestions = newQuiz.questions;
