@@ -29,6 +29,7 @@ import { AllQuestion, QuestionData, RootState } from "@/store/store";
 import { ChangeEvent, useState } from "react";
 import { ImCheckmark } from "react-icons/im";
 import Modal from "react-modal";
+import { useToast } from "@/hooks/use-toast";
 
 Modal.setAppElement("#root");
 
@@ -74,7 +75,7 @@ const AddNewQuizScreen = () => {
   }).filter((d) => !d.quiz_id);
   const [availableQuestions, setAvalableQuestions] =
     useState<AllQuestion>(questions);
-
+  const { toast } = useToast();
   const [selectedQuestions, setSelectedQuestions] = useState<AllQuestion>([]);
   const [viewQuestionModel, setViewQuestionModel] = useState(false);
   const [openedQuestion, setOpenedQuestion] = useState<QuestionData>({
@@ -114,8 +115,17 @@ const AddNewQuizScreen = () => {
     });
   };
   async function handleFormSubmit(values: z.infer<typeof quizSchema>) {
-    console.log(values);
-    form.reset();
+    if (selectedQuestions.length === 0)
+      toast({
+        title: "No Question Selected",
+        description: "Please Select a Question to proceed",
+        variant: "destructive",
+      });
+    else {
+      const questionsIds = selectedQuestions.map((ques) => ques._id);
+      const quizData = { ...values, questions: questionsIds };
+      console.log(quizData);
+    }
   }
 
   const handleSearchByExam = (e: ChangeEvent<HTMLInputElement>) => {
@@ -138,7 +148,7 @@ const AddNewQuizScreen = () => {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleFormSubmit)}
-                className="flex flex-col gap-16 bg-[#E6F3F3]  px-8 py-16 border rounded-xl"
+                className="flex flex-col gap-12 bg-[#E6F3F3]  px-8 py-16 border rounded-xl"
               >
                 <FormField
                   control={form.control}
@@ -209,6 +219,7 @@ const AddNewQuizScreen = () => {
                           <SelectItem value="advanced">Advanced</SelectItem>
                         </SelectContent>
                       </Select>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -289,35 +300,39 @@ const AddNewQuizScreen = () => {
                 </div>
                 {selectedQuestions.map((ques, index) => {
                   return (
-                    <div>
-                      <div className="flex  border border-gray-400  rounded">
-                        <div className="w-12 flex justify-center items-center">
-                          {index + 1}.
-                        </div>
-                        <div className="w-24 flex justify-center items-center">
-                          {ques.exam}
-                        </div>
-                        <div className="w-24 flex justify-center items-center">
-                          {ques.difficulty}
-                        </div>
-                        <div className="w-24 flex justify-center items-center">
-                          {ques.subject}
-                        </div>
-                        <div className="w-24 flex justify-center items-center">
-                          {ques.topic}
-                        </div>
-                        <div
-                          onClick={() => openViewQuestionModel(ques)}
-                          className="cursor-pointer w-16 flex justify-center items-center"
-                        >
-                          <FaEye />
-                        </div>
-                        <div
-                          onClick={() => handleQuestionRemove(ques._id)}
-                          className="cursor-pointer w-20 flex justify-center items-center"
-                        >
-                          <FaTimes />
-                        </div>
+                    <div
+                      className={`flex  border border-gray-400  rounded ${
+                        openedQuestion._id === ques._id &&
+                        "border-2 border-lightseagreen"
+                      }`}
+                      key={ques._id}
+                    >
+                      <div className="w-12 flex justify-center items-center">
+                        {index + 1}.
+                      </div>
+                      <div className="w-24 flex justify-center items-center">
+                        {ques.exam}
+                      </div>
+                      <div className="w-24 flex justify-center items-center">
+                        {ques.difficulty}
+                      </div>
+                      <div className="w-24 flex justify-center items-center">
+                        {ques.subject}
+                      </div>
+                      <div className="w-24 flex justify-center items-center">
+                        {ques.topic}
+                      </div>
+                      <div
+                        onClick={() => openViewQuestionModel(ques)}
+                        className="cursor-pointer w-16 flex justify-center items-center"
+                      >
+                        <FaEye />
+                      </div>
+                      <div
+                        onClick={() => handleQuestionRemove(ques._id)}
+                        className="cursor-pointer w-20 flex justify-center items-center"
+                      >
+                        <FaTimes />
                       </div>
                     </div>
                   );
@@ -338,6 +353,9 @@ const AddNewQuizScreen = () => {
                   placeholder="Search By Exam"
                   onChange={(e) => handleSearchByExam(e)}
                 />
+              </div>
+              <div className="max-w-fit ml-auto mr-8 text-sm">
+                Total Available Questions : {questions.length}
               </div>
               <hr className="h-2" />
               <div className="p-4 flex flex-col gap-2 h-[360px] overflow-x-hidden overflow-y-scroll scrollbar-thin">
@@ -366,7 +384,13 @@ const AddNewQuizScreen = () => {
                 </div>
                 {availableQuestions.map((ques, index) => {
                   return (
-                    <div className="flex  border border-gray-400 bg-white justify-between  items-center rounded">
+                    <div
+                      className={`flex  border  border-gray-400 bg-white justify-between  items-center rounded ${
+                        openedQuestion._id === ques._id &&
+                        "border-2 border-lightseagreen"
+                      }`}
+                      key={ques._id}
+                    >
                       <div className="w-12 flex justify-center items-center">
                         Q.{index + 1}
                       </div>
