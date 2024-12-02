@@ -9,7 +9,7 @@ function App() {
   const location = useLocation().pathname;
 
   return (
-    <>
+    <div className="relative overflow-x-hidden">
       <header className="flex py-2 justify-between items-center border-b border-gray-300 px-12">
         <Logo small />
         <div className="flex justify-center gap-2 py-2 px-4 text-white rounded-3xl bg-lightseagreen items-center">
@@ -48,7 +48,7 @@ function App() {
         </div>
       </main>
       <Toaster />
-    </>
+    </div>
   );
 }
 

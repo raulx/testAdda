@@ -2,7 +2,7 @@ import { SERVER_BASE_URL } from "@/utils/constants";
 import ApiResponse from "@/utils/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-export type QuizDataType = {
+export type QuizDataSentType = {
   title: string;
   description: string;
   access_type: "free" | "paid";
@@ -10,6 +10,17 @@ export type QuizDataType = {
   difficulty_level: "beginner" | "intermediate" | "advanced";
   questions: string[];
 };
+export type QuizDataResponseType = {
+  title: string;
+  description: string;
+  access_type: "free" | "paid";
+  duration: number;
+  difficulty_level: "beginner" | "intermediate" | "advanced";
+  questions: string[];
+  createdAt: string;
+  _id: string;
+};
+
 const quizesApi = createApi({
   reducerPath: "quizesApi",
   baseQuery: fetchBaseQuery({
@@ -19,7 +30,7 @@ const quizesApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    getQuizes: builder.query<ApiResponse<QuizDataType[]>, null>({
+    getQuizes: builder.query<ApiResponse<QuizDataResponseType[]>, null>({
       query: () => {
         return {
           url: "/all",
@@ -27,7 +38,10 @@ const quizesApi = createApi({
         };
       },
     }),
-    addQuiz: builder.mutation<ApiResponse<QuizDataType>, QuizDataType>({
+    addQuiz: builder.mutation<
+      ApiResponse<QuizDataResponseType>,
+      QuizDataSentType
+    >({
       query: (data) => {
         return {
           url: "/new",

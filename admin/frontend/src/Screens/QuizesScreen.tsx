@@ -23,16 +23,18 @@ import {
 import { RadioGroup } from "@radix-ui/react-radio-group";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import { HiOutlineDocumentAdd } from "react-icons/hi";
-import { FaEye, FaPlus, FaTimes, FaTrash } from "react-icons/fa";
+import { FaEye, FaPlus, FaTimes } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import {
   AllQuestion,
   QuestionData,
+  QuizDataResponseType,
   RootState,
   useAddQuizMutation,
   useGetQuizesQuery,
 } from "@/store/store";
 import { ChangeEvent, useState } from "react";
+import { getLocalDate } from "@/utils/helpers";
 import { ImCheckmark } from "react-icons/im";
 import Modal from "react-modal";
 import { useToast } from "@/hooks/use-toast";
@@ -81,172 +83,107 @@ const QuizScreenMain = () => {
 
 const QuizScreenHome = () => {
   const { data, isLoading } = useGetQuizesQuery(null);
-  if (data) console.log(data);
+  const [selectedQuiz, setSelectedQuiz] =
+    useState<QuizDataResponseType | null>();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const handleSelectQuiz = (quiz: QuizDataResponseType) => {
+    setSelectedQuiz(quiz);
+    setIsOpen(true);
+  };
+
+  const handleCloseQuiz = () => {
+    setSelectedQuiz(null);
+    setIsOpen(false);
+  };
   return (
-    <div className="h-[700px] bg-[#F7F4F4]  mx-auto my-6 border rounded-lg flex flex-col gap-2 w-11/12 p-4 ">
-      <h1 className="w-fit mx-auto font-semibold text-xl">Quizes</h1>
-      <div>
-        <Input placeholder="Search By Quiz" />
+    <>
+      <div className="h-[700px] bg-[#F7F4F4]  mx-auto my-6 border rounded-lg flex flex-col gap-2 w-11/12 p-4 ">
+        <h1 className="w-fit mx-auto font-semibold text-xl">Quizes</h1>
+        <div>
+          <Input placeholder="Search By Quiz" />
+        </div>
+        <div className="w-fit ml-auto mr-2">Total : {data?.data.length}</div>
+        <hr className="h-[1px]  bg-black" />
+        {isLoading ? (
+          <>Loading data ...</>
+        ) : (
+          <div className="flex flex-col gap-2 h-[600px] overflow-x-hidden overflow-y-scroll scrollbar-thin px-2">
+            <div className="flex bg-gray-200 gap-1">
+              <div className="flex justify-center items-center flex-1 bg-lightseagreen text-white p-4 text-xs">
+                Created On
+              </div>
+              <div className="flex justify-center items-center flex-1 bg-lightseagreen text-white p-4 text-xs">
+                Title
+              </div>
+              <div className="flex justify-center items-center  bg-lightseagreen text-white w-72 p-4 text-xs">
+                Description
+              </div>
+              <div className="flex justify-center items-center flex-1 bg-lightseagreen text-white p-4 text-xs">
+                No. of Questions
+              </div>
+              <div className="flex justify-center items-center flex-1 bg-lightseagreen text-white p-4 text-xs">
+                Duration
+              </div>
+              <div className="flex justify-center items-center flex-1 bg-lightseagreen text-white p-4 text-xs">
+                Difficulty Level
+              </div>
+              <div className="flex justify-center items-center flex-1 bg-lightseagreen text-white p-4 text-xs">
+                Access Type
+              </div>
+            </div>
+            {data?.data.map((quiz, index) => {
+              return (
+                <div
+                  className={`flex bg-gray-200 gap-1 cursor-pointer ${
+                    selectedQuiz?._id === quiz._id && "border-2 border-gray-400"
+                  }`}
+                  key={index}
+                  onClick={() => handleSelectQuiz(quiz)}
+                >
+                  <div className="flex justify-center items-center flex-1 bg-white text-xs p-4">
+                    {getLocalDate(quiz.createdAt)}
+                  </div>
+                  <div className="flex justify-center items-center flex-1 bg-white text-xs p-4">
+                    {quiz.title}
+                  </div>
+                  <div className="flex justify-center items-center  bg-white w-72 p-4 text-xs ">
+                    {quiz.description}
+                  </div>
+                  <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
+                    {quiz.questions.length}
+                  </div>
+                  <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
+                    {quiz.duration}
+                  </div>
+                  <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
+                    {quiz.difficulty_level}
+                  </div>
+                  <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
+                    {quiz.access_type}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
-      <div className="w-fit ml-auto mr-2">Total : 20</div>
-      <hr className="h-[1px]  bg-black" />
-      <div className="flex flex-col gap-2 h-[600px] overflow-x-hidden overflow-y-scroll scrollbar-thin">
-        <div className="flex bg-gray-200 gap-1">
-          <div className="flex justify-center items-center flex-1 bg-lightseagreen text-white p-4 text-xs">
-            Title
-          </div>
-          <div className="flex justify-center items-center  bg-lightseagreen text-white w-72 p-4 text-xs">
-            Description
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-lightseagreen text-white p-4 text-xs">
-            No. of Questions
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-lightseagreen text-white p-4 text-xs">
-            Duration
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-lightseagreen text-white p-4 text-xs">
-            Difficulty Level
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-lightseagreen text-white p-4 text-xs">
-            Access Type
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-lightseagreen text-white p-4 text-xs">
-            Access Type
-          </div>
+      <div
+        className={`h-full w-1/3 absolute bg-white border-l-2 border-gray-200 top-0 right-0 transition-all duration-200 ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div
+          className=" absolute top-4 left-4 text-lg cursor-pointer"
+          onClick={handleCloseQuiz}
+        >
+          <FaTimes />
         </div>
-        {isLoading ? <>Loading data..</> : <div>Data loaded</div>}
-        <div className="flex bg-gray-200 gap-1 ">
-          <div className="flex justify-center items-center flex-1 bg-white text-xs p-4">
-            Ssc Cgl MOck latest - 2025
-          </div>
-          <div className="flex justify-center items-center  bg-white w-72 p-4 text-xs ">
-            Description Lorem ipsum dolor sit amet consectetur adipisicing elit.
-            Sequi, deserunt quis. Asperiores cum minus velit repellat quisquam
-            placeat culpa at alias nemo dolor maxime eveniet cupiditate
-            doloribus sint, a vitae!
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            25
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            30 min
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            Advanced
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            Free
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            <FaTrash />
-          </div>
-        </div>
-        <div className="flex bg-gray-200 gap-1 ">
-          <div className="flex justify-center items-center flex-1 bg-white text-xs p-4">
-            Ssc Cgl MOck latest - 2025
-          </div>
-          <div className="flex justify-center items-center  bg-white w-72 p-4 text-xs ">
-            Description Lorem ipsum dolor sit amet consectetur adipisicing elit.
-            Sequi, deserunt quis. Asperiores cum minus velit repellat quisquam
-            placeat culpa at alias nemo dolor maxime eveniet cupiditate
-            doloribus sint, a vitae!
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            25
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            30 min
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            Advanced
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            Free
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            <FaTrash />
-          </div>
-        </div>
-        <div className="flex bg-gray-200 gap-1 ">
-          <div className="flex justify-center items-center flex-1 bg-white text-xs p-4">
-            Ssc Cgl MOck latest - 2025
-          </div>
-          <div className="flex justify-center items-center  bg-white w-72 p-4 text-xs ">
-            Description Lorem ipsum dolor sit amet consectetur adipisicing elit.
-            Sequi, deserunt quis. Asperiores cum minus velit repellat quisquam
-            placeat culpa at alias nemo dolor maxime eveniet cupiditate
-            doloribus sint, a vitae!
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            25
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            30 min
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            Advanced
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            Free
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            <FaTrash />
-          </div>
-        </div>
-        <div className="flex bg-gray-200 gap-1 ">
-          <div className="flex justify-center items-center flex-1 bg-white text-xs p-4">
-            Ssc Cgl MOck latest - 2025
-          </div>
-          <div className="flex justify-center items-center  bg-white w-72 p-4 text-xs ">
-            Description Lorem ipsum dolor sit amet consectetur adipisicing elit.
-            Sequi, deserunt quis. Asperiores cum minus velit repellat quisquam
-            placeat culpa at alias nemo dolor maxime eveniet cupiditate
-            doloribus sint, a vitae!
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            25
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            30 min
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            Advanced
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            Free
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            <FaTrash />
-          </div>
-        </div>
-        <div className="flex bg-gray-200 gap-1 ">
-          <div className="flex justify-center items-center flex-1 bg-white text-xs p-4">
-            Ssc Cgl MOck latest - 2025
-          </div>
-          <div className="flex justify-center items-center  bg-white w-72 p-4 text-xs ">
-            Description Lorem ipsum dolor sit amet consectetur adipisicing elit.
-            Sequi, deserunt quis. Asperiores cum minus velit repellat quisquam
-            placeat culpa at alias nemo dolor maxime eveniet cupiditate
-            doloribus sint, a vitae!
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            25
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            30 min
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            Advanced
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            Free
-          </div>
-          <div className="flex justify-center items-center flex-1 bg-white p-4 text-xs">
-            <FaTrash />
-          </div>
+        <div className="p-4 flex justify-center items-center bg-lightseagreen text-white">
+          {selectedQuiz?.title}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 const AddNewQuizScreen = () => {

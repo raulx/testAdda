@@ -13,6 +13,16 @@ export const pause = (duration: number) => {
   });
 };
 
+export const getLocalDate = (dateString: string) => {
+  const newDate = new Date(dateString);
+
+  return newDate.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
 export const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   const day = String(date.getDate()).padStart(2, "0");
