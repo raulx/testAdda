@@ -52,4 +52,10 @@ const addQuiz = asynchandler(async (req, res) => {
     res.json(new ApiResponse(200, newQuiz, 'Quiz added successfully'));
 });
 
-export { addQuiz };
+const getQuizes = asynchandler(async (req, res) => {
+    const quizes = await Quiz.find({});
+
+    res.json(new ApiResponse(200, quizes, 'Quizes available !'));
+});
+
+export { addQuiz, getQuizes };

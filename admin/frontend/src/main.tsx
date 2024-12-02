@@ -4,7 +4,7 @@ import App from "./App.tsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AddQuestionScreen from "./Screens/QuestionsScreen.tsx";
-import { AddNewQuizScreen } from "./Screens/QuizesScreen.tsx";
+import { AddNewQuizScreen, QuizScreenHome } from "./Screens/QuizesScreen.tsx";
 import { Provider } from "react-redux";
 import store from "./store/store.ts";
 import QuizScreenMain from "./Screens/QuizesScreen.tsx";
@@ -18,7 +18,10 @@ const router = createBrowserRouter([
       {
         path: "/quizes",
         element: <QuizScreenMain />,
-        children: [{ path: "/quizes/add/new", element: <AddNewQuizScreen /> }],
+        children: [
+          { index: true, element: <QuizScreenHome /> },
+          { path: "/quizes/add/new", element: <AddNewQuizScreen /> },
+        ],
       },
     ],
   },

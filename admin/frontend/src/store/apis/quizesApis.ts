@@ -19,6 +19,14 @@ const quizesApi = createApi({
     },
   }),
   endpoints: (builder) => ({
+    getQuizes: builder.query<ApiResponse<QuizDataType[]>, null>({
+      query: () => {
+        return {
+          url: "/all",
+          method: "GET",
+        };
+      },
+    }),
     addQuiz: builder.mutation<ApiResponse<QuizDataType>, QuizDataType>({
       query: (data) => {
         return {
@@ -31,5 +39,6 @@ const quizesApi = createApi({
   }),
 });
 
-export const { useAddQuizMutation } = quizesApi;
+export const { useAddQuizMutation, useGetQuizesQuery, useLazyGetQuizesQuery } =
+  quizesApi;
 export default quizesApi;
