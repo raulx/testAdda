@@ -1,25 +1,20 @@
 import { SERVER_BASE_URL } from "@/utils/constants";
 import ApiResponse from "@/utils/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { QuestionData } from "./questionApis";
 
-export type QuizDataSentType = {
+export interface QuizDataSentType<T = string | QuestionData> {
   title: string;
   description: string;
   access_type: "free" | "paid";
   duration: number;
   difficulty_level: "beginner" | "intermediate" | "advanced";
-  questions: string[];
-};
-export type QuizDataResponseType = {
-  title: string;
-  description: string;
-  access_type: "free" | "paid";
-  duration: number;
-  difficulty_level: "beginner" | "intermediate" | "advanced";
-  questions: string[];
+  questions: T[];
+}
+export interface QuizDataResponseType extends QuizDataSentType<QuestionData> {
   createdAt: string;
   _id: string;
-};
+}
 
 const quizesApi = createApi({
   reducerPath: "quizesApi",
@@ -40,7 +35,7 @@ const quizesApi = createApi({
     }),
     addQuiz: builder.mutation<
       ApiResponse<QuizDataResponseType>,
-      QuizDataSentType
+      QuizDataSentType<string>
     >({
       query: (data) => {
         return {
@@ -50,9 +45,22 @@ const quizesApi = createApi({
         };
       },
     }),
+    deleteQuiz: builder.mutation<ApiResponse<object>, string>({
+      query: (quiz_id) => {
+        return {
+          url: "/quiz",
+          method: "DELETE",
+          body: { quiz_id },
+        };
+      },
+    }),
   }),
 });
 
-export const { useAddQuizMutation, useGetQuizesQuery, useLazyGetQuizesQuery } =
-  quizesApi;
+export const {
+  useAddQuizMutation,
+  useGetQuizesQuery,
+  useLazyGetQuizesQuery,
+  useDeleteQuizMutation,
+} = quizesApi;
 export default quizesApi;

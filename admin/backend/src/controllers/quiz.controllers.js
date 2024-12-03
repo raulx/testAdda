@@ -53,9 +53,33 @@ const addQuiz = asynchandler(async (req, res) => {
 });
 
 const getQuizes = asynchandler(async (req, res) => {
-    const quizes = await Quiz.find({});
-
+    const quizes = await Quiz.aggregate([
+        {
+            $lookup: {
+                from: 'questions',
+                localField: 'questions',
+                foreignField: '_id',
+                as: 'questions',
+            },
+        },
+    ]);
     res.json(new ApiResponse(200, quizes, 'Quizes available !'));
 });
 
-export { addQuiz, getQuizes };
+const deleteQuiz = asynchandler(async (req, res) => {
+    const { quiz_id } = req.body;
+
+    const quiz = await Quiz.findOne({ _id: quiz_id });
+    if (!quiz) throw new ApiError(404, 'Quiz not found');
+
+    for (let i = 0; i < quiz.questions.length; i++) {
+        await Question.findOneAndUpdate(
+            { _id: quiz.questions[i]._id },
+            { $unset: { quiz_id: '' } }
+        );
+    }
+    await Quiz.findOneAndDelete({ _id: quiz._id });
+
+    res.json(new ApiResponse(200, {}, 'quiz deleted successfully'));
+});
+export { addQuiz, getQuizes, deleteQuiz };

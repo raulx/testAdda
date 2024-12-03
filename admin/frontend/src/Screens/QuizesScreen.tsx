@@ -23,7 +23,7 @@ import {
 import { RadioGroup } from "@radix-ui/react-radio-group";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import { HiOutlineDocumentAdd } from "react-icons/hi";
-import { FaEye, FaPlus, FaTimes } from "react-icons/fa";
+import { FaEye, FaPlus, FaTimes, FaTrash } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import {
   AllQuestion,
@@ -31,15 +31,19 @@ import {
   QuizDataResponseType,
   RootState,
   useAddQuizMutation,
+  useDeleteQuizMutation,
   useGetQuizesQuery,
+  useLazyGetAllQuestionQuery,
 } from "@/store/store";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { getLocalDate } from "@/utils/helpers";
-import { ImCheckmark } from "react-icons/im";
+import { ImCheckmark, ImSpinner9 } from "react-icons/im";
 import Modal from "react-modal";
-import { useToast } from "@/hooks/use-toast";
+import { toast, useToast } from "@/hooks/use-toast";
 import ApiResponse from "@/utils/types";
 import { isFetchBaseQueryError } from "@/utils/helpers";
+import { setQuestions } from "@/store/store";
+import { UseAppDispatch } from "@/hooks/useAppDispatch";
 
 Modal.setAppElement("#root");
 
@@ -67,8 +71,8 @@ const QuizScreenMain = () => {
   const location = useLocation().pathname;
 
   return (
-    <div>
-      <div className="flex gap-4 max-w-fit bg-white mx-auto justify-center items-center border-2 py-2 px-4 text-sm rounded-lg mt-2">
+    <div className="relative flex flex-col gap-2 py-2">
+      <div className="flex gap-4 max-w-fit bg-white mx-auto justify-center  items-center border-2 py-2 px-4 text-sm rounded-lg">
         <div className={`${location === "/quizes" && "border-b-2"}`}>
           <Link to={"/quizes"}>Quizes</Link>
         </div>
@@ -86,6 +90,8 @@ const QuizScreenHome = () => {
   const [selectedQuiz, setSelectedQuiz] =
     useState<QuizDataResponseType | null>();
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [deleteQuiz, { isLoading: isDeletingQuiz }] = useDeleteQuizMutation();
+  const [quizes, setQuizes] = useState<QuizDataResponseType[]>([]);
 
   const handleSelectQuiz = (quiz: QuizDataResponseType) => {
     setSelectedQuiz(quiz);
@@ -96,17 +102,59 @@ const QuizScreenHome = () => {
     setSelectedQuiz(null);
     setIsOpen(false);
   };
+  const handleQuizSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    if (data) {
+      const filteredQuiz = data?.data.filter((quiz) =>
+        quiz.title.includes(e.target.value)
+      );
+      setQuizes(filteredQuiz);
+    }
+  };
+  const handleDeleteQuiz = async () => {
+    if (selectedQuiz)
+      try {
+        const res = await deleteQuiz(selectedQuiz?._id);
+        if (res.data) {
+          toast({
+            title: "Quiz Deleted",
+            description: "Quiz deleted Sucessfully",
+          });
+          setQuizes((prevValue) => {
+            return [...prevValue].filter(
+              (quiz) => quiz._id != selectedQuiz._id
+            );
+          });
+          handleCloseQuiz();
+        } else {
+          toast({
+            title: "Error Ocurred",
+            description: "Error Occured While deleting quiz",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+  };
+  useEffect(() => {
+    if (data) setQuizes(data.data);
+  }, [data]);
   return (
     <>
-      <div className="h-[700px] bg-[#F7F4F4]  mx-auto my-6 border rounded-lg flex flex-col gap-2 w-11/12 p-4 ">
+      <div className="h-[700px] bg-[#F7F4F4]  mx-auto  border rounded-lg flex flex-col gap-2 w-11/12 p-4  ">
         <h1 className="w-fit mx-auto font-semibold text-xl">Quizes</h1>
         <div>
-          <Input placeholder="Search By Quiz" />
+          <Input
+            placeholder="Search By Quiz"
+            onChange={(e) => handleQuizSearch(e)}
+          />
         </div>
-        <div className="w-fit ml-auto mr-2">Total : {data?.data.length}</div>
-        <hr className="h-[1px]  bg-black" />
+        <div className="w-fit ml-auto mr-2">Total : {quizes.length}</div>
+
         {isLoading ? (
-          <>Loading data ...</>
+          <div className="w-full h-[600px] flex justify-center items-center">
+            <ImSpinner9 className="animate-spin text-3xl text-lightseagreen" />
+          </div>
         ) : (
           <div className="flex flex-col gap-2 h-[600px] overflow-x-hidden overflow-y-scroll scrollbar-thin px-2">
             <div className="flex bg-gray-200 gap-1">
@@ -132,7 +180,7 @@ const QuizScreenHome = () => {
                 Access Type
               </div>
             </div>
-            {data?.data.map((quiz, index) => {
+            {quizes.map((quiz, index) => {
               return (
                 <div
                   className={`flex bg-gray-200 gap-1 cursor-pointer ${
@@ -169,18 +217,56 @@ const QuizScreenHome = () => {
         )}
       </div>
       <div
-        className={`h-full w-1/3 absolute bg-white border-l-2 border-gray-200 top-0 right-0 transition-all duration-200 ${
+        className={`h-full w-1/3 absolute bg-white border-l-2 flex flex-col justify-between border-gray-200 top-0 right-0 transition-all duration-200 overflow-hidden ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div
-          className=" absolute top-4 left-4 text-lg cursor-pointer"
+          className=" absolute top-4 left-4 text-lg text-white cursor-pointer"
           onClick={handleCloseQuiz}
         >
           <FaTimes />
         </div>
         <div className="p-4 flex justify-center items-center bg-lightseagreen text-white">
           {selectedQuiz?.title}
+        </div>
+        <div className="p-2 flex flex-col gap-2 overflow-y-scroll h-screen scrollbar-thin">
+          {selectedQuiz?.questions.map((ques, index) => {
+            return (
+              <div
+                className="flex flex-col gap-4 border rounded-2 text-xs px-2 py-4"
+                key={ques._id}
+              >
+                <div>
+                  Q.{index + 1}) {ques.question}
+                </div>
+                <div className="flex gap-2">
+                  <div>Options : -</div>
+                  <div className="flex flex-col gap-2">
+                    <div>A) {ques.options.a}</div>
+                    <div>B) {ques.options.b}</div>
+                    <div>C) {ques.options.c}</div>
+                    <div>D) {ques.options.d}</div>
+                  </div>
+                </div>
+                <div>Correct Answer : {ques.correct_option}</div>
+                <div>Explaination : {ques.explaination}</div>
+                <div>Difficulty Level : {ques.difficulty}</div>
+              </div>
+            );
+          })}
+        </div>
+        <div
+          className="bg-red-600 cursor-pointer  text-white p-4 flex gap-2 justify-center items-center"
+          onClick={handleDeleteQuiz}
+        >
+          {isDeletingQuiz ? (
+            <span className="loader h-6 w-6"></span>
+          ) : (
+            <>
+              Delete Quiz <FaTrash />
+            </>
+          )}
         </div>
       </div>
     </>
@@ -190,9 +276,17 @@ const AddNewQuizScreen = () => {
   const questions = useSelector((store: RootState) => {
     return store.questions.data;
   }).filter((d) => !d.quiz_id);
+
+  const [getAllQuestions, { isLoading: isGettingQuestions }] =
+    useLazyGetAllQuestionQuery();
+
+  const dispatch = UseAppDispatch();
+
   const [availableQuestions, setAvalableQuestions] =
     useState<AllQuestion>(questions);
+
   const [addQuiz, { isLoading }] = useAddQuizMutation();
+
   const { toast } = useToast();
   const [selectedQuestions, setSelectedQuestions] = useState<AllQuestion>([]);
   const [viewQuestionModel, setViewQuestionModel] = useState(false);
@@ -232,6 +326,7 @@ const AddNewQuizScreen = () => {
       return [...prevValue].filter((d) => d._id != id);
     });
   };
+
   async function handleFormSubmit(values: z.infer<typeof quizSchema>) {
     if (selectedQuestions.length === 0)
       toast({
@@ -280,11 +375,29 @@ const AddNewQuizScreen = () => {
     );
     setAvalableQuestions(filteredByExamQuestions);
   };
+
   const openViewQuestionModel = (ques: QuestionData) => {
     setOpenedQuestion(ques);
     setViewQuestionModel(true);
   };
 
+  useEffect(() => {
+    const fetchAllQuestion = async () => {
+      try {
+        const res = await getAllQuestions(null);
+        if (res.data) {
+          dispatch(setQuestions(res.data?.data));
+          const newAvailableQuestions = res.data?.data.filter(
+            (ques) => !ques.quiz_id
+          );
+          setAvalableQuestions(newAvailableQuestions);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    if (questions[0]._id === "") fetchAllQuestion();
+  }, [questions, dispatch, getAllQuestions]);
   return (
     <>
       <div className="flex flex-col gap-4 bg-[#F6F3F3] m-4 rounded-xl px-4 py-8">
@@ -507,84 +620,94 @@ const AddNewQuizScreen = () => {
                 />
               </div>
               <div className="max-w-fit ml-auto mr-8 text-sm">
-                Total Available Questions : {availableQuestions.length}
+                Total Available Questions :{" "}
+                {availableQuestions[0]._id != ""
+                  ? availableQuestions.length
+                  : 0}
               </div>
               <hr className="h-2" />
-              <div className="p-4 flex flex-col gap-2 h-[360px] overflow-x-hidden overflow-y-scroll scrollbar-thin">
-                <div className="flex bg-lightseagreen text-white justify-between rounded">
-                  <div className="w-12 flex justify-center items-center">
-                    S.No
-                  </div>
-                  <div className="w-24 flex justify-center items-center">
-                    Exam
-                  </div>
-                  <div className="w-24 flex justify-center items-center">
-                    Difficulty
-                  </div>
-                  <div className="w-24 flex justify-center items-center">
-                    Subject
-                  </div>
-                  <div className="w-24 flex justify-center items-center">
-                    Topic
-                  </div>
-                  <div className="w-16 flex justify-center items-center">
-                    View
-                  </div>
-                  <div className="w-20 flex justify-center items-center">
-                    Add
-                  </div>
+              {isGettingQuestions ? (
+                <div className="w-full h-[300px] flex justify-center items-center">
+                  <ImSpinner9 className="animate-spin text-3xl text-lightseagreen" />
                 </div>
-                {availableQuestions.map((ques, index) => {
-                  return (
-                    <div
-                      className={`flex  border  border-gray-400 bg-white justify-between  items-center rounded ${
-                        openedQuestion._id === ques._id &&
-                        "border-2 border-lightseagreen"
-                      }`}
-                      key={ques._id}
-                    >
-                      <div className="w-12 flex justify-center items-center">
-                        Q.{index + 1}
-                      </div>
-                      <div className="w-24 flex justify-center items-center">
-                        {ques.exam}
-                      </div>
-                      <div className="w-24 flex justify-center items-center">
-                        {ques.difficulty}
-                      </div>
-                      <div className="w-24 flex justify-center items-center">
-                        {ques.subject}
-                      </div>
-                      <div className="w-24 flex justify-center items-center">
-                        {ques.topic}
-                      </div>
-                      <div
-                        onClick={() => openViewQuestionModel(ques)}
-                        className="cursor-pointer w-16 flex justify-center items-center"
-                      >
-                        <FaEye />
-                      </div>
-                      {selectedQuestions.find((q) => q._id === ques._id) ? (
-                        <div className="flex justify-center items-center w-20">
-                          <ImCheckmark />
-                        </div>
-                      ) : (
-                        <div
-                          onClick={() => handleQuestionAdd(ques)}
-                          className="cursor-pointer flex justify-center items-center w-20"
-                        >
-                          <FaPlus />
-                        </div>
-                      )}
+              ) : (
+                <div className="p-4 flex flex-col gap-2 h-[360px] overflow-x-hidden overflow-y-scroll scrollbar-thin">
+                  <div className="flex bg-lightseagreen text-white justify-between rounded">
+                    <div className="w-12 flex justify-center items-center">
+                      S.No
                     </div>
-                  );
-                })}
-                {availableQuestions.length === 0 && (
-                  <div className="my-4 max-w-fit mx-auto text-gray-500">
-                    No Question Available !
+                    <div className="w-24 flex justify-center items-center">
+                      Exam
+                    </div>
+                    <div className="w-24 flex justify-center items-center">
+                      Difficulty
+                    </div>
+                    <div className="w-24 flex justify-center items-center">
+                      Subject
+                    </div>
+                    <div className="w-24 flex justify-center items-center">
+                      Topic
+                    </div>
+                    <div className="w-16 flex justify-center items-center">
+                      View
+                    </div>
+                    <div className="w-20 flex justify-center items-center">
+                      Add
+                    </div>
                   </div>
-                )}
-              </div>
+                  {availableQuestions.map((ques, index) => {
+                    if (ques._id != "")
+                      return (
+                        <div
+                          className={`flex  border  border-gray-400 bg-white justify-between  items-center rounded ${
+                            openedQuestion._id === ques._id &&
+                            "border-2 border-lightseagreen"
+                          }`}
+                          key={ques._id}
+                        >
+                          <div className="w-12 flex justify-center items-center">
+                            Q.{index + 1}
+                          </div>
+                          <div className="w-24 flex justify-center items-center">
+                            {ques.exam}
+                          </div>
+                          <div className="w-24 flex justify-center items-center">
+                            {ques.difficulty}
+                          </div>
+                          <div className="w-24 flex justify-center items-center">
+                            {ques.subject}
+                          </div>
+                          <div className="w-24 flex justify-center items-center">
+                            {ques.topic}
+                          </div>
+                          <div
+                            onClick={() => openViewQuestionModel(ques)}
+                            className="cursor-pointer w-16 flex justify-center items-center"
+                          >
+                            <FaEye />
+                          </div>
+                          {selectedQuestions.find((q) => q._id === ques._id) ? (
+                            <div className="flex justify-center items-center w-20">
+                              <ImCheckmark />
+                            </div>
+                          ) : (
+                            <div
+                              onClick={() => handleQuestionAdd(ques)}
+                              className="cursor-pointer flex justify-center items-center w-20"
+                            >
+                              <FaPlus />
+                            </div>
+                          )}
+                        </div>
+                      );
+                  })}
+                  {availableQuestions.length === 0 && (
+                    <div className="my-4 max-w-fit mx-auto text-gray-500">
+                      No Question Available !
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
