@@ -1,10 +1,10 @@
 import Question from '../models/question.model.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
-import Quiz from '../models/quiz.model.js';
+import Test from '../models/test.model.js';
 import asynchandler from 'express-async-handler';
 
-const addQuiz = asynchandler(async (req, res) => {
+const addTest = asynchandler(async (req, res) => {
     const {
         title,
         description,
@@ -30,7 +30,7 @@ const addQuiz = asynchandler(async (req, res) => {
             throw new ApiError(409, 'Question is already present in a quiz.');
     }
 
-    const newQuiz = await Quiz.create({
+    const newQuiz = await Test.create({
         title,
         description,
         duration,
@@ -52,8 +52,8 @@ const addQuiz = asynchandler(async (req, res) => {
     res.json(new ApiResponse(200, newQuiz, 'Quiz added successfully'));
 });
 
-const getQuizes = asynchandler(async (req, res) => {
-    const quizes = await Quiz.aggregate([
+const getTests = asynchandler(async (req, res) => {
+    const quizes = await Test.aggregate([
         {
             $lookup: {
                 from: 'questions',
@@ -66,10 +66,10 @@ const getQuizes = asynchandler(async (req, res) => {
     res.json(new ApiResponse(200, quizes, 'Quizes available !'));
 });
 
-const deleteQuiz = asynchandler(async (req, res) => {
+const deleteTest = asynchandler(async (req, res) => {
     const { quiz_id } = req.body;
 
-    const quiz = await Quiz.findOne({ _id: quiz_id });
+    const quiz = await Test.findOne({ _id: quiz_id });
     if (!quiz) throw new ApiError(404, 'Quiz not found');
 
     for (let i = 0; i < quiz.questions.length; i++) {
@@ -78,8 +78,8 @@ const deleteQuiz = asynchandler(async (req, res) => {
             { $unset: { quiz_id: '' } }
         );
     }
-    await Quiz.findOneAndDelete({ _id: quiz._id });
+    await Test.findOneAndDelete({ _id: quiz._id });
 
     res.json(new ApiResponse(200, {}, 'quiz deleted successfully'));
 });
-export { addQuiz, getQuizes, deleteQuiz };
+export { addTest, getTests, deleteTest };

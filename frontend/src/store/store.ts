@@ -4,7 +4,7 @@ import authSlice from "./slices/authSlice";
 import userSlice from "./slices/userSlice";
 import userApis from "./apis/userApis";
 import authApis from "./apis/authApis";
-import quizApis from "./apis/quizApis";
+import quizApis from "./apis/testApis";
 import quizesSlice from "./slices/quizesSlice";
 
 const store = configureStore({
@@ -32,7 +32,7 @@ export type AppDispatch = typeof store.dispatch;
 // api's exports
 export * from "./apis/authApis";
 export * from "./apis/userApis";
-export * from "./apis/quizApis";
+export * from "./apis/testApis";
 
 // slices exports
 export * from "./slices/authSlice";

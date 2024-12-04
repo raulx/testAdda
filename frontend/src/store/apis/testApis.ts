@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { SERVER_BASE_URL } from "@/utils/constants";
-import { ApiResponseType, QuizesResponseType } from "@/utils/types";
-import { QuizResponseType } from "@/utils/types";
+import { ApiResponseType, TestsResponseType } from "@/utils/types";
+import { TestResponseType } from "@/utils/types";
 // import { pause } from "@/utils/helpers";
 
 import { AttemptProgressType } from "@/pages/AttemptWindow";
@@ -16,9 +16,9 @@ interface AttemptType {
 }
 
 const quizApis = createApi({
-  reducerPath: "quizApis",
+  reducerPath: "testApis",
   baseQuery: fetchBaseQuery({
-    baseUrl: `${SERVER_BASE_URL}/quiz`,
+    baseUrl: `${SERVER_BASE_URL}/test`,
     fetchFn: async (...args) => {
       // remove in Production
       // await pause(2000);
@@ -26,7 +26,7 @@ const quizApis = createApi({
     },
   }),
   endpoints: (builder) => ({
-    submitQuiz: builder.mutation<ApiResponseType<string>, AttemptType>({
+    submitTest: builder.mutation<ApiResponseType<string>, AttemptType>({
       query: (data) => {
         return {
           url: `/attempt/new`,
@@ -35,30 +35,30 @@ const quizApis = createApi({
         };
       },
     }),
-    saveQuiz: builder.mutation<ApiResponseType<object>, AttemptProgressType>({
+    saveTest: builder.mutation<ApiResponseType<object>, AttemptProgressType>({
       query: (data) => {
         return {
-          url: "/saveQuizProgress",
+          url: "/saveTestProgress",
           method: "POST",
           body: data,
         };
       },
     }),
-    getQuizProgress: builder.query<
+    getTestProgress: builder.query<
       ApiResponseType<AttemptProgressType>,
       string
     >({
       query: (quizId) => {
         return {
-          url: `/getQuizProgress?quizId=${quizId}`,
+          url: `/getTestProgress?quizId=${quizId}`,
           method: "GET",
         };
       },
     }),
-    getQuiz: builder.query<ApiResponseType<QuizResponseType>, string>({
+    getTest: builder.query<ApiResponseType<TestResponseType>, string>({
       query: (_id) => {
         return {
-          url: `/getQuiz?quiz_id=${_id}`,
+          url: `/getTest?quiz_id=${_id}`,
           method: "GET",
         };
       },
@@ -72,10 +72,10 @@ const quizApis = createApi({
         };
       },
     }),
-    getQuizes: builder.query<ApiResponseType<QuizesResponseType>, null>({
+    getTests: builder.query<ApiResponseType<TestsResponseType>, null>({
       query: () => {
         return {
-          url: "/getQuizes",
+          url: "/getTests",
           method: "GET",
         };
       },
@@ -84,13 +84,13 @@ const quizApis = createApi({
 });
 
 export const {
-  useLazyGetQuizesQuery,
-  useLazyGetQuizQuery,
-  useGetQuizQuery,
-  useSubmitQuizMutation,
-  useSaveQuizMutation,
-  useGetQuizProgressQuery,
-  useLazyGetQuizProgressQuery,
+  useLazyGetTestsQuery,
+  useLazyGetTestQuery,
+  useGetTestQuery,
+  useSubmitTestMutation,
+  useSaveTestMutation,
+  useGetTestProgressQuery,
+  useLazyGetTestProgressQuery,
   useGetResultMutation,
 } = quizApis;
 

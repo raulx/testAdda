@@ -18,14 +18,14 @@ interface UserLoginResponseType {
   avatar_url: string;
 }
 
-interface QuizQuestionsType {
+interface TestQuestionsType {
   options: { a: string; b: string; c: string; d: string };
   question: string;
   subject: "english" | "mathematics" | "reasoning";
   _id: string | any;
 }
 
-interface QuizData<T> {
+interface TestData<T> {
   _id: string;
   title: string;
   description: string;
@@ -36,8 +36,8 @@ interface QuizData<T> {
   difficulty_level: string;
 }
 
-type QuizResponseType = QuizData<QuizQuestionsType>[];
-type QuizesResponseType = QuizData<string>[];
+type TestResponseType = TestData<TestQuestionsType>[];
+type TestsResponseType = TestData<string>[];
 
 interface ApiResponseType<T = unknown> {
   statusCode: number;
@@ -50,8 +50,8 @@ export type {
   ApiResponseType,
   UserData,
   UserLoginResponseType,
-  QuizResponseType,
-  QuizesResponseType,
-  QuizData,
-  QuizQuestionsType,
+  TestResponseType,
+  TestsResponseType,
+  TestData,
+  TestQuestionsType,
 };

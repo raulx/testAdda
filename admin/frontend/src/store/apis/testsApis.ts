@@ -3,7 +3,7 @@ import ApiResponse from "@/utils/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { QuestionData } from "./questionApis";
 
-export interface QuizDataSentType<T = string | QuestionData> {
+export interface TestDataSentType<T = string | QuestionData> {
   title: string;
   description: string;
   access_type: "free" | "paid";
@@ -11,21 +11,21 @@ export interface QuizDataSentType<T = string | QuestionData> {
   difficulty_level: "beginner" | "intermediate" | "advanced";
   questions: T[];
 }
-export interface QuizDataResponseType extends QuizDataSentType<QuestionData> {
+export interface TestDataResponseType extends TestDataSentType<QuestionData> {
   createdAt: string;
   _id: string;
 }
 
-const quizesApi = createApi({
-  reducerPath: "quizesApi",
+const testsApi = createApi({
+  reducerPath: "testsApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `${SERVER_BASE_URL}/quizes`,
+    baseUrl: `${SERVER_BASE_URL}/tests`,
     fetchFn: async (...args) => {
       return fetch(...args);
     },
   }),
   endpoints: (builder) => ({
-    getQuizes: builder.query<ApiResponse<QuizDataResponseType[]>, null>({
+    getTests: builder.query<ApiResponse<TestDataResponseType[]>, null>({
       query: () => {
         return {
           url: "/all",
@@ -33,9 +33,9 @@ const quizesApi = createApi({
         };
       },
     }),
-    addQuiz: builder.mutation<
-      ApiResponse<QuizDataResponseType>,
-      QuizDataSentType<string>
+    addTest: builder.mutation<
+      ApiResponse<TestDataResponseType>,
+      TestDataSentType<string>
     >({
       query: (data) => {
         return {
@@ -45,10 +45,10 @@ const quizesApi = createApi({
         };
       },
     }),
-    deleteQuiz: builder.mutation<ApiResponse<object>, string>({
+    deleteTest: builder.mutation<ApiResponse<object>, string>({
       query: (quiz_id) => {
         return {
-          url: "/quiz",
+          url: "/test",
           method: "DELETE",
           body: { quiz_id },
         };
@@ -58,9 +58,9 @@ const quizesApi = createApi({
 });
 
 export const {
-  useAddQuizMutation,
-  useGetQuizesQuery,
-  useLazyGetQuizesQuery,
-  useDeleteQuizMutation,
-} = quizesApi;
-export default quizesApi;
+  useAddTestMutation,
+  useGetTestsQuery,
+  useLazyGetTestsQuery,
+  useDeleteTestMutation,
+} = testsApi;
+export default testsApi;

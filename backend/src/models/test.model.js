@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
-const quizSchema = new Schema(
+const testSchema = new Schema(
     {
         title: { type: String, required: true },
         description: { type: String, required: true },
@@ -17,11 +17,11 @@ const quizSchema = new Schema(
     { timestamps: true }
 );
 
-quizSchema.pre('save', function (next) {
+testSchema.pre('save', function (next) {
     this.no_of_questions = this.questions.length;
     next();
 });
 
-const Quiz = mongoose.model('Quiz', quizSchema);
+const Test = mongoose.model('Test', testSchema);
 
-export default Quiz;
+export default Test;

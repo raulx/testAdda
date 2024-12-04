@@ -28,11 +28,11 @@ import { useSelector } from "react-redux";
 import {
   AllQuestion,
   QuestionData,
-  QuizDataResponseType,
+  TestDataResponseType,
   RootState,
-  useAddQuizMutation,
-  useDeleteQuizMutation,
-  useGetQuizesQuery,
+  useAddTestMutation,
+  useDeleteTestMutation,
+  useGetTestsQuery,
   useLazyGetAllQuestionQuery,
 } from "@/store/store";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -86,14 +86,14 @@ const QuizScreenMain = () => {
 };
 
 const QuizScreenHome = () => {
-  const { data, isLoading } = useGetQuizesQuery(null);
+  const { data, isLoading } = useGetTestsQuery(null);
   const [selectedQuiz, setSelectedQuiz] =
-    useState<QuizDataResponseType | null>();
+    useState<TestDataResponseType | null>();
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [deleteQuiz, { isLoading: isDeletingQuiz }] = useDeleteQuizMutation();
-  const [quizes, setQuizes] = useState<QuizDataResponseType[]>([]);
+  const [deleteQuiz, { isLoading: isDeletingQuiz }] = useDeleteTestMutation();
+  const [quizes, setQuizes] = useState<TestDataResponseType[]>([]);
 
-  const handleSelectQuiz = (quiz: QuizDataResponseType) => {
+  const handleSelectQuiz = (quiz: TestDataResponseType) => {
     setSelectedQuiz(quiz);
     setIsOpen(true);
   };
@@ -285,7 +285,7 @@ const AddNewQuizScreen = () => {
   const [availableQuestions, setAvalableQuestions] =
     useState<AllQuestion>(questions);
 
-  const [addQuiz, { isLoading }] = useAddQuizMutation();
+  const [addQuiz, { isLoading }] = useAddTestMutation();
 
   const { toast } = useToast();
   const [selectedQuestions, setSelectedQuestions] = useState<AllQuestion>([]);

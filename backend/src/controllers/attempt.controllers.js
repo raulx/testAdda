@@ -2,13 +2,13 @@ import asyncHandler from 'express-async-handler';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { ApiError } from '../utils/ApiError.js';
 import Attempt from '../models/attempt.model.js';
-import Quiz from '../models/quiz.model.js';
+import Test from '../models/test.model.js';
 import QuestionTime from '../models/question.time.model.js';
 import { generateResult } from './result.controllers.js';
 import Result from '../models/result.model.js';
 import TestProgress from '../models/testprogress.model.js';
 
-const attemptQuiz = asyncHandler(async (req, res) => {
+const attemptTest = asyncHandler(async (req, res) => {
     const userId = req.user._id;
     const { quizId, questionsAttempted } = req.body;
 
@@ -25,7 +25,7 @@ const attemptQuiz = asyncHandler(async (req, res) => {
 
     // check if the question attempted matches with the questions present in the quiz.
 
-    const quiz = await Quiz.findById({ _id: quizId });
+    const quiz = await Test.findById({ _id: quizId });
 
     if (!quiz) throw new ApiError(404, 'Quiz not found !');
 
@@ -79,4 +79,4 @@ const attemptQuiz = asyncHandler(async (req, res) => {
     res.json(new ApiResponse(200, newAttempt, 'Quiz attempted successfully !'));
 });
 
-export { attemptQuiz };
+export { attemptTest };

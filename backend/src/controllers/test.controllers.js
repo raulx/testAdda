@@ -1,12 +1,12 @@
 import asynchandler from 'express-async-handler';
 import { ApiError } from '../utils/ApiError.js';
-import Quiz from '../models/quiz.model.js';
+import Test from '../models/test.model.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import Question from '../models/question.model.js';
 import mongoose from 'mongoose';
 import TestProgress from '../models/testprogress.model.js';
 
-const addQuiz = asynchandler(async (req, res) => {
+const addTest = asynchandler(async (req, res) => {
     const {
         title,
         description,
@@ -30,7 +30,7 @@ const addQuiz = asynchandler(async (req, res) => {
         if (!available) throw new ApiError(409, 'Questions are not available');
     }
 
-    const newQuiz = await Quiz.create({
+    const newQuiz = await Test.create({
         title,
         description,
         duration,
@@ -52,12 +52,12 @@ const addQuiz = asynchandler(async (req, res) => {
     res.json(new ApiResponse(200, newQuiz, 'Quiz added successfully'));
 });
 
-const removeQuiz = asynchandler(async (req, res) => {
+const removeTest = asynchandler(async (req, res) => {
     const { quiz_id } = req.body;
 
     if (!quiz_id) throw new ApiError(400, 'All fields are required');
 
-    const quizTobeDeleted = await Quiz.findOne({ _id: quiz_id });
+    const quizTobeDeleted = await Test.findOne({ _id: quiz_id });
 
     if (!quizTobeDeleted) throw new ApiError(404, 'Quiz not found !');
 
@@ -70,23 +70,23 @@ const removeQuiz = asynchandler(async (req, res) => {
         );
     }
 
-    await Quiz.findByIdAndDelete({ _id: quiz_id });
+    await Test.findByIdAndDelete({ _id: quiz_id });
 
     res.json(new ApiResponse(200, {}, 'Quiz Removed Successfully !'));
 });
 
-const getQuizes = asynchandler(async (req, res) => {
+const getTests = asynchandler(async (req, res) => {
     const user = req.user;
 
-    const quizes = await Quiz.find({});
+    const quizes = await Test.find({});
 
     res.json(new ApiResponse(200, quizes, 'Quizes available !'));
 });
 
-const getQuiz = asynchandler(async (req, res) => {
+const getTest = asynchandler(async (req, res) => {
     const { quiz_id } = req.query;
 
-    const quiz = await Quiz.aggregate([
+    const quiz = await Test.aggregate([
         {
             $match: {
                 _id: mongoose.Types.ObjectId.createFromHexString(quiz_id),
@@ -121,7 +121,7 @@ const getQuiz = asynchandler(async (req, res) => {
     res.json(new ApiResponse(200, quiz, 'Quiz Data successfully sent'));
 });
 
-const saveQuizProgress = asynchandler(async (req, res) => {
+const saveTestProgress = asynchandler(async (req, res) => {
     const data = req.body;
     const user = req.user;
     if (!data) throw new ApiError(400, 'All Fields are required');
@@ -142,7 +142,7 @@ const saveQuizProgress = asynchandler(async (req, res) => {
     res.json(new ApiResponse(200, {}, 'quiz save successfully'));
 });
 
-const getQuizProgress = asynchandler(async (req, res) => {
+const getTestProgress = asynchandler(async (req, res) => {
     const { quizId } = req.query;
     const user = req.user;
 
@@ -163,10 +163,10 @@ const getQuizProgress = asynchandler(async (req, res) => {
 });
 
 export {
-    addQuiz,
-    removeQuiz,
-    getQuizes,
-    getQuiz,
-    saveQuizProgress,
-    getQuizProgress,
+    addTest,
+    removeTest,
+    getTests,
+    getTest,
+    saveTestProgress,
+    getTestProgress,
 };

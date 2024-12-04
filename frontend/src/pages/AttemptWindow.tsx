@@ -5,12 +5,12 @@ import { TypographyP } from "@/components/Typography";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  useGetQuizQuery,
-  useLazyGetQuizProgressQuery,
-  useSaveQuizMutation,
-  useSubmitQuizMutation,
+  useGetTestQuery,
+  useLazyGetTestProgressQuery,
+  useSaveTestMutation,
+  useSubmitTestMutation,
 } from "@/store/store";
-import { QuizQuestionsType } from "@/utils/types";
+import { TestQuestionsType } from "@/utils/types";
 import { Label } from "@radix-ui/react-label";
 import { useEffect, useRef, useState } from "react";
 import { FaClock } from "react-icons/fa";
@@ -29,25 +29,25 @@ export type AttemptProgressType = {
 };
 
 export const AttemptWindow = ({
-  quizId,
+  testId,
   windowRef,
 }: {
-  quizId: string;
+  testId: string;
   windowRef: Window;
 }) => {
-  const { data, isLoading, isError } = useGetQuizQuery(quizId);
+  const { data, isLoading, isError } = useGetTestQuery(testId);
   const [timer, setTimer] = useState<number>(10); // default is 10 before quiz get loaded
   const [lastAttemptAt, setLastAttemptAt] = useState<number>(0);
-  const [submitQuiz, { isLoading: isSubmitting }] = useSubmitQuizMutation();
+  const [submitQuiz, { isLoading: isSubmitting }] = useSubmitTestMutation();
   const [getQuizProgress, { isFetching: gettingSavedProgress }] =
-    useLazyGetQuizProgressQuery();
+    useLazyGetTestProgressQuery();
 
-  const [saveQuiz] = useSaveQuizMutation();
+  const [saveQuiz] = useSaveTestMutation();
 
   const quiz = data?.data[0];
 
   const [attempt, setAttempt] = useState<AttemptProgressType>({
-    quizId: quizId,
+    quizId: testId,
     questionsAttempted: [
       { questionId: "", answerMarked: "", timeTaken: 0, review: false },
     ],
@@ -174,7 +174,7 @@ export const AttemptWindow = ({
     });
   };
 
-  const handleButtonColor = (ques: QuizQuestionsType): string => {
+  const handleButtonColor = (ques: TestQuestionsType): string => {
     const targetQues = attempt.questionsAttempted.find(
       (q) => q.questionId === ques._id
     );
@@ -242,7 +242,7 @@ export const AttemptWindow = ({
   useEffect(() => {
     const loadAttemtData = async () => {
       try {
-        const res = await getQuizProgress(quizId);
+        const res = await getQuizProgress(testId);
         if (res.data) {
           const progressData = res.data?.data;
           setAttempt(progressData);

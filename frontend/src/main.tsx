@@ -35,10 +35,9 @@ const VerifyOtpAndLogin = lazy(() =>
 );
 const HomePage = lazy(() => import("./pages/HomePage.tsx"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage.tsx"));
-const MocksPage = lazy(() => import("./pages/MocksPage.tsx"));
 const NewsPage = lazy(() => import("./pages/NewsPage.tsx"));
 const AboutUsPage = lazy(() => import("./pages/AboutUsPage.tsx"));
-const QuizesPage = lazy(() => import("./pages/QuizesPage.tsx"));
+const TestsPage = lazy(() => import("./pages/TestsPage.tsx"));
 
 const router = createBrowserRouter([
   {
@@ -74,17 +73,12 @@ const router = createBrowserRouter([
       { path: "/news", element: <NewsPage /> },
 
       {
-        path: "/quizes",
+        path: "/tests",
         element: <ProtectedRoute />,
         children: [
-          { path: "/quizes", element: <QuizesPage /> },
-          { path: "/quizes/solutions/:id", element: <SolutionsPage /> },
+          { path: "/tests", element: <TestsPage /> },
+          { path: "/tests/solutions/:id", element: <SolutionsPage /> },
         ],
-      },
-      {
-        path: "/mocks",
-        element: <ProtectedRoute />,
-        children: [{ path: "/mocks", element: <MocksPage /> }],
       },
     ],
   },

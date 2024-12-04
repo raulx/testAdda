@@ -30,48 +30,48 @@ import { useState } from "react";
 
 Modal.setAppElement("#root");
 
-const openQuizInNewWindow = (title: string, _id: string) => {
+const openTestInNewWindow = (title: string, _id: string) => {
   // Get the screen width and height
   const screenWidth = window.screen.width - 20;
   const screenHeight = window.screen.height;
 
   // Open a new window with full width and height of the screen
-  const quizWindow = window.open(
+  const testWindow = window.open(
     "",
     "_blank",
     `width=${screenWidth},height=${screenHeight},top=4,left=0`
   );
 
-  if (quizWindow) {
-    quizWindow.document.title = title;
-    quizWindow.document.body.style.margin = "0";
-    quizWindow.document.body.style.overflow = "hidden"; // Remove scrollbars
+  if (testWindow) {
+    testWindow.document.title = title;
+    testWindow.document.body.style.margin = "0";
+    testWindow.document.body.style.overflow = "hidden"; // Remove scrollbars
 
     // Inject the Tailwind CSS into the new window
-    const tailwindLink = quizWindow.document.createElement("link");
+    const tailwindLink = testWindow.document.createElement("link");
     tailwindLink.rel = "stylesheet";
     tailwindLink.href =
       "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css";
-    quizWindow.document.head.appendChild(tailwindLink);
+    testWindow.document.head.appendChild(tailwindLink);
 
     // Create a div element where React can render the component
-    const quizDiv = quizWindow.document.createElement("div");
-    quizWindow.document.body.appendChild(quizDiv);
+    const testDiv = testWindow.document.createElement("div");
+    testWindow.document.body.appendChild(testDiv);
 
     // Apply CSS to make the div fill the entire window
-    quizDiv.style.width = "100%";
-    quizDiv.style.height = "100vh";
+    testDiv.style.width = "100%";
+    testDiv.style.height = "100vh";
 
     // Render the React component into the new window
-    const root = createRoot(quizDiv);
+    const root = createRoot(testDiv);
     root.render(
       <Provider store={store}>
-        <AttemptWindow windowRef={quizWindow} quizId={_id} />
+        <AttemptWindow windowRef={testWindow} testId={_id} />
       </Provider>
     );
 
     // Unmount component when the new window is closed or refreshed
-    quizWindow.addEventListener("beforeunload", () => {
+    testWindow.addEventListener("beforeunload", () => {
       setTimeout(() => {
         root.unmount();
         // window.location.reload();
@@ -80,16 +80,16 @@ const openQuizInNewWindow = (title: string, _id: string) => {
   }
 };
 
-const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
+const TestCard = (props: QuizData<string | QuizQuestionsType>) => {
   const user = UseGetUserDataHook();
   const [getResult, { data, isLoading }] = useGetResultMutation();
 
   const handleQuizStart = (_id: string, title: string) => {
-    openQuizInNewWindow(title, _id);
+    openTestInNewWindow(title, _id);
   };
 
   const [isReportOpen, setIsReportOpen] = useState(false);
-  const quizAttempted = user.data.test_attempted.find(
+  const testAttempted = user.data.test_attempted.find(
     (test) => test.id === props._id
   );
 
@@ -101,7 +101,7 @@ const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
   };
 
   const handleViewSolution = async ({ id }: { id: string }) => {
-    window.open(`/quizes/solutions/${id}`, "_blank", "noopener,noreferrer");
+    window.open(`/tests/solutions/${id}`, "_blank", "noopener,noreferrer");
   };
   const closeReportModal = () => setIsReportOpen(false);
 
@@ -117,13 +117,13 @@ const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
         <CardContent>Difficulty Level : {props.difficulty_level}</CardContent>
         <CardFooter>
           <div className="flex justify-between w-full items-center gap-4 text-sm">
-            {quizAttempted ? (
+            {testAttempted ? (
               <>
                 <div>
                   <span className="font-bold border-b border-black">
                     Attempted On
                   </span>
-                  <DisplayDate dateString={quizAttempted.attempted_on} />
+                  <DisplayDate dateString={testAttempted.attempted_on} />
                 </div>
                 <Button
                   className="flex gap-2 text-sm"
@@ -246,4 +246,4 @@ const QuizCard = (props: QuizData<string | QuizQuestionsType>) => {
   );
 };
 
-export default QuizCard;
+export default TestCard;

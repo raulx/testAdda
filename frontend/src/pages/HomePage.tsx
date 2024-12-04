@@ -1,19 +1,18 @@
 import Footer from "@/components/Footer";
 import MockCard from "@/components/MockCard";
 import Navbar from "@/components/Navbar";
-import QuizCard from "@/components/QuizCard";
+import TestCard from "@/components/TestCard";
 import {
   TypographyH1,
   TypographyH4,
   TypographyH2,
 } from "@/components/Typography";
 import { Button } from "@/components/ui/button";
-import { QuizesResponseType } from "@/utils/types";
-
+import { TestsResponseType } from "@/utils/types";
 import { FaNewspaper, FaRocket } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-const mockQuizData: QuizesResponseType = [
+const mockQuizData: TestsResponseType = [
   {
     _id: "dsasdd",
     title: "CAT QUIZ - 01",
@@ -95,7 +94,7 @@ const HomePage = () => {
           <div className="flex justify-center items-center gap-6 sm:flex-row flex-col px-4 flex-wrap">
             {mockQuizData.map((data) => {
               return (
-                <QuizCard
+                <TestCard
                   key={data.title}
                   _id={data._id}
                   access_type={data.access_type}

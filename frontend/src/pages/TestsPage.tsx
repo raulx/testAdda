@@ -1,13 +1,14 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import QuizCard from "@/components/QuizCard";
+import TestCard from "@/components/TestCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   AppDispatch,
   RootState,
   setQuizes,
-  useLazyGetQuizesQuery,
+  // useLazyGetQuizesQuery,
+  useLazyGetTestsQuery,
 } from "@/store/store";
 import { useEffect, useState } from "react";
 import { SiOpensearch } from "react-icons/si";
@@ -15,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDispatch, useSelector } from "react-redux";
 import { DoubleRingLoader } from "@/components/Loaders";
 
-const QuizesContainer = ({
+const TestsContainer = ({
   dataLoading,
   accessType,
 }: {
@@ -37,7 +38,7 @@ const QuizesContainer = ({
             ?.filter((q) => q.access_type === accessType)
             ?.map((q) => {
               return (
-                <QuizCard
+                <TestCard
                   _id={q._id}
                   key={q._id}
                   title={q.title}
@@ -56,9 +57,9 @@ const QuizesContainer = ({
   );
 };
 
-const QuizesPage = () => {
+const TestsPage = () => {
   const [searchText, setSearchText] = useState<string>("");
-  const [getQuizes, { isLoading }] = useLazyGetQuizesQuery();
+  const [getQuizes, { isLoading }] = useLazyGetTestsQuery();
   const dispatch = useDispatch<AppDispatch>();
 
   const handleQuizSearch = () => {
@@ -109,10 +110,10 @@ const QuizesPage = () => {
           </TabsList>
 
           <TabsContent value="free">
-            <QuizesContainer accessType="free" dataLoading={isLoading} />
+            <TestsContainer accessType="free" dataLoading={isLoading} />
           </TabsContent>
           <TabsContent value="paid">
-            <QuizesContainer accessType="paid" dataLoading={isLoading} />
+            <TestsContainer accessType="paid" dataLoading={isLoading} />
           </TabsContent>
         </Tabs>
       </main>
@@ -122,4 +123,4 @@ const QuizesPage = () => {
   );
 };
 
-export default QuizesPage;
+export default TestsPage;

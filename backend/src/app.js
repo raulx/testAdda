@@ -24,7 +24,7 @@ import authRouter from './routes/auth.routes.js';
 import userRouter from './routes/user.routes.js';
 import adminRouter from './routes/admin.routes.js';
 import questionRouter from './routes/question.routes.js';
-import quizRouter from './routes/quiz.routes.js';
+import testRouter from './routes/test.routes.js';
 import attemptRouter from './routes/attempt.routes.js';
 import resultRouter from './routes/result.routes.js';
 
@@ -34,7 +34,7 @@ app.use('/api/v1/user', verifyJwt, userRouter);
 app.use('/api/v1/admin', adminRouter);
 
 app.use('/api/v1/question', questionRouter);
-app.use('/api/v1/quiz', quizRouter);
+app.use('/api/v1/test', testRouter);
 
 app.use('/api/v1/attempt', attemptRouter);
 app.use('/api/v1/result', resultRouter);
