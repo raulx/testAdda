@@ -35,8 +35,6 @@ const VerifyOtpAndLogin = lazy(() =>
 );
 const HomePage = lazy(() => import("./pages/HomePage.tsx"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage.tsx"));
-const NewsPage = lazy(() => import("./pages/NewsPage.tsx"));
-const AboutUsPage = lazy(() => import("./pages/AboutUsPage.tsx"));
 const TestsPage = lazy(() => import("./pages/TestsPage.tsx"));
 
 const router = createBrowserRouter([
@@ -68,9 +66,6 @@ const router = createBrowserRouter([
           { path: "/login/set-avatar", element: <SetAvatar /> },
         ],
       },
-
-      { path: "/about-us", element: <AboutUsPage /> },
-      { path: "/news", element: <NewsPage /> },
 
       {
         path: "/tests",

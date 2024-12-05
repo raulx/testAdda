@@ -7,7 +7,6 @@ import {
   AppDispatch,
   RootState,
   setQuizes,
-  // useLazyGetQuizesQuery,
   useLazyGetTestsQuery,
 } from "@/store/store";
 import { useEffect, useState } from "react";

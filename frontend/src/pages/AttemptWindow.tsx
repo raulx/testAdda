@@ -13,7 +13,8 @@ import {
 import { TestQuestionsType } from "@/utils/types";
 import { Label } from "@radix-ui/react-label";
 import { useEffect, useRef, useState } from "react";
-import { FaClock } from "react-icons/fa";
+import { FaClock, FaTimes } from "react-icons/fa";
+import { MdMenuOpen } from "react-icons/md";
 import { RiFileMarkedFill } from "react-icons/ri";
 
 export type AttemptProgressType = {
@@ -36,6 +37,7 @@ export const AttemptWindow = ({
   windowRef: Window;
 }) => {
   const { data, isLoading, isError } = useGetTestQuery(testId);
+  const [isOpen, setIsOpen] = useState(false);
   const [timer, setTimer] = useState<number>(10); // default is 10 before quiz get loaded
   const [lastAttemptAt, setLastAttemptAt] = useState<number>(0);
   const [submitQuiz, { isLoading: isSubmitting }] = useSubmitTestMutation();
@@ -280,13 +282,19 @@ export const AttemptWindow = ({
     render = <div className="text-2xl font-bold">Error occured ...</div>;
   else {
     render = (
-      <div className="w-screen h-screen flex bg-white font-semibold">
-        <div className="w-3/4 flex flex-col">
+      <div className="w-screen h-screen  flex bg-white font-semibold">
+        <div className="lg:w-3/4 w-full flex flex-col">
           <div
-            className="flex w-full justify-center items-center p-2"
+            className="flex w-full justify-center relative items-center p-2"
             style={{ backgroundColor: "#BDD5D6" }}
           >
             <h1>Online Quiz : {quiz?.title}</h1>
+            <div
+              className="absolute top-1/2 text-2xl lg:hidden right-6 -translate-y-1/2"
+              onClick={() => setIsOpen(true)}
+            >
+              <MdMenuOpen />
+            </div>
           </div>
           <div className="flex-1 flex-col bg-white p-4">
             <div className="flex gap-2  items-center mx-4 mb-2">
@@ -335,7 +343,7 @@ export const AttemptWindow = ({
             style={{ backgroundColor: "#F5F5F5" }}
             className=" border-t-2 border-bordergray"
           >
-            <div className="py-8 px-8 flex gap-4 items-end  justify-end">
+            <div className="py-8 px-8 flex flex-wrap gap-4 items-end  justify-end">
               <Button
                 onClick={handleClearQuestion}
                 className="w-24 rounded-full border-2 border-gray-300"
@@ -417,13 +425,23 @@ export const AttemptWindow = ({
             </div>
           </div>
         </div>
-        <div className="w-1/4 border-l flex flex-col">
+        <div
+          className={`lg:w-1/4 w-3/4 bg-white z-10 h-full border-l lg:flex lg:static lg:translate-x-0 absolute top-0 right-0 flex-col transition-all duration-200 ${
+            isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
           <div
-            className="flex gap-4 justify-center items-center p-2"
+            className="flex gap-4 justify-center items-center p-2 relative"
             style={{ backgroundColor: "#B7CDCE" }}
           >
             <FaClock />
             Time Left
+            <div
+              onClick={() => setIsOpen(!isOpen)}
+              className="cursor-pointer lg:hidden absolute top-1/2 left-2 -translate-y-1/2 text-xl"
+            >
+              <FaTimes />
+            </div>
           </div>
           <div className="flex justify-center items-center p-6 bg-white">
             <CountDownTimer

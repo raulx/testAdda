@@ -1,8 +1,7 @@
 import { ReactElement, useState } from "react";
 import { Button } from "./ui/button";
 import { MdQuiz } from "react-icons/md";
-import { IoNewspaper } from "react-icons/io5";
-import { RiLoginCircleFill, RiTeamFill } from "react-icons/ri";
+import { RiLoginCircleFill } from "react-icons/ri";
 import { Link, useLocation } from "react-router-dom";
 import Headroom from "react-headroom";
 import {
@@ -32,8 +31,6 @@ import UseGetUserDataHook from "@/hooks/UseGetUserDataHook";
 const navLinks: { name: string; url: string; icon: ReactElement }[] = [
   { name: "Home", url: "/", icon: <FaHome /> },
   { name: "Tests", url: "/tests", icon: <MdQuiz /> },
-  { name: "News", url: "/news", icon: <IoNewspaper /> },
-  { name: "About Us", url: "/about-us", icon: <RiTeamFill /> },
 ];
 
 const ProfileMenu = () => {

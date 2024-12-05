@@ -16,7 +16,7 @@ import {
   CardFooter,
   CardContent,
 } from "./ui/card";
-import { QuizData, QuizQuestionsType } from "@/utils/types";
+import { TestData, TestQuestionsType } from "@/utils/types";
 // import { IoAnalytics } from "react-icons/io5";
 import store, { useGetResultMutation } from "@/store/store";
 import { AttemptWindow } from "@/pages/AttemptWindow";
@@ -48,10 +48,9 @@ const openTestInNewWindow = (title: string, _id: string) => {
     testWindow.document.body.style.overflow = "hidden"; // Remove scrollbars
 
     // Inject the Tailwind CSS into the new window
-    const tailwindLink = testWindow.document.createElement("link");
-    tailwindLink.rel = "stylesheet";
-    tailwindLink.href =
-      "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css";
+    const tailwindLink = testWindow.document.createElement("script");
+    // tailwindLink.rel = "stylesheet";
+    tailwindLink.src = "https://cdn.tailwindcss.com";
     testWindow.document.head.appendChild(tailwindLink);
 
     // Create a div element where React can render the component
@@ -80,7 +79,7 @@ const openTestInNewWindow = (title: string, _id: string) => {
   }
 };
 
-const TestCard = (props: QuizData<string | QuizQuestionsType>) => {
+const TestCard = (props: TestData<string | TestQuestionsType>) => {
   const user = UseGetUserDataHook();
   const [getResult, { data, isLoading }] = useGetResultMutation();
 
