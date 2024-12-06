@@ -41,7 +41,7 @@ export const AttemptWindow = ({
   const [timer, setTimer] = useState<number>(10); // default is 10 before quiz get loaded
   const [lastAttemptAt, setLastAttemptAt] = useState<number>(0);
   const [submitQuiz, { isLoading: isSubmitting }] = useSubmitTestMutation();
-  const [getQuizProgress, { isFetching: gettingSavedProgress }] =
+  const [getTestProgress, { isFetching: gettingSavedProgress }] =
     useLazyGetTestProgressQuery();
 
   const [saveQuiz] = useSaveTestMutation();
@@ -112,6 +112,43 @@ export const AttemptWindow = ({
   };
 
   const prevQuestion = () => {
+    if (attempt.questionsAttempted[questionNumber].answerMarked === "") {
+      setAttempt((prevValue) => {
+        return {
+          ...prevValue,
+          questionsAttempted: prevValue.questionsAttempted.map((ques) => {
+            return ques.questionId === currentQuestion?._id
+              ? { ...ques, answerMarked: "unattempted" }
+              : ques;
+          }),
+        };
+      });
+    }
+    if (attempt.questionsAttempted[questionNumber].timeTaken === 0) {
+      setAttempt((prevValue) => {
+        return {
+          ...prevValue,
+          questionsAttempted: prevValue.questionsAttempted.map((ques) => {
+            return ques.questionId === currentQuestion?._id
+              ? { ...ques, timeTaken: lastAttemptAt - timer }
+              : ques;
+          }),
+        };
+      });
+      setLastAttemptAt(timer);
+    } else if (attempt.questionsAttempted[questionNumber].timeTaken > 0) {
+      setAttempt((prevValue) => {
+        return {
+          ...prevValue,
+          questionsAttempted: prevValue.questionsAttempted.map((ques) => {
+            return ques.questionId === currentQuestion?._id
+              ? { ...ques, timeTaken: ques.timeTaken + (lastAttemptAt - timer) }
+              : ques;
+          }),
+        };
+      });
+      setLastAttemptAt(timer);
+    }
     setQuestionNumber((prev) => {
       if (prev === 0) {
         if (quiz?.questions?.length != undefined)
@@ -135,8 +172,15 @@ export const AttemptWindow = ({
   };
 
   const handleFinishTest = async () => {
-    attempt.questionsAttempted[questionNumber].timeTaken =
-      lastAttemptAt - timer;
+    const lastQuestionAtBeforeSubmitting =
+      attempt.questionsAttempted[questionNumber];
+    if (lastQuestionAtBeforeSubmitting.timeTaken > 0) {
+      lastQuestionAtBeforeSubmitting.timeTaken += lastAttemptAt - timer;
+    } else {
+      attempt.questionsAttempted[questionNumber].timeTaken =
+        lastAttemptAt - timer;
+    }
+
     const updatedData = attempt.questionsAttempted.map((ques) => {
       const returnData = {
         questionId: ques.questionId,
@@ -247,7 +291,8 @@ export const AttemptWindow = ({
   useEffect(() => {
     const loadAttemtData = async () => {
       try {
-        const res = await getQuizProgress(testId);
+        const res = await getTestProgress(testId);
+
         if (res.data) {
           const progressData = res.data?.data;
           setAttempt(progressData);
@@ -273,6 +318,7 @@ export const AttemptWindow = ({
             setLastAttemptAt(quiz?.duration);
           }
         }
+        console.log(attempt);
       } catch (error) {
         console.log(error);
       }
