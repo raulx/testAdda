@@ -177,8 +177,7 @@ export const AttemptWindow = ({
     if (lastQuestionAtBeforeSubmitting.timeTaken > 0) {
       lastQuestionAtBeforeSubmitting.timeTaken += lastAttemptAt - timer;
     } else {
-      attempt.questionsAttempted[questionNumber].timeTaken =
-        lastAttemptAt - timer;
+      lastQuestionAtBeforeSubmitting.timeTaken = lastAttemptAt - timer;
     }
 
     const updatedData = attempt.questionsAttempted.map((ques) => {
@@ -278,6 +277,14 @@ export const AttemptWindow = ({
   useEffect(() => {
     const saveProgress = async () => {
       try {
+        const lastQuestionAtBeforeSaving =
+          attempt.questionsAttempted[questionNumber];
+        if (lastQuestionAtBeforeSaving.timeTaken > 0) {
+          lastQuestionAtBeforeSaving.timeTaken += lastAttemptAt - timer;
+        } else {
+          attempt.questionsAttempted[questionNumber].timeTaken =
+            lastAttemptAt - timer;
+        }
         await saveQuiz(attemptData.current);
       } catch (error) {
         console.log(error);
@@ -295,7 +302,23 @@ export const AttemptWindow = ({
 
         if (res.data) {
           const progressData = res.data?.data;
-          setAttempt(progressData);
+          setAttempt((prevValue) => {
+            return {
+              ...prevValue,
+              quizId: progressData.quizId,
+              timeRemaining: progressData.timeRemaining,
+              onQuestionNumber: progressData.onQuestionNumber,
+              questionsAttempted: progressData.questionsAttempted.map((q) => {
+                return {
+                  questionId: q.questionId,
+                  answerMarked: q.answerMarked,
+                  timeTaken: q.timeTaken,
+                  review: false,
+                };
+              }),
+            };
+          });
+          setLastAttemptAt(progressData.timeRemaining);
           setQuestionNumber(progressData.onQuestionNumber);
           setTimer(progressData.timeRemaining);
         } else {
@@ -318,7 +341,6 @@ export const AttemptWindow = ({
             setLastAttemptAt(quiz?.duration);
           }
         }
-        console.log(attempt);
       } catch (error) {
         console.log(error);
       }
@@ -494,7 +516,7 @@ export const AttemptWindow = ({
           </div>
           <div className="flex justify-center items-center p-6 bg-white">
             <CountDownTimer
-              className=" uppercase text-xl"
+              className="uppercase text-xl"
               time={timer}
               setTime={setTimer}
               onTimerEnd={handleFinishTest}
