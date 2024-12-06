@@ -396,7 +396,7 @@ const AddNewQuizScreen = () => {
         console.log(error);
       }
     };
-    if (questions[0]._id === "") fetchAllQuestion();
+    if (questions[0]?._id === "") fetchAllQuestion();
   }, [questions, dispatch, getAllQuestions]);
   return (
     <>
@@ -620,8 +620,8 @@ const AddNewQuizScreen = () => {
                 />
               </div>
               <div className="max-w-fit ml-auto mr-8 text-sm">
-                Total Available Questions :{" "}
-                {availableQuestions[0]._id != ""
+                Total Available Questions :
+                {availableQuestions[0]?._id != ""
                   ? availableQuestions.length
                   : 0}
               </div>

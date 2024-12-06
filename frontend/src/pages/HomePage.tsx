@@ -1,5 +1,4 @@
 import Footer from "@/components/Footer";
-import MockCard from "@/components/MockCard";
 import Navbar from "@/components/Navbar";
 import TestCard from "@/components/TestCard";
 import {
@@ -47,14 +46,73 @@ const mockQuizData: TestsResponseType = [
   },
 ];
 
-const mockMockData: { exam: string; duration: number; questions: number }[] = [
-  { exam: "CAT-01", duration: 1, questions: 100 },
-  { exam: "SSC CGL-01", duration: 1, questions: 100 },
-  { exam: "SSC CHSL-01", duration: 1, questions: 100 },
-  { exam: "IBPS PO-01", duration: 1, questions: 100 },
-  { exam: "SBI PO-01", duration: 1, questions: 100 },
-  { exam: "SBI Clerk-01", duration: 1, questions: 100 },
-  { exam: "IBPS Clerk-01", duration: 1, questions: 100 },
+const mockMockData: TestsResponseType = [
+  {
+    _id: "1",
+    title: "IBPS- Clerk Full Length Mock Test - 01",
+    description:
+      "full length ssc chsl mock designed to meet real exam questions with latest pattern",
+    difficulty_level: "Intermediate",
+    questions: ["2232sdf", "weswww2", "4322sew", "2342ss", "232s234"],
+    duration: 25,
+    access_type: "paid",
+    number_of_questions: 5,
+  },
+  {
+    _id: "2",
+    title: "SSC CHSL Full Length Mock Test - 01",
+    description:
+      "full length ssc chsl mock designed to meet real exam questions with latest pattern",
+    difficulty_level: "Intermediate",
+    questions: ["2232sdf", "weswww2", "4322sew", "2342ss", "232s234"],
+    duration: 25,
+    access_type: "paid",
+    number_of_questions: 5,
+  },
+  {
+    _id: "3",
+    title: "SSC-CGL Full Length Mock Test - 01",
+    description:
+      "full length ssc chsl mock designed to meet real exam questions with latest pattern",
+    difficulty_level: "Intermediate",
+    questions: ["2232sdf", "weswww2", "4322sew", "2342ss", "232s234"],
+    duration: 25,
+    access_type: "paid",
+    number_of_questions: 5,
+  },
+  {
+    _id: "4",
+    title: "IBPS-PO Full Length Mock - 01",
+    description:
+      "full length ssc chsl mock designed to meet real exam questions with latest pattern",
+    difficulty_level: "Intermediate",
+    questions: ["2232sdf", "weswww2", "4322sew", "2342ss", "232s234"],
+    duration: 25,
+    access_type: "paid",
+    number_of_questions: 5,
+  },
+  {
+    _id: "5",
+    title: "SBI PO Full length Mock - 02",
+    description:
+      "full length ssc chsl mock designed to meet real exam questions with latest pattern",
+    difficulty_level: "Intermediate",
+    questions: ["2232sdf", "weswww2", "4322sew", "2342ss", "232s234"],
+    duration: 25,
+    access_type: "paid",
+    number_of_questions: 5,
+  },
+  {
+    _id: "6",
+    title: "CAT Full Length Mock - 01",
+    description:
+      "full length ssc chsl mock designed to meet real exam questions with latest pattern",
+    difficulty_level: "Intermediate",
+    questions: ["2232sdf", "weswww2", "4322sew", "2342ss", "232s234"],
+    duration: 25,
+    access_type: "paid",
+    number_of_questions: 100,
+  },
 ];
 
 const HomePage = () => {
@@ -63,7 +121,6 @@ const HomePage = () => {
       <Navbar />
       <main className="flex flex-col gap-12 mb-12">
         {/* Hero section  */}
-
         <section className=" flex sm:flex-row flex-col sm:gap-0 gap-8 justify-center items-center text-center min-h-[32rem] text-darkcerulean">
           <img src="https://res.cloudinary.com/dj5yf27lr/image/upload/v1725810806/testAdda/frontendAssets/wwoaxs3qrdaiypeghlza.png" />
           <div className="flex gap-16 flex-col">
@@ -117,15 +174,22 @@ const HomePage = () => {
           <TypographyH2 className="text-center my-4">
             Practice Full Length Mocks
           </TypographyH2>
-          <div className="flex overflow-x-scroll gap-4 px-4 py-8">
-            {mockMockData.map((mock) => {
+          <div className="flex overflow-x-scroll gap-4 px-4 py-8 scrollbar-thin">
+            {mockMockData.map((data) => {
               return (
-                <MockCard
-                  key={mock.exam}
-                  exam={mock.exam}
-                  duration={mock.duration}
-                  questions={mock.questions}
-                />
+                <div>
+                  <TestCard
+                    key={data.title}
+                    _id={data._id}
+                    access_type={data.access_type}
+                    title={data.title}
+                    description={data.description}
+                    questions={data.questions}
+                    duration={data.duration}
+                    difficulty_level={data.difficulty_level}
+                    number_of_questions={data.number_of_questions}
+                  />
+                </div>
               );
             })}
           </div>

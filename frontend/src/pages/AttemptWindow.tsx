@@ -135,6 +135,8 @@ export const AttemptWindow = ({
   };
 
   const handleFinishTest = async () => {
+    attempt.questionsAttempted[questionNumber].timeTaken =
+      lastAttemptAt - timer;
     const updatedData = attempt.questionsAttempted.map((ques) => {
       const returnData = {
         questionId: ques.questionId,
@@ -241,6 +243,7 @@ export const AttemptWindow = ({
     return () => clearInterval(intervalId); // Cleanup on unmount
   }, []);
 
+  // this useEffect function fetches saved test data if any.
   useEffect(() => {
     const loadAttemtData = async () => {
       try {
