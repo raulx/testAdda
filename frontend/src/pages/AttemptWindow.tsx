@@ -269,6 +269,13 @@ export const AttemptWindow = ({
   useEffect(() => {
     attemptData.current = {
       ...attempt,
+      questionsAttempted: attempt.questionsAttempted.map((ques, index) => {
+        if (index === questionNumber) {
+          return { ...ques, timeTaken: lastAttemptAt - timer };
+        } else {
+          return { ...ques };
+        }
+      }),
       onQuestionNumber: questionNumber,
       timeRemaining: timer,
     };
@@ -277,14 +284,6 @@ export const AttemptWindow = ({
   useEffect(() => {
     const saveProgress = async () => {
       try {
-        const lastQuestionAtBeforeSaving =
-          attempt.questionsAttempted[questionNumber];
-        if (lastQuestionAtBeforeSaving.timeTaken > 0) {
-          lastQuestionAtBeforeSaving.timeTaken += lastAttemptAt - timer;
-        } else {
-          attempt.questionsAttempted[questionNumber].timeTaken =
-            lastAttemptAt - timer;
-        }
         await saveQuiz(attemptData.current);
       } catch (error) {
         console.log(error);
