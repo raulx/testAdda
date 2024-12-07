@@ -347,7 +347,21 @@ export const AttemptWindow = ({
     loadAttemtData();
   }, [quiz]);
 
-  if (isLoading || gettingSavedProgress) render = <RingLoader />;
+  if (isLoading || gettingSavedProgress)
+    render = (
+      <div
+        // className="w-screen h-screen flex justify-center items-center"
+        style={{
+          width: "100vw",
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <RingLoader />
+      </div>
+    );
   else if (isError)
     render = <div className="text-2xl font-bold">Error occured ...</div>;
   else {
@@ -527,15 +541,18 @@ export const AttemptWindow = ({
           >
             Attempts
           </div>
-          <div className="px-4 py-8 flex flex-wrap gap-2">
+          <div className="flex justify-start gap-1 px-2 py-4 flex-wrap">
             {quiz?.questions?.map((ques, index) => {
               return (
                 <Button
                   variant={"outline"}
-                  className="relative "
+                  className="relative"
                   key={index}
                   style={{
                     color: "#fff",
+                    width: "36px",
+                    height: "36px",
+                    borderRadius: "8px",
                     backgroundColor: handleButtonColor(ques),
                   }}
                   onClick={() => setQuestionNumber(index)}
@@ -563,7 +580,11 @@ export const AttemptWindow = ({
             })}
           </div>
         </div>
-        {isSubmitting && <RingLoader />}
+        {isSubmitting && (
+          <div className="z-20">
+            <RingLoader />
+          </div>
+        )}
       </div>
     );
   }

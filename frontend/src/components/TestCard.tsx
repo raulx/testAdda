@@ -48,9 +48,10 @@ const openTestInNewWindow = (title: string, _id: string) => {
     testWindow.document.body.style.overflow = "hidden"; // Remove scrollbars
 
     // Inject the Tailwind CSS into the new window
-    const tailwindLink = testWindow.document.createElement("script");
-    // tailwindLink.rel = "stylesheet";
-    tailwindLink.src = "https://cdn.tailwindcss.com";
+
+    const tailwindLink = testWindow.document.createElement("link");
+    tailwindLink.rel = "stylesheet";
+    tailwindLink.href = "/tailwind.css";
     testWindow.document.head.appendChild(tailwindLink);
 
     // Create a div element where React can render the component
