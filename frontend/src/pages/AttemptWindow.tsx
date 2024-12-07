@@ -198,8 +198,7 @@ export const AttemptWindow = ({
       questionsAttempted: updatedData,
     };
     try {
-      const res = await submitQuiz(attemptData);
-      console.log(res);
+      await submitQuiz(attemptData);
     } catch (err) {
       console.log(err);
     }
@@ -350,7 +349,6 @@ export const AttemptWindow = ({
   if (isLoading || gettingSavedProgress)
     render = (
       <div
-        // className="w-screen h-screen flex justify-center items-center"
         style={{
           width: "100vw",
           height: "100vh",

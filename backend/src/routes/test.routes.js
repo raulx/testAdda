@@ -7,6 +7,7 @@ import {
     removeTest,
     saveTestProgress,
     getTestProgress,
+    testSearch,
 } from '../controllers/test.controllers.js';
 
 import verifyJwt from '../middlewares/auth.middleware.js';
@@ -27,5 +28,6 @@ router.route('/saveTestProgress').post(verifyJwt, saveTestProgress);
 router.route('/getTestProgress').get(verifyJwt, getTestProgress);
 router.route('/attempt/new').post(verifyJwt, attemptTest);
 router.route('/result').post(verifyJwt, getResult);
+router.route('/testSearch').get(verifyJwt, testSearch);
 
 export default router;

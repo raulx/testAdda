@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { SERVER_BASE_URL } from "@/utils/constants";
 import { ApiResponseType, TestsResponseType } from "@/utils/types";
 import { TestResponseType } from "@/utils/types";
-// import { pause } from "@/utils/helpers";
+import { pause } from "@/utils/helpers";
 
 import { AttemptProgressType } from "@/pages/AttemptWindow";
 interface AttemptType {
@@ -21,7 +21,7 @@ const quizApis = createApi({
     baseUrl: `${SERVER_BASE_URL}/test`,
     fetchFn: async (...args) => {
       // remove in Production
-      // await pause(2000);
+      await pause(2000);
       return fetch(...args);
     },
   }),
@@ -41,6 +41,14 @@ const quizApis = createApi({
           url: "/saveTestProgress",
           method: "POST",
           body: data,
+        };
+      },
+    }),
+    searchTest: builder.query({
+      query: (searchText) => {
+        return {
+          url: `/testSearch?testQuery=${searchText}`,
+          method: "GET",
         };
       },
     }),
@@ -91,6 +99,7 @@ export const {
   useSaveTestMutation,
   useGetTestProgressQuery,
   useLazyGetTestProgressQuery,
+  useLazySearchTestQuery,
   useGetResultMutation,
 } = quizApis;
 

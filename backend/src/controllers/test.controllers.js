@@ -162,11 +162,29 @@ const getTestProgress = asynchandler(async (req, res) => {
     else throw new ApiError(404, 'Quiz Progess Not Found !');
 });
 
+const testSearch = asynchandler(async (req, res) => {
+    const { testQuery } = req.query;
+
+    let foundTest;
+    if (testQuery === '') {
+        foundTest = await Test.find({});
+    } else {
+        foundTest = await Test.aggregate([
+            {
+                $match: {
+                    title: { $regex: testQuery, $options: 'i' },
+                },
+            },
+        ]);
+    }
+    res.json(new ApiResponse(200, foundTest, 'Tests present by query'));
+});
 export {
     addTest,
     removeTest,
     getTests,
     getTest,
+    testSearch,
     saveTestProgress,
     getTestProgress,
 };

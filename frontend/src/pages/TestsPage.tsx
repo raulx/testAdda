@@ -8,62 +8,55 @@ import {
   RootState,
   setQuizes,
   useLazyGetTestsQuery,
+  useLazySearchTestQuery,
 } from "@/store/store";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { SiOpensearch } from "react-icons/si";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDispatch, useSelector } from "react-redux";
-import { DoubleRingLoader } from "@/components/Loaders";
+import { DoubleRingLoader, RingCutLoader } from "@/components/Loaders";
 
-const TestsContainer = ({
-  dataLoading,
-  accessType,
-}: {
-  dataLoading: boolean;
-  accessType: "free" | "paid";
-}) => {
+const TestsContainer = ({ accessType }: { accessType: "free" | "paid" }) => {
   const quizes = useSelector((store: RootState) => {
     return store.quizes;
   });
   return (
     <div className="flex flex-wrap gap-8 justify-center my-6 bg-jetstream py-12">
-      {dataLoading ? (
-        <div className="h-96 flex justify-center items-center bg-jetstream">
-          <DoubleRingLoader />
-        </div>
-      ) : (
-        <>
-          {quizes.data
-            ?.filter((q) => q.access_type === accessType)
-            ?.map((q) => {
-              return (
-                <TestCard
-                  _id={q._id}
-                  key={q._id}
-                  title={q.title}
-                  access_type={q.access_type}
-                  description={q.description}
-                  duration={q.duration}
-                  questions={q.questions}
-                  difficulty_level={q.difficulty_level}
-                  number_of_questions={q.number_of_questions}
-                />
-              );
-            })}
-        </>
-      )}
+      {quizes.data
+        ?.filter((q) => q.access_type === accessType)
+        ?.map((q) => {
+          return (
+            <TestCard
+              _id={q._id}
+              key={q._id}
+              title={q.title}
+              access_type={q.access_type}
+              description={q.description}
+              duration={q.duration}
+              questions={q.questions}
+              difficulty_level={q.difficulty_level}
+              number_of_questions={q.number_of_questions}
+            />
+          );
+        })}
     </div>
   );
 };
 
 const TestsPage = () => {
-  const [searchText, setSearchText] = useState<string>("");
   const [getQuizes, { isLoading }] = useLazyGetTestsQuery();
+  const [searchTest, { isFetching: searchingTest }] = useLazySearchTestQuery();
   const dispatch = useDispatch<AppDispatch>();
 
-  const handleQuizSearch = () => {
-    if (searchText === "") return;
-    console.log(searchText);
+  const handleTestSearch = async (e: ChangeEvent<HTMLInputElement>) => {
+    try {
+      const res = await searchTest(e.target.value);
+      if (res.data) {
+        dispatch(setQuizes(res.data?.data));
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
@@ -83,38 +76,42 @@ const TestsPage = () => {
             type="text"
             placeholder="Search Quiz"
             className="sm:w-1/3 h-[32px] rounded-full"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={(e) => handleTestSearch(e)}
           />
           <Button
             className="rounded-full"
             size={"sm"}
             variant={"mediumseagreen"}
-            onClick={handleQuizSearch}
+            onClick={() => console.log("i am useless")}
           >
             <SiOpensearch />
           </Button>
         </div>
+        {searchingTest || isLoading ? (
+          <div className="w-screen h-[500px] flex justify-center items-center">
+            <DoubleRingLoader />
+          </div>
+        ) : (
+          <Tabs defaultValue="free" className="w-screen mx-auto min-h-screen ">
+            <TabsList className="w-full bg-white">
+              <div className=" bg-lightseagreen rounded-xl border-2">
+                <TabsTrigger value="free" className="text-white">
+                  Free
+                </TabsTrigger>
+                <TabsTrigger value="paid" className="text-white">
+                  Paid
+                </TabsTrigger>
+              </div>
+            </TabsList>
 
-        <Tabs defaultValue="free" className="w-screen mx-auto">
-          <TabsList className="w-full bg-white">
-            <div className=" bg-lightseagreen rounded-xl border-2">
-              <TabsTrigger value="free" className="text-white">
-                Free
-              </TabsTrigger>
-              <TabsTrigger value="paid" className="text-white">
-                Paid
-              </TabsTrigger>
-            </div>
-          </TabsList>
-
-          <TabsContent value="free">
-            <TestsContainer accessType="free" dataLoading={isLoading} />
-          </TabsContent>
-          <TabsContent value="paid">
-            <TestsContainer accessType="paid" dataLoading={isLoading} />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="free">
+              <TestsContainer accessType="free" />
+            </TabsContent>
+            <TabsContent value="paid">
+              <TestsContainer accessType="paid" />
+            </TabsContent>
+          </Tabs>
+        )}
       </main>
 
       <Footer />
