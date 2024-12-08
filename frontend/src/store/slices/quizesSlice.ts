@@ -2,11 +2,11 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TestsResponseType } from "@/utils/types";
 
 interface quizesSliceType {
-  data: TestsResponseType | null;
+  data: TestsResponseType;
 }
 
 const quizesInitialState: quizesSliceType = {
-  data: null,
+  data: [],
 };
 
 const quizesSlice = createSlice({

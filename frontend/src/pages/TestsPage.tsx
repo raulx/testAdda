@@ -14,32 +14,49 @@ import { ChangeEvent, useEffect } from "react";
 import { SiOpensearch } from "react-icons/si";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDispatch, useSelector } from "react-redux";
-import { DoubleRingLoader, RingCutLoader } from "@/components/Loaders";
+import { DoubleRingLoader } from "@/components/Loaders";
+import { TypographyH3 } from "@/components/Typography";
+import { FaRegDizzy } from "react-icons/fa";
 
 const TestsContainer = ({ accessType }: { accessType: "free" | "paid" }) => {
   const quizes = useSelector((store: RootState) => {
     return store.quizes;
   });
   return (
-    <div className="flex flex-wrap gap-8 justify-center my-6 bg-jetstream py-12">
-      {quizes.data
-        ?.filter((q) => q.access_type === accessType)
-        ?.map((q) => {
-          return (
-            <TestCard
-              _id={q._id}
-              key={q._id}
-              title={q.title}
-              access_type={q.access_type}
-              description={q.description}
-              duration={q.duration}
-              questions={q.questions}
-              difficulty_level={q.difficulty_level}
-              number_of_questions={q.number_of_questions}
-            />
-          );
-        })}
-    </div>
+    <section className="border-2 border-gray-200 bg-jetstream flex flex-col gap-4 py-8 mt-8">
+      <TypographyH3 className="text-center text-gray-700">
+        Available Questions
+      </TypographyH3>
+      <hr className="bg-white h-[1px]" />
+      <div className="flex flex-wrap gap-8 justify-center mt-6">
+        {quizes.data?.length > 0 ? (
+          <>
+            {quizes.data
+              ?.filter((q) => q.access_type === accessType)
+              ?.map((q) => {
+                return (
+                  <TestCard
+                    _id={q._id}
+                    key={q._id}
+                    title={q.title}
+                    access_type={q.access_type}
+                    description={q.description}
+                    duration={q.duration}
+                    questions={q.questions}
+                    difficulty_level={q.difficulty_level}
+                    number_of_questions={q.number_of_questions}
+                  />
+                );
+              })}
+          </>
+        ) : (
+          <div className="flex flex-col gap-4 justify-center items-center text=gray-700">
+            <FaRegDizzy className=" text-3xl text-gray-600" />
+            <h1>No Data Found !</h1>
+          </div>
+        )}
+      </div>
+    </section>
   );
 };
 

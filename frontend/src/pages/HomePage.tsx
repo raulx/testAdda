@@ -170,7 +170,7 @@ const HomePage = () => {
         </section>
 
         {/* Mocks section */}
-        <section className=" pt-12 border-2 border-gray-200">
+        <section className="pt-12 border-2 border-gray-200">
           <TypographyH2 className="text-center my-4">
             Practice Full Length Mocks
           </TypographyH2>
