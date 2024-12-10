@@ -27,6 +27,7 @@ import questionRouter from './routes/question.routes.js';
 import testRouter from './routes/test.routes.js';
 import attemptRouter from './routes/attempt.routes.js';
 import resultRouter from './routes/result.routes.js';
+import ordersRouter from './routes/orders.routes.js';
 
 // route declarations
 app.use('/api/v1/auth', authRouter);
@@ -38,6 +39,8 @@ app.use('/api/v1/test', testRouter);
 
 app.use('/api/v1/attempt', attemptRouter);
 app.use('/api/v1/result', resultRouter);
+app.use('/api/v1/orders', ordersRouter);
+
 app.use(errorHandler);
 
 export { app };

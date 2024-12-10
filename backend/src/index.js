@@ -3,6 +3,7 @@ import connectDB from './db/index.js';
 import { app } from './app.js';
 import { v2 as cloudinary } from 'cloudinary';
 import { google } from 'googleapis';
+import Razorpay from 'razorpay';
 
 dotenv.config({
     path: './.env',
@@ -21,6 +22,12 @@ export const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_OAUTH_CLIENT_SECRET,
     'postmessage'
 );
+
+// razorpay configuration
+export const razorpayInstance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY,
+    key_secret: process.env.RAZORPAY_SECRET,
+});
 
 connectDB()
     .then(() => {

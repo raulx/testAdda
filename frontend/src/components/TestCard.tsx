@@ -17,7 +17,6 @@ import {
   CardContent,
 } from "./ui/card";
 import { TestData, TestQuestionsType } from "@/utils/types";
-// import { IoAnalytics } from "react-icons/io5";
 import store, { useGetResultMutation } from "@/store/store";
 import { AttemptWindow } from "@/pages/AttemptWindow";
 import { Provider } from "react-redux";
@@ -89,6 +88,9 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
   };
 
   const [isReportOpen, setIsReportOpen] = useState(false);
+
+  const [subscriptionModel, setSubscriptionModal] = useState(false);
+
   const testAttempted = user.data.test_attempted.find(
     (test) => test.id === props._id
   );
@@ -96,14 +98,6 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
   const afterOpenReportModel = async () => {
     await getResult({ quizId: props._id, userId: user.data._id });
   };
-  const handleViewReport = async () => {
-    setIsReportOpen(true);
-  };
-
-  const handleViewSolution = async ({ id }: { id: string }) => {
-    window.open(`/tests/solutions/${id}`, "_blank", "noopener,noreferrer");
-  };
-  const closeReportModal = () => setIsReportOpen(false);
 
   return (
     <>
@@ -129,7 +123,7 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
                   className="flex gap-2 text-sm"
                   variant={"lightseagreen"}
                   size={"sm"}
-                  onClick={() => handleViewReport()}
+                  onClick={() => setIsReportOpen(true)}
                 >
                   <TbReportAnalytics />
                   View Report
@@ -150,7 +144,18 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
                   </Button>
                 ) : (
                   <>
-                    {props.access_type === "free" ? (
+                    {props.access_type === "paid" &&
+                    !user.data?.is_subscribed ? (
+                      <>
+                        <Button
+                          variant={"lightseagreen"}
+                          className="flex gap-2"
+                          onClick={() => setSubscriptionModal(true)}
+                        >
+                          <FaLock /> Unlock
+                        </Button>
+                      </>
+                    ) : (
                       <>
                         <Button
                           variant={"lightseagreen"}
@@ -162,15 +167,6 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
                           <FaRocket /> Start
                         </Button>
                       </>
-                    ) : (
-                      <>
-                        <Button
-                          variant={"lightseagreen"}
-                          className="flex gap-2"
-                        >
-                          <FaLock /> Unlock
-                        </Button>
-                      </>
                     )}
                   </>
                 )}
@@ -180,10 +176,11 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
         </CardFooter>
       </Card>
 
+      {/* Report Modal  */}
       <Modal
         isOpen={isReportOpen}
         onAfterOpen={afterOpenReportModel}
-        onRequestClose={closeReportModal}
+        onRequestClose={() => setIsReportOpen(false)}
         className="bg-white p-6 rounded-2xl shadow-lg max-w-lg mx-auto my-10 relative flex flex-col gap-6 w-[28rem] border-[#555555] border"
         overlayClassName="fixed w-screen h-screen inset-0 bg-black bg-opacity-30 flex justify-center items-center"
       >
@@ -228,19 +225,51 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
             <Button
               className="mx-auto rounded-full text-lg flex gap-2 border border-bordergray bg-[#F5F5F5] text-black hover:bg-slate-100"
               size={"lg"}
-              onClick={() => handleViewSolution({ id: props._id })}
+              onClick={() => {
+                window.open(
+                  `/tests/solutions/${props._id}`,
+                  "_blank",
+                  "noopener,noreferrer"
+                );
+              }}
             >
               Solution
               <FaLightbulb className="text-[#eed03c]" />
             </Button>
             <button
-              onClick={closeReportModal}
+              onClick={() => setIsReportOpen(false)}
               className="absolute right-2 top-2 "
             >
               <FaTimes />
             </button>
           </>
         )}
+      </Modal>
+
+      {/* Subscription Modal  */}
+      <Modal
+        isOpen={subscriptionModel}
+        onRequestClose={() => setSubscriptionModal(false)}
+        className="bg-white p-6 rounded-2xl shadow-lg max-w-lg mx-auto my-10 relative flex flex-col gap-6 w-[28rem] border-[#555555] border"
+        overlayClassName="fixed w-screen h-screen inset-0 bg-black bg-opacity-30 flex justify-center items-center"
+      >
+        <div className="flex justify-center gap-4 items-center  bg-white rounded-lg">
+          <div className="p-4 border-2 border-black rounded-lg">
+            <button>79Rs</button>
+          </div>
+          <div className="p-4 border-2 border-black rounded-lg">
+            <button>349Rs</button>
+          </div>
+          <div className="p-4 border-2 border-black rounded-lg">
+            <button>599Rs</button>
+          </div>
+          <button
+            onClick={() => setSubscriptionModal(false)}
+            className="absolute right-2 top-2 "
+          >
+            <FaTimes />
+          </button>
+        </div>
       </Modal>
     </>
   );

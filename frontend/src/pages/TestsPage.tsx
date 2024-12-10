@@ -25,7 +25,7 @@ const TestsContainer = ({ accessType }: { accessType: "free" | "paid" }) => {
   return (
     <section className="border-2 border-gray-200 bg-jetstream flex flex-col gap-4 py-8 mt-8">
       <TypographyH3 className="text-center text-gray-700">
-        Available Questions
+        Available Quizes
       </TypographyH3>
       <hr className="bg-white h-[1px]" />
       <div className="flex flex-wrap gap-8 justify-center mt-6">
