@@ -8,14 +8,14 @@ const generateOrder = asyncHandler(async (req, res) => {
 
     if (!amount) throw new ApiError(400, 'Amount is required');
 
-    const order = razorpayInstance.orders.create({
+    const order = await razorpayInstance.orders.create({
         amount: amount * 100,
         currency: currency || 'INR',
     });
 
-    return res.status.json(
-        new ApiResponse(200, order, 'Order Created Successfully')
-    );
+    return res
+        .status(200)
+        .json(new ApiResponse(200, order, 'Order Created Successfully'));
 });
 
 export { generateOrder };
