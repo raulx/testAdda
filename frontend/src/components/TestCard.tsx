@@ -30,10 +30,15 @@ import Modal from "react-modal";
 import DisplayDate from "./Date";
 import { useState } from "react";
 import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
-import RingLoader from "./RingLoader";
+import { useNavigate } from "react-router-dom";
 
 Modal.setAppElement("#root");
 
+type PaymentResponseType = {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+};
 const openTestInNewWindow = (title: string, _id: string) => {
   // Get the screen width and height
   const screenWidth = window.screen.width - 20;
@@ -90,6 +95,7 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
     useGetResultMutation();
   const { Razorpay } = useRazorpay();
   const [createOrder, { isLoading: creatingOrder }] = useCreateOrderMutation();
+  const navigatie = useNavigate();
 
   const handleQuizStart = (_id: string, title: string) => {
     openTestInNewWindow(title, _id);
@@ -107,6 +113,10 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
     await getResult({ quizId: props._id, userId: user.data._id });
   };
 
+  const handlePaymentSettlement = async (response: PaymentResponseType) => {
+    console.log(response);
+  };
+
   const handlePaymentInitiate = async (amount: number) => {
     try {
       const order = await createOrder(amount);
@@ -119,15 +129,14 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
           description: "Subscription",
           order_id: order.data?.data.id, // Generate order_id on server
           handler: (response) => {
-            console.log(response);
-            alert("Payment Successful!");
+            handlePaymentSettlement(response);
           },
           prefill: {
             name: user.data.username,
             email: user.data.email,
           },
           theme: {
-            color: "#F37254",
+            color: "#38A3A5",
           },
         };
         const razorpayInstance = new Razorpay(options);
@@ -137,6 +146,7 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
       console.log(error);
     }
   };
+
   return (
     <>
       <Card className="w-[400px] min-h-[280px] rounded-2xl  py-2 border border-bordergray flex flex-col justify-between">
@@ -288,17 +298,22 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
       <Modal
         isOpen={subscriptionModel}
         onRequestClose={() => setSubscriptionModal(false)}
-        className="bg-white p-6 rounded-2xl shadow-lg max-w-lg mx-auto my-10 relative flex flex-col gap-6 w-[28rem] border-[#555555] border"
-        overlayClassName="fixed w-screen h-screen inset-0 bg-black bg-opacity-30 flex justify-center items-center"
+        className="bg-white rounded-lg"
+        overlayClassName="fixed w-screen h-screen bg-black inset-0  bg-opacity-30 flex justify-center items-center"
       >
-        <div className="flex justify-center gap-4 items-center  bg-white rounded-lg">
-          <div className="p-4 border-2 border-black rounded-lg">
-            <button onClick={() => handlePaymentInitiate(79)}>79Rs</button>
+        <div className="flex p-6 justify-center gap-4 items-center relative">
+          <div className="p-4 border-2 h-64 w-64 border-black rounded-lg">
+            <Button
+              onClick={() => handlePaymentInitiate(79)}
+              variant={"destructive"}
+            >
+              79Rs
+            </Button>
           </div>
-          <div className="p-4 border-2 border-black rounded-lg">
+          <div className="p-4 border-2 h-64 w-64 border-black rounded-lg">
             <button onClick={() => handlePaymentInitiate(349)}>349Rs</button>
           </div>
-          <div className="p-4 border-2 border-black rounded-lg">
+          <div className="p-4 border-2 h-64 w-64 border-black rounded-lg">
             <button onClick={() => handlePaymentInitiate(599)}>599Rs</button>
           </div>
           <button
@@ -308,9 +323,9 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
             <FaTimes />
           </button>
           {creatingOrder && (
-            <>
-              <RingLoader />
-            </>
+            <div className="absolute  h-full w-full left-0 top-0 flex justify-center items-center">
+              <FaSpinner className="animate-spin text-3xl " />
+            </div>
           )}
         </div>
       </Modal>
