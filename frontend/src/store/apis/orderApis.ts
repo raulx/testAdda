@@ -16,6 +16,23 @@ type NewOrderType = {
   receipt: any;
   status: string;
 };
+export type PaymentResponseType = {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+};
+type NewSubscriptionType = {
+  email: string;
+  payment_id: string;
+  amount_paid: number;
+  expires_in: Date;
+  createdAt: Date;
+};
+
+interface NewPaymentSettleMentType extends PaymentResponseType {
+  amount: number;
+}
+
 const ordersApi = createApi({
   reducerPath: "orderApis",
   baseQuery: fetchBaseQuery({
@@ -34,8 +51,22 @@ const ordersApi = createApi({
         };
       },
     }),
+
+    verifyAndSettlePayment: builder.mutation<
+      ApiResponseType<NewSubscriptionType>,
+      NewPaymentSettleMentType
+    >({
+      query: (data) => {
+        return {
+          url: "/verify-and-settlePayment",
+          method: "POST",
+          body: { ...data },
+        };
+      },
+    }),
   }),
 });
 
-export const { useCreateOrderMutation } = ordersApi;
+export const { useCreateOrderMutation, useVerifyAndSettlePaymentMutation } =
+  ordersApi;
 export default ordersApi;

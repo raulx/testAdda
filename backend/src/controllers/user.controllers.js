@@ -9,6 +9,7 @@ import {
     deleteOnCloudinary,
 } from '../services/cloudinary.js';
 import TestProgress from '../models/testprogress.model.js';
+import Subscription from '../models/subscription.model.js';
 
 const getUser = asyncHandler(async (req, res) => {
     const user = req.user;
@@ -27,12 +28,31 @@ const getUser = asyncHandler(async (req, res) => {
         { $project: { quizId: 1 } },
     ]);
 
+    // check if user is subscribed to the tests and subscription is active
+    let subscriptionStatus;
+    const isSubscribed = await Subscription.findOne({ email: user.email });
+
+    if (!isSubscribed) {
+        subscriptionStatus = false;
+    } else {
+        const today = new Date();
+        const expiresIn = isSubscribed.expires_in;
+
+        const differenceInMilliseconds = expiresIn - today;
+
+        const differenceInDays = Math.ceil(
+            differenceInMilliseconds / (1000 * 60 * 60 * 24)
+        );
+        if (differenceInDays >= 0) subscriptionStatus = true;
+        else subscriptionStatus = false;
+    }
+
     const userData = {
         _id: user._id,
         email: user.email,
         username: user.username,
         avatar_url: user.avatar_url,
-        is_subscribed: user.is_subscribed,
+        is_subscribed: subscriptionStatus | false,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         test_attempted: testAttempted.map((attempt) => {

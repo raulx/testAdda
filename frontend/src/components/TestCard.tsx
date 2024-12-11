@@ -20,6 +20,7 @@ import { TestData, TestQuestionsType } from "@/utils/types";
 import store, {
   useCreateOrderMutation,
   useGetResultMutation,
+  useVerifyAndSettlePaymentMutation,
 } from "@/store/store";
 import { AttemptWindow } from "@/pages/AttemptWindow";
 import { Provider } from "react-redux";
@@ -30,15 +31,10 @@ import Modal from "react-modal";
 import DisplayDate from "./Date";
 import { useState } from "react";
 import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
-import { useNavigate } from "react-router-dom";
+import { PaymentResponseType } from "@/store/store";
 
 Modal.setAppElement("#root");
 
-type PaymentResponseType = {
-  razorpay_order_id: string;
-  razorpay_payment_id: string;
-  razorpay_signature: string;
-};
 const openTestInNewWindow = (title: string, _id: string) => {
   // Get the screen width and height
   const screenWidth = window.screen.width - 20;
@@ -91,11 +87,16 @@ const openTestInNewWindow = (title: string, _id: string) => {
 
 const TestCard = (props: TestData<string | TestQuestionsType>) => {
   const user = UseGetUserDataHook();
+
   const [getResult, { data, isLoading: fetchingResult }] =
     useGetResultMutation();
+
   const { Razorpay } = useRazorpay();
+
   const [createOrder, { isLoading: creatingOrder }] = useCreateOrderMutation();
-  const navigatie = useNavigate();
+
+  const [verifyAndSettlePayment, { isLoading: settlingPayment }] =
+    useVerifyAndSettlePaymentMutation();
 
   const handleQuizStart = (_id: string, title: string) => {
     openTestInNewWindow(title, _id);
@@ -113,8 +114,19 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
     await getResult({ quizId: props._id, userId: user.data._id });
   };
 
-  const handlePaymentSettlement = async (response: PaymentResponseType) => {
-    console.log(response);
+  const handlePaymentSettlement = async (
+    response: PaymentResponseType,
+    amount: number
+  ) => {
+    try {
+      const res = await verifyAndSettlePayment({ ...response, amount });
+      if (res.data) {
+        console.log(res.data);
+        window.location.reload();
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handlePaymentInitiate = async (amount: number) => {
@@ -129,7 +141,7 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
           description: "Subscription",
           order_id: order.data?.data.id, // Generate order_id on server
           handler: (response) => {
-            handlePaymentSettlement(response);
+            handlePaymentSettlement(response, amount);
           },
           prefill: {
             name: user.data.username,
