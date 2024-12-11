@@ -1,4 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
+import { ApiError } from '../utils/ApiError.js';
+import { availableSubscriptions } from '../constants.js';
 
 const subscriptionSchema = new Schema(
     {
@@ -19,12 +21,27 @@ subscriptionSchema.pre('save', async function (next) {
     const amountPaid = this.amount_paid;
     const today = new Date();
     const expiryDate = new Date();
-    if (250 > amountPaid > 0) {
-        expiryDate.setDate(today.getDate() + 30); // 1 month subscription if amount is less than 250Rs.
-    } else if (550 > amountPaid > 250) {
-        expiryDate.setDate(today.getDate() + 180); // 6 month subscription if amount is greater than Rs250 but less than Rs550.
+
+    // monthly subscription
+    if (amountPaid === availableSubscriptions.monthly.price) {
+        expiryDate.setDate(
+            today.getDate() + availableSubscriptions.monthly.duration
+        );
+    }
+    // halfYearly subscription
+    else if (amountPaid === availableSubscriptions.halfYearly.price) {
+        expiryDate.setDate(
+            today.getDate() + availableSubscriptions.halfYearly.duration
+        ); // full year subscription
+    } else if (amountPaid === availableSubscriptions.yearly.price) {
+        expiryDate.setDate(
+            today.getDate() + availableSubscriptions.yearly.price
+        ); // 12 months subscription if amount is greater than Rs550
     } else {
-        expiryDate.setDate(today.getDate() + 365); // 12 months subscription if amount is greater than Rs550
+        throw new ApiError(
+            400,
+            `Subscription for Amount ${amountPaid} is not Available !`
+        );
     }
     this.expires_in = expiryDate;
     next();
