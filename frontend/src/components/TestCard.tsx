@@ -16,7 +16,7 @@ import {
   CardFooter,
   CardContent,
 } from "./ui/card";
-import { TestData, TestQuestionsType } from "@/utils/types";
+import { PriceCardType, TestData, TestQuestionsType } from "@/utils/types";
 import store, {
   useCreateOrderMutation,
   useGetResultMutation,
@@ -32,8 +32,39 @@ import DisplayDate from "./Date";
 import { useState } from "react";
 import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
 import { PaymentResponseType } from "@/store/store";
+import { RiPassPendingFill } from "react-icons/ri";
+import PriceCard from "./PriceCard";
+import { MdDiamond } from "react-icons/md";
+import { BsLayersHalf } from "react-icons/bs";
 
 Modal.setAppElement("#root");
+
+const priceCards: PriceCardType[] = [
+  {
+    icon: <FaRocket />,
+    background: "#CAF7F0",
+    foreground: "#5BBFAA",
+    plan: "Monthly",
+    per: "month",
+    amount: 79,
+  },
+  {
+    icon: <BsLayersHalf />,
+    background: "#FCCECB",
+    foreground: "#BD381C",
+    plan: "Half Yearly",
+    per: "6 month",
+    amount: 349,
+  },
+  {
+    icon: <MdDiamond />,
+    background: "#D6F1FF",
+    foreground: "#0368DC",
+    plan: "Yearly",
+    per: "year",
+    amount: 599,
+  },
+];
 
 const openTestInNewWindow = (title: string, _id: string) => {
   // Get the screen width and height
@@ -310,24 +341,30 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
       <Modal
         isOpen={subscriptionModel}
         onRequestClose={() => setSubscriptionModal(false)}
-        className="bg-white rounded-lg"
+        className="bg-white rounded-lg p-6 lg:w-auto lg:h-auto h-[300px]  w-2/3 mx-auto"
         overlayClassName="fixed w-screen h-screen bg-black inset-0  bg-opacity-30 flex justify-center items-center"
       >
-        <div className="flex p-6 justify-center gap-4 items-center relative">
-          <div className="p-4 border-2 h-64 w-64 border-black rounded-lg">
-            <Button
-              onClick={() => handlePaymentInitiate(79)}
-              variant={"destructive"}
-            >
-              79Rs
-            </Button>
+        <div className="relative p-6 flex flex-col gap-4">
+          <div className="max-w-fit mx-auto flex items-center gap-2 text-xl text-lightseagreen justify-center border-b border-gray-300 p-2">
+            <span>Get Pass</span> <RiPassPendingFill className="text-4xl" />
           </div>
-          <div className="p-4 border-2 h-64 w-64 border-black rounded-lg">
-            <button onClick={() => handlePaymentInitiate(349)}>349Rs</button>
+          <hr className="h-[1px] bg-gray-400 " />
+          <div className="flex gap-8 m-4 flex-wrap">
+            {priceCards.map((d) => {
+              return (
+                <PriceCard
+                  amount={d.amount}
+                  background={d.background}
+                  foreground={d.foreground}
+                  paymentHandlerFunction={handlePaymentInitiate}
+                  icon={d.icon}
+                  plan={d.plan}
+                  per={d.per}
+                />
+              );
+            })}
           </div>
-          <div className="p-4 border-2 h-64 w-64 border-black rounded-lg">
-            <button onClick={() => handlePaymentInitiate(599)}>599Rs</button>
-          </div>
+
           <button
             onClick={() => setSubscriptionModal(false)}
             className="absolute right-2 top-2 "

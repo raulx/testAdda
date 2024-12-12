@@ -1,3 +1,5 @@
+import { ReactElement } from "react";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface UserData {
   _id: string;
@@ -46,8 +48,18 @@ interface ApiResponseType<T = unknown> {
   success: boolean;
 }
 
+type PriceCardType = {
+  background: string;
+  foreground: string;
+  amount: number;
+  icon: ReactElement;
+  plan: string;
+  per: string;
+};
+
 export type {
   ApiResponseType,
+  PriceCardType,
   UserData,
   UserLoginResponseType,
   TestResponseType,
