@@ -57,9 +57,30 @@ type PriceCardType = {
   per: string;
 };
 
+type NewSubscriptionType = {
+  email: string;
+  payment_id: string;
+  amount_paid: number;
+  expires_in: Date | string;
+  createdAt: Date | string;
+};
+
+interface UserPassType extends NewSubscriptionType {
+  _id: string;
+  _v: number;
+  updatedAt: string;
+}
+interface GetUserResponseType {
+  userData: UserData;
+  userPass: UserPassType;
+}
+
 export type {
   ApiResponseType,
   PriceCardType,
+  NewSubscriptionType,
+  GetUserResponseType,
+  UserPassType,
   UserData,
   UserLoginResponseType,
   TestResponseType,

@@ -1,6 +1,7 @@
 import { SERVER_BASE_URL } from "@/utils/constants";
 import { ApiResponseType } from "@/utils/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { NewSubscriptionType } from "@/utils/types";
 import { pause } from "@/utils/helpers";
 
 type NewOrderType = {
@@ -21,13 +22,6 @@ export type PaymentResponseType = {
   razorpay_order_id: string;
   razorpay_payment_id: string;
   razorpay_signature: string;
-};
-type NewSubscriptionType = {
-  email: string;
-  payment_id: string;
-  amount_paid: number;
-  expires_in: Date;
-  createdAt: Date;
 };
 
 interface NewPaymentSettleMentType extends PaymentResponseType {

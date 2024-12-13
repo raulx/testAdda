@@ -10,6 +10,7 @@ import {
   setUser,
   useRefreshLoginMutation,
   logInUser,
+  setUserPass,
 } from "./store/store";
 import { isFetchBaseQueryError } from "./utils/helpers";
 
@@ -38,7 +39,12 @@ function App() {
           if (res.error && !isFetchBaseQueryError(res.error)) {
             return toast.error("Error : Client side Error !");
           }
-          if (res.data?.statusCode === 200) dispatch(setUser(res.data?.data));
+          if (res.data?.statusCode === 200) {
+            dispatch(setUser(res.data?.data.userData));
+            if (res.data?.data.userPass) {
+              dispatch(setUserPass(res.data?.data.userPass));
+            }
+          }
         } catch (err) {
           console.error(`Error Occured : ${err}`);
         }

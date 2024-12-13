@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { ApiResponseType, UserData } from "@/utils/types";
+import { ApiResponseType, GetUserResponseType, UserData } from "@/utils/types";
 import { SERVER_BASE_URL } from "@/utils/constants";
 
 const userApis = createApi({
@@ -8,7 +8,7 @@ const userApis = createApi({
     baseUrl: `${SERVER_BASE_URL}/user`,
   }),
   endpoints: (builder) => ({
-    getUser: builder.query<ApiResponseType<UserData>, null>({
+    getUser: builder.query<ApiResponseType<GetUserResponseType>, null>({
       query: () => {
         return {
           url: "/getUser",

@@ -61,7 +61,17 @@ const getUser = asyncHandler(async (req, res) => {
         paused_tests: pausedTests.map((test) => test.quizId),
     };
 
-    res.json(new ApiResponse(200, userData, 'user data fetched successfully'));
+    const pass = await Subscription.findOne({ email: user.email });
+
+    const userPass = pass || undefined;
+
+    res.json(
+        new ApiResponse(
+            200,
+            { userData, userPass },
+            'user data fetched successfully'
+        )
+    );
 });
 
 const updateUserName = asyncHandler(async (req, res) => {

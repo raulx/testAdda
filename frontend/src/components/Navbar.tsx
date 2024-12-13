@@ -1,7 +1,7 @@
 import { ReactElement, useState } from "react";
 import { Button } from "./ui/button";
 import { MdQuiz } from "react-icons/md";
-import { RiLoginCircleFill } from "react-icons/ri";
+import { RiLoginCircleFill, RiPassValidLine } from "react-icons/ri";
 import { Link, useLocation } from "react-router-dom";
 import Headroom from "react-headroom";
 import {
@@ -91,6 +91,13 @@ const ProfileMenu = () => {
                 <FaChartLine className="text-xl" />
                 <span>Analysis</span>
               </DropdownMenuItem>
+              <Link to={"/user/pass"}>
+                <DropdownMenuItem className="flex gap-2">
+                  <RiPassValidLine className="text-xl" />
+                  <span>View Pass</span>
+                </DropdownMenuItem>
+              </Link>
+
               <DropdownMenuItem className="flex gap-2">
                 <FaEdit className="text-xl" />
                 <span>Edit Profile</span>
