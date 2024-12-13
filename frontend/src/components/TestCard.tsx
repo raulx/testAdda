@@ -35,13 +35,14 @@ import { PaymentResponseType } from "@/store/store";
 import { RiPassPendingFill } from "react-icons/ri";
 import PriceCard from "./PriceCard";
 import { MdDiamond } from "react-icons/md";
-import { BsLayersHalf } from "react-icons/bs";
+import { BsDropletHalf, BsRocketTakeoff } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
 
 Modal.setAppElement("#root");
 
 const priceCards: PriceCardType[] = [
   {
-    icon: <FaRocket />,
+    icon: <BsRocketTakeoff />,
     background: "#CAF7F0",
     foreground: "#5BBFAA",
     plan: "Monthly",
@@ -49,7 +50,7 @@ const priceCards: PriceCardType[] = [
     amount: 79,
   },
   {
-    icon: <BsLayersHalf />,
+    icon: <BsDropletHalf />,
     background: "#FCCECB",
     foreground: "#BD381C",
     plan: "Half Yearly",
@@ -118,7 +119,7 @@ const openTestInNewWindow = (title: string, _id: string) => {
 
 const TestCard = (props: TestData<string | TestQuestionsType>) => {
   const user = UseGetUserDataHook();
-
+  const navigate = useNavigate();
   const [getResult, { data, isLoading: fetchingResult }] =
     useGetResultMutation();
 
@@ -152,8 +153,7 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
     try {
       const res = await verifyAndSettlePayment({ ...response, amount });
       if (res.data) {
-        console.log(res.data);
-        window.location.reload();
+        navigate("/user/pass");
       }
     } catch (error) {
       console.log(error);
@@ -163,6 +163,7 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
   const handlePaymentInitiate = async (amount: number) => {
     try {
       const order = await createOrder(amount);
+
       if (order.data?.data.id) {
         const options: RazorpayOrderOptions = {
           key: "rzp_test_zyjprUgnuGfIch",
@@ -341,18 +342,19 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
       <Modal
         isOpen={subscriptionModel}
         onRequestClose={() => setSubscriptionModal(false)}
-        className="bg-white rounded-lg p-6 lg:w-auto lg:h-auto h-[300px]  w-2/3 mx-auto"
+        className="bg-white rounded-lg  lg:w-auto lg:h-auto h-[80%]  w-11/12 mx-auto lg:overflow-hidden overflow-y-scroll overflow-x-hidden scrollbar-thin"
         overlayClassName="fixed w-screen h-screen bg-black inset-0  bg-opacity-30 flex justify-center items-center"
       >
-        <div className="relative p-6 flex flex-col gap-4">
+        <div className="relative p-12 flex flex-col gap-4">
           <div className="max-w-fit mx-auto flex items-center gap-2 text-xl text-lightseagreen justify-center border-b border-gray-300 p-2">
             <span>Get Pass</span> <RiPassPendingFill className="text-4xl" />
           </div>
           <hr className="h-[1px] bg-gray-400 " />
-          <div className="flex gap-8 m-4 flex-wrap">
+          <div className="flex gap-8 m-4 flex-wrap justify-center">
             {priceCards.map((d) => {
               return (
                 <PriceCard
+                  key={d.plan}
                   amount={d.amount}
                   background={d.background}
                   foreground={d.foreground}
@@ -371,11 +373,15 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
           >
             <FaTimes />
           </button>
-          {creatingOrder && (
+          {creatingOrder || settlingPayment ? (
             <div className="absolute  h-full w-full left-0 top-0 flex justify-center items-center">
-              <FaSpinner className="animate-spin text-3xl " />
+              {/* <FaSpinner className="animate-spin text-3xl " /> */}
+              <div className="z-20 opacity-100 text-white text-2xl p-4 bg-lightseagreen flex flex-col gap-4 justify-center items-center rounded-full">
+                <FaSpinner className="animate-spin text-3xl text-white " />
+              </div>
+              <div className="h-full w-full bg-black opacity-10 absolute left-0 top-0 z-10" />
             </div>
-          )}
+          ) : null}
         </div>
       </Modal>
     </>

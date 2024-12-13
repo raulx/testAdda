@@ -1,6 +1,7 @@
 import { SERVER_BASE_URL } from "@/utils/constants";
 import { ApiResponseType } from "@/utils/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { pause } from "@/utils/helpers";
 
 type NewOrderType = {
   amount: number;
@@ -38,6 +39,8 @@ const ordersApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${SERVER_BASE_URL}/orders`,
     fetchFn: async (...args) => {
+      // remove in Production
+      await pause(2000);
       return fetch(...args);
     },
   }),

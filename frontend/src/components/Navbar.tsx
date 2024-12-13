@@ -158,7 +158,7 @@ const MobileNav = ({ currentPath }: { currentPath: string }) => {
 
   return (
     <>
-      <div className="w-screen z-10 cursor-pointer h-[56px] px-6 fixed bg-white border-b border-bordergray flex justify-between items-center">
+      <div className="w-screen z-20 cursor-pointer h-[56px] px-6 fixed bg-white border-b border-bordergray flex justify-between items-center">
         <div
           className=" text-darkcerulean text-xl"
           onClick={() => setIsOpen(true)}
@@ -189,7 +189,7 @@ const MobileNav = ({ currentPath }: { currentPath: string }) => {
           stiffness: 200,
           damping: 20,
         }}
-        className={`w-3/4 bg-white top-0 left-0 h-screen fixed  flex flex-col py-2 items-center  z-10`}
+        className={`w-3/4 bg-white top-0 left-0 h-screen fixed  flex flex-col py-2 items-center  z-20`}
       >
         <Logo medium isBordered />
         <hr className="w-full my-2" />
@@ -218,7 +218,7 @@ const MobileNav = ({ currentPath }: { currentPath: string }) => {
 
       {isOpen && (
         <div
-          className="w-screen h-screen fixed left-0 top-0 bg-black opacity-25"
+          className="w-screen h-screen fixed left-0 top-0 bg-black opacity-25 z-10"
           onClick={() => setIsOpen(false)}
         />
       )}

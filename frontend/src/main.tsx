@@ -8,6 +8,7 @@ import store from "./store/store.ts";
 import { Suspense, lazy } from "react";
 import ProtectedRoute from "./hooks/UseProtectRouteHook.tsx";
 import { RingCutLoader } from "./components/Loaders.tsx";
+// import { UserPageHome, UserPassPage } from "./pages/UserPage.tsx";
 
 //pages imports
 
@@ -36,6 +37,17 @@ const VerifyOtpAndLogin = lazy(() =>
 const HomePage = lazy(() => import("./pages/HomePage.tsx"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage.tsx"));
 const TestsPage = lazy(() => import("./pages/TestsPage.tsx"));
+const UserPage = lazy(() => import("./pages/UserPage.tsx"));
+const UserPageHome = lazy(() =>
+  import("./pages/UserPage.tsx").then((module) => ({
+    default: module.UserPageHome,
+  }))
+);
+const UserPassPage = lazy(() =>
+  import("./pages/UserPage.tsx").then((module) => ({
+    default: module.UserPassPage,
+  }))
+);
 
 const router = createBrowserRouter([
   {
@@ -73,6 +85,20 @@ const router = createBrowserRouter([
         children: [
           { path: "/tests", element: <TestsPage /> },
           { path: "/tests/solutions/:id", element: <SolutionsPage /> },
+        ],
+      },
+      {
+        path: "/user",
+        element: <ProtectedRoute />,
+        children: [
+          {
+            path: "/user",
+            element: <UserPage />,
+            children: [
+              { index: true, element: <UserPageHome /> },
+              { path: "/user/pass", element: <UserPassPage /> },
+            ],
+          },
         ],
       },
     ],
