@@ -61,8 +61,8 @@ type NewSubscriptionType = {
   email: string;
   payment_id: string;
   amount_paid: number;
-  expires_in: Date | string;
-  createdAt: Date | string;
+  expires_in: string;
+  createdAt: string;
 };
 
 interface UserPassType extends NewSubscriptionType {
@@ -70,6 +70,7 @@ interface UserPassType extends NewSubscriptionType {
   _v: number;
   updatedAt: string;
 }
+
 interface GetUserResponseType {
   userData: UserData;
   userPass: UserPassType;

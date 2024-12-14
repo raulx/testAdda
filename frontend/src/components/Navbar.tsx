@@ -14,8 +14,13 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Logo from "./Logo";
-import { useDispatch } from "react-redux";
-import { AppDispatch, logOutUser, useLogOutUserMutation } from "@/store/store";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  AppDispatch,
+  logOutUser,
+  RootState,
+  useLogOutUserMutation,
+} from "@/store/store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -37,6 +42,9 @@ const ProfileMenu = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   const user = UseGetUserDataHook();
+  const userPass = useSelector((store: RootState) => {
+    return store.userpass;
+  });
 
   const [logoutUser, { isLoading }] = useLogOutUserMutation();
 
@@ -91,12 +99,14 @@ const ProfileMenu = () => {
                 <FaChartLine className="text-xl" />
                 <span>Analysis</span>
               </DropdownMenuItem>
-              <Link to={"/user/pass"}>
-                <DropdownMenuItem className="flex gap-2">
-                  <RiPassValidLine className="text-xl" />
-                  <span>View Pass</span>
-                </DropdownMenuItem>
-              </Link>
+              {userPass.data?._id != "" && (
+                <Link to={"/user/pass"}>
+                  <DropdownMenuItem className="flex gap-2">
+                    <RiPassValidLine className="text-xl" />
+                    <span>View Pass</span>
+                  </DropdownMenuItem>
+                </Link>
+              )}
 
               <DropdownMenuItem className="flex gap-2">
                 <FaEdit className="text-xl" />

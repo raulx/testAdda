@@ -51,7 +51,7 @@ import { isFetchBaseQueryError } from "@/utils/helpers";
 import { ApiResponseType, UserData } from "@/utils/types";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import GoogleAuth from "@/components/GoogleAuth";
-import { UseDispatchHook } from "@/hooks/UseDispatchHook";
+import { UseAppDispatch } from "@/hooks/UseAppDispatch";
 
 //types
 const LoginFormSchema = z.object({
@@ -244,7 +244,7 @@ const LoginHome = () => {
 
 const SetUserName = () => {
   const [updateUserName, { isLoading }] = useUpdateUserNameMutation();
-  const dispatch = UseDispatchHook();
+  const dispatch = UseAppDispatch();
   const { navigate } = useOutletContext<SharedLoginPageContext>();
 
   const form = useForm<z.infer<typeof UserNameFormSchema>>({
@@ -327,7 +327,7 @@ const SetUserName = () => {
 const SetAvatar = () => {
   const [updateUserAvatar, { isLoading }] = useUpdateUserAvatarMutation();
   const { navigate } = useOutletContext<SharedLoginPageContext>();
-  const dispatch = UseDispatchHook();
+  const dispatch = UseAppDispatch();
   const location = useLocation();
   const navigateToAfterLogin = location.state?.from || "/";
 
@@ -406,7 +406,7 @@ const VerifyOtpAndLogin = () => {
   const { email, navigate } = useOutletContext<SharedLoginPageContext>();
   const [verifyEmailOtp, { isLoading }] = useVerifyEmailOtpMutation();
   const [time, setTime] = useState<number>(300);
-  const dispatch = UseDispatchHook();
+  const dispatch = UseAppDispatch();
   const form = useForm<z.infer<typeof OtpFormSchema>>({
     resolver: zodResolver(OtpFormSchema),
     defaultValues: {

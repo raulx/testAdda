@@ -1,11 +1,9 @@
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
 import "./App.css";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
-  AppDispatch,
   useLazyGetUserQuery,
   setUser,
   useRefreshLoginMutation,
@@ -13,16 +11,17 @@ import {
   setUserPass,
 } from "./store/store";
 import { isFetchBaseQueryError } from "./utils/helpers";
-
 import RingLoader from "./components/RingLoader";
+import { UseAppDispatch } from "./hooks/UseAppDispatch";
 
 function App() {
   const isLoggedIn = localStorage.getItem("auth");
   const refreshAvailable = localStorage.getItem("refresh");
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = UseAppDispatch();
   const [fetchUserData, { isLoading }] = useLazyGetUserQuery();
   const [refreshLogin] = useRefreshLoginMutation();
+  const { pathname } = useLocation();
 
   useEffect(() => {
     // load the user if user session is active and accessToken is available
@@ -83,6 +82,11 @@ function App() {
     refreshLogin,
     navigate,
   ]);
+
+  // scroll the window to top when any new page is opened
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <>

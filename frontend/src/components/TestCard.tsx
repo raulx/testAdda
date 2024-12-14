@@ -36,7 +36,6 @@ import { RiPassPendingFill } from "react-icons/ri";
 import PriceCard from "./PriceCard";
 import { MdDiamond } from "react-icons/md";
 import { BsDropletHalf, BsRocketTakeoff } from "react-icons/bs";
-import { useNavigate } from "react-router-dom";
 
 Modal.setAppElement("#root");
 
@@ -119,7 +118,7 @@ const openTestInNewWindow = (title: string, _id: string) => {
 
 const TestCard = (props: TestData<string | TestQuestionsType>) => {
   const user = UseGetUserDataHook();
-  const navigate = useNavigate();
+
   const [getResult, { data, isLoading: fetchingResult }] =
     useGetResultMutation();
 
@@ -153,7 +152,7 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
     try {
       const res = await verifyAndSettlePayment({ ...response, amount });
       if (res.data) {
-        navigate("/user/pass");
+        window.location.reload();
       }
     } catch (error) {
       console.log(error);

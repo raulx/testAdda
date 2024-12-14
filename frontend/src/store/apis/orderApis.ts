@@ -1,8 +1,7 @@
 import { SERVER_BASE_URL } from "@/utils/constants";
-import { ApiResponseType } from "@/utils/types";
+import { ApiResponseType, UserPassType } from "@/utils/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { NewSubscriptionType } from "@/utils/types";
-import { pause } from "@/utils/helpers";
+// import { pause } from "@/utils/helpers";
 
 type NewOrderType = {
   amount: number;
@@ -34,7 +33,7 @@ const ordersApi = createApi({
     baseUrl: `${SERVER_BASE_URL}/orders`,
     fetchFn: async (...args) => {
       // remove in Production
-      await pause(2000);
+      // await pause(2000);
       return fetch(...args);
     },
   }),
@@ -50,7 +49,7 @@ const ordersApi = createApi({
     }),
 
     verifyAndSettlePayment: builder.mutation<
-      ApiResponseType<NewSubscriptionType>,
+      ApiResponseType<UserPassType>,
       NewPaymentSettleMentType
     >({
       query: (data) => {

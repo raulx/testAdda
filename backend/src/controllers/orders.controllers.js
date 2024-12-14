@@ -52,17 +52,7 @@ const settlePayment = asyncHandler(async (req, res) => {
     });
 
     res.status(200).json(
-        new ApiResponse(
-            200,
-            {
-                email: newSubscription.email,
-                payment_id: newSubscription.payment_id,
-                amount_paid: newSubscription.amount_paid,
-                expires_in: newSubscription.expires_in,
-                createdAt: newSubscription.createdAt,
-            },
-            'Payment setteled successfully'
-        )
+        new ApiResponse(200, newSubscription, 'Payment settled successfully')
     );
 });
 

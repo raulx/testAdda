@@ -1,6 +1,6 @@
 import { AppDispatch } from "@/store/store";
 import { useDispatch } from "react-redux";
 
-export const UseDispatchHook = () => {
+export const UseAppDispatch = () => {
   return useDispatch<AppDispatch>();
 };
