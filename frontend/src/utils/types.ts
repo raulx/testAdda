@@ -69,6 +69,7 @@ interface UserPassType extends NewSubscriptionType {
   _id: string;
   _v: number;
   updatedAt: string;
+  validity_type: string;
 }
 
 interface GetUserResponseType {

@@ -10,6 +10,7 @@ const subscriptionSchema = new Schema(
             required: true,
             unique: true,
         },
+        validity_type: { type: String },
         payment_id: { type: String, required: true },
         amount_paid: { type: Number, required: true },
         expires_in: { type: Date },
@@ -27,16 +28,21 @@ subscriptionSchema.pre('save', async function (next) {
         expiryDate.setDate(
             today.getDate() + availableSubscriptions.monthly.duration
         );
+        this.validity_type = 'monthly';
     }
     // halfYearly subscription
     else if (amountPaid === availableSubscriptions.halfYearly.price) {
         expiryDate.setDate(
             today.getDate() + availableSubscriptions.halfYearly.duration
-        ); // full year subscription
-    } else if (amountPaid === availableSubscriptions.yearly.price) {
+        );
+        this.validity_type = 'half yearly';
+    }
+    // full year subscription
+    else if (amountPaid === availableSubscriptions.yearly.price) {
         expiryDate.setDate(
             today.getDate() + availableSubscriptions.yearly.price
-        ); // 12 months subscription if amount is greater than Rs550
+        );
+        this.validity_type = 'yearly';
     } else {
         throw new ApiError(
             400,

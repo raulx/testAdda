@@ -45,6 +45,13 @@ const settlePayment = asyncHandler(async (req, res) => {
 
     const { email } = req.user;
 
+    const passExists = await Subscription.findOne({ email });
+
+    // if old pass exists then remove the old pass and create a new pass
+    if (passExists) {
+        await Subscription.deleteOne({ email });
+    }
+
     const newSubscription = await Subscription.create({
         email,
         payment_id: razorpay_payment_id,

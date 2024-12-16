@@ -10,6 +10,7 @@ const initialState: { data: UserPassType } = {
     payment_id: "",
     amount_paid: 0,
     expires_in: "",
+    validity_type: "",
     createdAt: "",
   },
 };

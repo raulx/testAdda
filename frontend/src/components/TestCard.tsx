@@ -151,6 +151,7 @@ const TestCard = (props: TestData<string | TestQuestionsType>) => {
   ) => {
     try {
       const res = await verifyAndSettlePayment({ ...response, amount });
+      console.log(res);
       if (res.data) {
         window.location.reload();
       }
