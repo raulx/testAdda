@@ -11,9 +11,8 @@ export type QuestionData = {
   explaination: string;
   options: { a: string; b: string; c: string; d: string };
   question: string;
-  exam:string;
+  exam: string;
 
-  
   subject: string;
   topic: string;
   quiz_id: string | null | undefined;
@@ -43,8 +42,14 @@ const questionApis = createApi({
       return fetch(...args);
     },
   }),
+
+  tagTypes: ["GetAllQuestions"],
+
   endpoints: (builder) => ({
     addQuestion: builder.mutation<ApiResponse<QuestionData>, QuestionDataSend>({
+      invalidatesTags: () => {
+        return [{ type: "GetAllQuestions" }];
+      },
       query: (data) => {
         return {
           url: "/add",
@@ -54,6 +59,9 @@ const questionApis = createApi({
       },
     }),
     getAllQuestion: builder.query<ApiResponse<AllQuestion>, null>({
+      providesTags: () => {
+        return [{ type: "GetAllQuestions" }];
+      },
       query: () => {
         return {
           url: "/getAllQuestions",

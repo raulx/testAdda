@@ -24,17 +24,17 @@ import { RadioGroup } from "@radix-ui/react-radio-group";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import { HiOutlineDocumentAdd } from "react-icons/hi";
 import { FaEye, FaPlus, FaTimes, FaTrash } from "react-icons/fa";
-import { useSelector } from "react-redux";
+
 import {
   AllQuestion,
   QuestionData,
   TestDataResponseType,
-  RootState,
   useAddTestMutation,
   useDeleteTestMutation,
   useGetTestsQuery,
   useLazyGetAllQuestionQuery,
 } from "@/store/store";
+
 import { ChangeEvent, useEffect, useState } from "react";
 import { getLocalDate } from "@/utils/helpers";
 import { ImCheckmark, ImSpinner9 } from "react-icons/im";
@@ -42,7 +42,6 @@ import Modal from "react-modal";
 import { toast, useToast } from "@/hooks/use-toast";
 import ApiResponse from "@/utils/types";
 import { isFetchBaseQueryError } from "@/utils/helpers";
-import { setQuestions } from "@/store/store";
 import { UseAppDispatch } from "@/hooks/useAppDispatch";
 
 Modal.setAppElement("#root");
@@ -272,18 +271,14 @@ const QuizScreenHome = () => {
     </>
   );
 };
-const AddNewQuizScreen = () => {
-  const questions = useSelector((store: RootState) => {
-    return store.questions.data;
-  }).filter((d) => !d.quiz_id);
 
-  const [getAllQuestions, { isLoading: isGettingQuestions }] =
+const AddNewQuizScreen = () => {
+  const [getAllQuestions, { isFetching: isGettingQuestions, data: questions }] =
     useLazyGetAllQuestionQuery();
 
   const dispatch = UseAppDispatch();
 
-  const [availableQuestions, setAvalableQuestions] =
-    useState<AllQuestion>(questions);
+  const [availableQuestions, setAvalableQuestions] = useState<AllQuestion>([]);
 
   const [addQuiz, { isLoading }] = useAddTestMutation();
 
@@ -370,10 +365,12 @@ const AddNewQuizScreen = () => {
   }
 
   const handleSearchByExam = (e: ChangeEvent<HTMLInputElement>) => {
-    const filteredByExamQuestions = questions.filter((ques) =>
-      ques.exam.includes(e.target.value)
-    );
-    setAvalableQuestions(filteredByExamQuestions);
+    if (questions) {
+      const filteredByExamQuestions = questions.data.filter((ques) =>
+        ques.exam.includes(e.target.value)
+      );
+      setAvalableQuestions(filteredByExamQuestions);
+    }
   };
 
   const openViewQuestionModel = (ques: QuestionData) => {
@@ -386,7 +383,6 @@ const AddNewQuizScreen = () => {
       try {
         const res = await getAllQuestions(null);
         if (res.data) {
-          dispatch(setQuestions(res.data?.data));
           const newAvailableQuestions = res.data?.data.filter(
             (ques) => !ques.quiz_id
           );
@@ -396,8 +392,8 @@ const AddNewQuizScreen = () => {
         console.log(error);
       }
     };
-    if (questions[0]?._id === "") fetchAllQuestion();
-  }, [questions, dispatch, getAllQuestions]);
+    fetchAllQuestion();
+  }, [dispatch, getAllQuestions]);
   return (
     <>
       <div className="flex flex-col gap-4 bg-[#F6F3F3] m-4 rounded-xl px-4 py-8">

@@ -20,10 +20,9 @@ import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { HiOutlineDocumentAdd } from "react-icons/hi";
 import {
-  addNewQuestion,
-  dropQuestion,
-  RootState,
-  setQuestions,
+  // addNewQuestion,
+  AllQuestion,
+  // dropQuestion,
   useAddQuestionMutation,
   useLazyGetAllQuestionQuery,
   useLazyQuestionSearchQuery,
@@ -47,7 +46,6 @@ import { FaArrowDown, FaSpinner, FaTrash } from "react-icons/fa";
 import { ImSpinner9 } from "react-icons/im";
 import { FaRegFaceDizzy } from "react-icons/fa6";
 import { UseAppDispatch } from "@/hooks/useAppDispatch";
-import { useSelector } from "react-redux";
 
 const questionSchema = z.object({
   question: z.string().min(2, {
@@ -74,20 +72,24 @@ const questionSchema = z.object({
 const DeleteButton = ({
   _id,
   setQuestionNumber,
+  setQuestions,
 }: {
   _id: string;
   setQuestionNumber: React.Dispatch<SetStateAction<number>>;
+  setQuestions: React.Dispatch<SetStateAction<AllQuestion>>;
 }) => {
   const { toast } = useToast();
   const [removeQuestion, { isLoading: isDeleting }] =
     useRemoveQuestionMutation();
 
-  const dispatch = UseAppDispatch();
   const handleDeleteQuestion = async () => {
     try {
       const res = await removeQuestion({ _id });
       if (res.data) {
-        dispatch(dropQuestion(res.data?.data._id));
+        // remove question from state
+        setQuestions((prevValue) => {
+          return [...prevValue].filter((q) => q._id != _id);
+        });
         setQuestionNumber((prevValue) => {
           if (prevValue === 0) return 0;
           else return (prevValue -= 1);
@@ -122,7 +124,7 @@ const DeleteButton = ({
 };
 
 const QuestionsDisplay = () => {
-  const [getAllQuestions, { isLoading: isFetching }] =
+  const [getAllQuestions, { isFetching: fetchingAllQuestions }] =
     useLazyGetAllQuestionQuery();
 
   const [value, setValue] = useState("all");
@@ -133,22 +135,35 @@ const QuestionsDisplay = () => {
 
   const [questionNumber, setQuestionNumber] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(1);
-
-  const questions = useSelector((store: RootState) => {
-    return store.questions;
-  });
+  const [questions, setQuestions] = useState<AllQuestion>([
+    {
+      avg_solving_time: "",
+      correct_option: "",
+      createdAt: "",
+      difficulty: "",
+      explaination: "",
+      options: { a: "", b: "", c: "", d: "" },
+      question: "",
+      subject: "",
+      topic: "",
+      quiz_id: "",
+      exam: "",
+      updatedAt: "",
+      _id: "",
+      __v: 0,
+    },
+  ]);
 
   const [questionSearch, { isFetching: isQuestionSearching }] =
     useLazyQuestionSearchQuery();
 
-  const noQuestion =
-    questions?.data[0]?.question === "" || questions?.data?.length === 0;
+  const noQuestion = questions[0]?.question === "" || questions?.length === 0;
 
   const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
     try {
       const res = await questionSearch(e.target.value);
       if (res.data) {
-        dispatch(setQuestions(res.data?.data));
+        setQuestions(res.data?.data);
         return;
       }
       if (res.error && isFetchBaseQueryError(res.error)) {
@@ -179,7 +194,7 @@ const QuestionsDisplay = () => {
       try {
         const res = await getAllQuestions(null);
         if (res.data) {
-          dispatch(setQuestions(res.data?.data));
+          setQuestions(res.data?.data);
         }
       } catch (error) {
         console.log(error);
@@ -188,14 +203,14 @@ const QuestionsDisplay = () => {
     fetchAllQuestion();
   }, [dispatch, getAllQuestions]);
 
-  const data = questions.data.filter((q) => {
+  const data = questions.filter((q) => {
     if (value === "all") return q;
     else return q.subject === value;
   });
 
   return (
     <>
-      {isFetching ? (
+      {fetchingAllQuestions ? (
         <div className="w-[60%] h-[600px] flex justify-center items-center">
           <ImSpinner9 className="animate-spin text-3xl text-lightseagreen" />
         </div>
@@ -212,14 +227,14 @@ const QuestionsDisplay = () => {
             </div>
           ) : (
             <div className="p-6 text-sm border min-h-56 rounded-xl shadow-custom-2 border-gray-300 flex flex-col gap-4 bg-white">
-              <h1>Q) {questions.data[questionNumber]?.question}</h1>
+              <h1>Q) {questions[questionNumber]?.question}</h1>
               <div className="flex gap-4 ">
-                <div>a) {questions.data[questionNumber]?.options.a}</div>
-                <div>b) {questions.data[questionNumber]?.options.b}</div>
+                <div>a) {questions[questionNumber]?.options.a}</div>
+                <div>b) {questions[questionNumber]?.options.b}</div>
               </div>
               <div className="flex gap-4">
-                <div>c) {questions.data[questionNumber]?.options.c}</div>
-                <div>d) {questions.data[questionNumber]?.options.d}</div>
+                <div>c) {questions[questionNumber]?.options.c}</div>
+                <div>d) {questions[questionNumber]?.options.d}</div>
               </div>
             </div>
           )}
@@ -315,6 +330,7 @@ const QuestionsDisplay = () => {
                                 <DeleteButton
                                   _id={d?._id}
                                   setQuestionNumber={setQuestionNumber}
+                                  setQuestions={setQuestions}
                                 />
                               </TableCell>
                             </TableRow>
@@ -335,7 +351,6 @@ const QuestionsDisplay = () => {
 const QuestionScreenMain = () => {
   const [addQuestion, { isLoading }] = useAddQuestionMutation();
 
-  const dispatch = UseAppDispatch();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof questionSchema>>({
@@ -356,9 +371,8 @@ const QuestionScreenMain = () => {
     try {
       const res = await addQuestion(values);
       if (res.data) {
-        dispatch(addNewQuestion(res.data.data));
-
         form.reset();
+        window.location.reload();
 
         return toast({ title: "Question Added Successfully" });
       }
