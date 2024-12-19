@@ -5,8 +5,6 @@ const questionSchema = new Schema(
         question: {
             type: String,
             required: true,
-            unique: true,
-            lowercase: true,
         },
 
         topic: { type: String, required: true, lowercase: true },
@@ -14,10 +12,10 @@ const questionSchema = new Schema(
         subject: {
             type: String,
             required: true,
-            enum: ['mathematics', 'reasoning', 'english'],
         },
 
         exam: { type: String, required: true },
+
         difficulty: {
             type: String,
             required: true,

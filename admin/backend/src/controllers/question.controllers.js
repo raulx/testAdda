@@ -30,11 +30,6 @@ const addQuestion = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'All fields are required !');
     }
 
-    const questionExists = await Question.findOne({ question: question });
-
-    if (questionExists)
-        throw new ApiError(409, 'This question already exists !');
-
     const newQuestion = await Question.create({
         question: question,
         topic: topic,
@@ -89,4 +84,5 @@ const questionSearch = asyncHandler(async (req, res) => {
     }
     res.json(new ApiResponse(200, foundQuestion, 'questions present by query'));
 });
+
 export { addQuestion, getAllQuestions, removeQuestion, questionSearch };

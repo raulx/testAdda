@@ -23,7 +23,7 @@ interface UserLoginResponseType {
 interface TestQuestionsType {
   options: { a: string; b: string; c: string; d: string };
   question: string;
-  subject: "english" | "mathematics" | "reasoning";
+  subject: string;
   _id: string | any;
 }
 

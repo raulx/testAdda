@@ -30,10 +30,10 @@ const addQuestion = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'All fields are required !');
     }
 
-    const questionExists = await Question.findOne({ question: question });
+    // const questionExists = await Question.findOne({ question: question });
 
-    if (questionExists)
-        throw new ApiError(409, 'This question already exists !');
+    // if (questionExists)
+    //     throw new ApiError(409, 'This question already exists !');
 
     const newQuestion = await Question.create({
         question: question,

@@ -63,7 +63,7 @@ const questionSchema = z.object({
   difficulty: z.string().min(2, { message: "Select a  Difficulty" }),
   exam: z.string().min(2, { message: "Enter exam that question appeared for" }),
   correct_option: z.string().min(1, { message: "Select Correct Option" }),
-  subject: z.string().min(2, { message: "Select Subject" }),
+  subject: z.string().min(2, { message: "Enter Subject" }),
   explaination: z.string().min(2, {
     message: "explaination must be at least 3 characters",
   }),
@@ -127,7 +127,7 @@ const QuestionsDisplay = () => {
   const [getAllQuestions, { isFetching: fetchingAllQuestions }] =
     useLazyGetAllQuestionQuery();
 
-  const [value, setValue] = useState("all");
+  const [value, setValue] = useState("");
 
   const { toast } = useToast();
 
@@ -204,8 +204,7 @@ const QuestionsDisplay = () => {
   }, [dispatch, getAllQuestions]);
 
   const data = questions.filter((q) => {
-    if (value === "all") return q;
-    else return q.subject === value;
+    return q.subject.includes(value.toLowerCase());
   });
 
   return (
@@ -242,28 +241,22 @@ const QuestionsDisplay = () => {
           <div className="p-6 text-sm border rounded-xl border-gray-300 bg-white shadow-custom-2">
             <div className="flex gap-4">
               <div className="grow flex flex-col gap-2">
-                <Label htmlFor="question input">Search By Question</Label>
+                <Label htmlFor="question-input">Search By Question</Label>
                 <div className="flex gap-2 grow">
                   <Input
-                    id="question input"
+                    id="question-input"
                     placeholder="Enter Question"
                     onChange={(e) => handleChange(e)}
                   />
                 </div>
               </div>
               <div className="min-w-48 flex flex-col gap-2">
-                <Label>Select Subject</Label>
-                <Select value={value} onValueChange={setValue}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="english">English</SelectItem>
-                    <SelectItem value="reasoning">Reasoning</SelectItem>
-                    <SelectItem value="mathematics">Mathematics</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="subject-input">Search By Subject</Label>
+                <Input
+                  id="subject-input"
+                  placeholder="Search By Subject"
+                  onChange={(e) => setValue(e.target.value)}
+                />
               </div>
             </div>
             <hr className="h-[2px] bg-gray-300 my-4" />
@@ -412,7 +405,7 @@ const QuestionScreenMain = () => {
                   <FormItem>
                     <FormLabel>Question</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} placeholder="Enter Question" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -505,7 +498,7 @@ const QuestionScreenMain = () => {
                   <FormItem>
                     <FormLabel>Topic</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} placeholder="Enter Topic" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -517,25 +510,14 @@ const QuestionScreenMain = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Subject</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Subject" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="mathematics">Mathematics</SelectItem>
-                        <SelectItem value="english">English</SelectItem>
-                        <SelectItem value="reasoning">Reasoning</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter Subject" />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="exam"
@@ -543,7 +525,7 @@ const QuestionScreenMain = () => {
                   <FormItem>
                     <FormLabel>Exam</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} placeholder="Enter Exam" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -581,7 +563,7 @@ const QuestionScreenMain = () => {
                   <FormItem>
                     <FormLabel>Explaination</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Explaination..." {...field} />
+                      <Textarea placeholder="Enter Explaination" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
