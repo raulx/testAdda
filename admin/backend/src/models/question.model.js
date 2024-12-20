@@ -32,7 +32,6 @@ const questionSchema = new Schema(
             c: { type: String, required: true },
             d: { type: String, required: true },
         },
-
         explaination: { type: String, required: true },
 
         quiz_id: {

@@ -20,9 +20,7 @@ import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { HiOutlineDocumentAdd } from "react-icons/hi";
 import {
-  // addNewQuestion,
   AllQuestion,
-  // dropQuestion,
   useAddQuestionMutation,
   useLazyGetAllQuestionQuery,
   useLazyQuestionSearchQuery,
@@ -403,14 +401,15 @@ const QuestionScreenMain = () => {
                 name="question"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Question</FormLabel>
+                    <FormLabel>Question Text</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter Question" />
+                      <Input {...field} placeholder="Enter Question Text" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <div className="flex flex-col gap-2">
                 <FormLabel>Options</FormLabel>
                 <div className="flex gap-4 flex-wrap">
