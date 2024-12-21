@@ -58,6 +58,8 @@ const questionSchema = z.object({
   topic: z.string().min(2, {
     message: "Topic must be at least 2 characters",
   }),
+  question_figure: z.any(),
+
   difficulty: z.string().min(2, { message: "Select a  Difficulty" }),
   exam: z.string().min(2, { message: "Enter exam that question appeared for" }),
   correct_option: z.string().min(1, { message: "Select Correct Option" }),
@@ -409,7 +411,24 @@ const QuestionScreenMain = () => {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="question_figure"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>Choose Question Figure, if any</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Select Question figure,if any"
+                        {...form.register("question_figure")}
+                        type="file"
+                      />
+                    </FormControl>
 
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <div className="flex flex-col gap-2">
                 <FormLabel>Options</FormLabel>
                 <div className="flex gap-4 flex-wrap">

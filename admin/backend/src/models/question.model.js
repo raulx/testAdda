@@ -2,12 +2,17 @@ import mongoose, { Schema } from 'mongoose';
 
 const questionSchema = new Schema(
     {
-        question: {
-            type: String,
-            required: true,
-        },
+        question_text: { type: String, required: true },
+
+        question_figure: { type: String },
 
         topic: { type: String, required: true, lowercase: true },
+
+        options_type: {
+            type: String,
+            required: true,
+            enum: ['text', 'figure'],
+        },
 
         subject: {
             type: String,
